@@ -10,6 +10,8 @@ public class LineDrawing : MonoBehaviour
     public LineRenderer currentLineRenderer;
     private List<Vector3> points;
 
+    public int index = 0;
+
     void Start()
     {
         points = new List<Vector3>();
@@ -45,8 +47,15 @@ public class LineDrawing : MonoBehaviour
         currentLineRenderer.useWorldSpace = true;
         //ƒ}ƒeƒŠƒAƒ‹‚Ìİ’è
         currentLineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        currentLineRenderer.startColor = Color.red;
-        currentLineRenderer.endColor = Color.red;
+        if (index == 0)
+        {
+            currentLineRenderer.startColor = Color.red;
+            currentLineRenderer.endColor = Color.red;
+        } else
+        {
+            currentLineRenderer.startColor = Color.yellow;
+            currentLineRenderer.endColor = Color.yellow;
+        }
         points.Clear();
     }
 }

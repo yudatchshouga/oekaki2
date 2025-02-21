@@ -6,7 +6,6 @@ public class YellowButton : MonoBehaviour
 
     public void onClick() 
     {
-        lineDrawing.currentLineRenderer.startColor = Color.yellow;
-        lineDrawing.currentLineRenderer.endColor = Color.yellow;
+        lineDrawing.index = 1;
     }
 }
