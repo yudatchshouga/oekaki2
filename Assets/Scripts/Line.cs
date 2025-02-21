@@ -9,7 +9,7 @@ public class LineDrawing : MonoBehaviour
     public float lineWidth = 0.1f;
     public Slider penWidthSlider;
 
-    public LineRenderer currentLineRenderer;
+    private LineRenderer currentLineRenderer;
     private List<Vector3> points;
 
     public int index = 0;
