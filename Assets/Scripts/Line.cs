@@ -14,6 +14,9 @@ public class LineDrawing : MonoBehaviour
 
     public int index = 0;
 
+    // 描画順をインクリメントするためのカウンター
+    private int sortingOrderCounter = 0;
+
     void Start()
     {
         points = new List<Vector3>();
@@ -62,6 +65,10 @@ public class LineDrawing : MonoBehaviour
             currentLineRenderer.endColor = Color.yellow;
         }
         points.Clear();
+
+        // === 修正点: Sorting Order のみで順序を制御 ===
+        sortingOrderCounter++;
+        currentLineRenderer.sortingOrder = sortingOrderCounter;
     }
 
     // スライダーの値が変更された時に呼ばれる
