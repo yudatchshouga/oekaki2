@@ -1,20 +1,24 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class LineDrawing : MonoBehaviour
 {
     public Camera cam;
     public GameObject linePrefab;
-    public float lineWidth = 0.1f;
-
+    //public float lineWidth = 0.1f;
+    
     public LineRenderer currentLineRenderer;
     private List<Vector3> points;
 
     public int index = 0;
 
+    //public Slider penWidthSlider;
+
     void Start()
     {
         points = new List<Vector3>();
+        //penWidthSlider.onValueChanged.AddListener(OnPenWidthChanged);
     }
 
     void Update()
@@ -42,9 +46,12 @@ public class LineDrawing : MonoBehaviour
     {
         GameObject lineObject = Instantiate(linePrefab);
         currentLineRenderer = lineObject.GetComponent<LineRenderer>();
+        //float lineWidth = penWidthSlider.value;
+        float lineWidth = 0.1f;
         currentLineRenderer.startWidth = lineWidth;
         currentLineRenderer.endWidth = lineWidth;
         currentLineRenderer.useWorldSpace = true;
+
         //マテリアルの設定
         currentLineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         if (index == 0)
@@ -56,6 +63,18 @@ public class LineDrawing : MonoBehaviour
             currentLineRenderer.startColor = Color.yellow;
             currentLineRenderer.endColor = Color.yellow;
         }
+
+        
         points.Clear();
+    }
+
+    // スライダーの値が変更された時に呼ばれる
+    void OnPenWidthChanged(float value)
+    {
+        if (currentLineRenderer != null)
+        {
+            currentLineRenderer.startWidth = value;
+            currentLineRenderer.endWidth = value;
+        }
     }
 }
