@@ -4,21 +4,13 @@ using UnityEngine.EventSystems;
 
 public class ClickChecker : MonoBehaviour
 {
-    public GameObject panel; // Panel の参照を Inspector で設定
+    //public GameObject panel;
+    public GameObject left;
+    public GameObject right;
+    public GameObject top;
+    public GameObject bottom;
 
-    //void Update()
-    //{
-    //    // マウスの左クリックを判定
-    //    if (Input.GetMouseButtonDown(0))
-    //    {
-    //        // Panel の外側をクリックしたかを判定
-    //        bool isOutsidePanel = IsClickedOutsidePanel();
-    //        Debug.Log("Clicked Outside Panel: " + isOutsidePanel);
-    //    }
-    //}
-
-    // === 修正点: Panel の外側をクリックしたかを判定するメソッド ===
-    public bool IsClickedOutsidePanel()
+    public bool IsClickedFrame()
     {
         // Raycast の結果を保持するリスト
         PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
@@ -29,17 +21,13 @@ public class ClickChecker : MonoBehaviour
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerEventData, raycastResults);
 
-        // Raycast の結果に Panel が含まれているかを確認
         foreach (RaycastResult result in raycastResults)
         {
-            if (result.gameObject == panel || result.gameObject.transform.IsChildOf(panel.transform))
+            if (result.gameObject == left || result.gameObject == right || result.gameObject == top || result.gameObject == bottom)
             {
-                // Panel またはその子オブジェクトがクリックされた場合
-                return false;
+                return true;
             }
         }
-
-        // Panel の外側がクリックされた場合
-        return true;
+        return false;
     }
 }
