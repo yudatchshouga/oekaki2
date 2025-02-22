@@ -12,25 +12,46 @@ public class LineDrawing : MonoBehaviour
     private LineRenderer currentLineRenderer;
     private List<Vector3> points;
 
+    // 描いた線の履歴を保持するリスト
+    private List<GameObject> lineHistory;
+    // Redo 用に保持するリスト
+    private List<GameObject> redoHistory;
+
     public int index = 0;
 
     // 描画順をインクリメントするためのカウンター
     private int sortingOrderCounter = 0;
 
+    public ClickChecker clickChecker;
+
     void Start()
     {
         points = new List<Vector3>();
         penWidthSlider.onValueChanged.AddListener(OnPenWidthChanged);
+        lineHistory = new List<GameObject>();
+        redoHistory = new List<GameObject>();
     }
+
+    
 
     void Update()
     {
+        bool isOutside = clickChecker.IsClickedOutsidePanel();
+        // マウスの左クリック時
         if (Input.GetMouseButtonDown(0))
         {
-            CreateNewLine();
+            //isOutside = clickChecker.IsClickedOutsidePanel();
+            Debug.Log("LineManager 側: Panel の外側をクリックしたか: " + isOutside);
+            if (isOutside)
+            {
+                CreateNewLine();
+                Debug.Log("CreateNewLine");
+            }
+            //CreateNewLine();
         }
 
-        if (Input.GetMouseButton(0))
+        // マウスの左クリックを押している間
+        if (Input.GetMouseButton(0) && isOutside)
         {
             Vector3 mousePosition = cam.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0;
@@ -66,6 +87,11 @@ public class LineDrawing : MonoBehaviour
         }
         points.Clear();
 
+        // 描いた線を履歴に追加
+        lineHistory.Add(lineObject);
+        // Redo 用の履歴をクリア
+        redoHistory.Clear();
+
         // === 修正点: Sorting Order のみで順序を制御 ===
         sortingOrderCounter++;
         currentLineRenderer.sortingOrder = sortingOrderCounter;
@@ -78,6 +104,43 @@ public class LineDrawing : MonoBehaviour
         {
             currentLineRenderer.startWidth = value;
             currentLineRenderer.endWidth = value;
+        }
+    }
+
+    // ==== 一つ戻る（Undo） ====
+    public void UndoLastLine()
+    {
+        //Debug.Log("UndoLastLine");
+        if (lineHistory.Count > 0)
+        {
+            //Debug.Log("lineHistory.Count > 0");
+            Debug.Log(lineHistory.Count);
+            // 履歴の最後の線を取得
+            GameObject lastLine = lineHistory[lineHistory.Count - 1];
+
+            // 非表示にして Redo 用に保持
+            lastLine.SetActive(false);
+            redoHistory.Add(lastLine);
+
+            // 履歴から削除
+            lineHistory.RemoveAt(lineHistory.Count - 1);
+        }
+    }
+
+    // ==== 一つ進める（Redo） ====
+    public void RedoLastLine()
+    {
+        if (redoHistory.Count > 0)
+        {
+            // Redo リストの最後のオブジェクトを取得
+            GameObject lastRedoLine = redoHistory[redoHistory.Count - 1];
+
+            // 再表示して LineHistory に戻す
+            lastRedoLine.SetActive(true);
+            lineHistory.Add(lastRedoLine);
+
+            // Redo リストから削除
+            redoHistory.RemoveAt(redoHistory.Count - 1);
         }
     }
 }
