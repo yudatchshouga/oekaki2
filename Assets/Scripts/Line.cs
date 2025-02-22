@@ -32,17 +32,16 @@ public class LineDrawing : MonoBehaviour
         redoHistory = new List<GameObject>();
     }
 
-    
+    bool isClickedFrame = false;
 
     void Update()
     {
-        bool isOutside = clickChecker.IsClickedOutsidePanel();
         // マウスの左クリック時
         if (Input.GetMouseButtonDown(0))
         {
-            //isOutside = clickChecker.IsClickedOutsidePanel();
-            Debug.Log("LineManager 側: Panel の外側をクリックしたか: " + isOutside);
-            if (isOutside)
+            isClickedFrame = clickChecker.IsClickedFrame();
+            Debug.Log("isClickedFrame: " + isClickedFrame);
+            if (!isClickedFrame)
             {
                 CreateNewLine();
                 Debug.Log("CreateNewLine");
@@ -51,7 +50,7 @@ public class LineDrawing : MonoBehaviour
         }
 
         // マウスの左クリックを押している間
-        if (Input.GetMouseButton(0) && isOutside)
+        if (Input.GetMouseButton(0) && !isClickedFrame)
         {
             Vector3 mousePosition = cam.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0;
