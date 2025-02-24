@@ -14,6 +14,21 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         Debug.Log("Photon に接続成功！");
+        Debug.Log("ランダムルームに参加します。");
+        PhotonNetwork.JoinRandomRoom();
+    }
+
+    // === ランダムルームが存在しない場合、新しいルームを作成 ===
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.Log("ランダムルームが存在しないため、新しいルームを作成します。");
+        PhotonNetwork.CreateRoom(null);
+    }
+
+    // === ルームに参加したときのコールバック ===
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("ルームに参加しました。");
     }
 
     // === 接続失敗時に呼ばれるコールバック ===
