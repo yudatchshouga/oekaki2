@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class LineDrawing : MonoBehaviour
 {
@@ -66,7 +67,7 @@ public class LineDrawing : MonoBehaviour
 
     void CreateNewLine()
     {
-        GameObject lineObject = Instantiate(linePrefab);
+        GameObject lineObject = PhotonNetwork.Instantiate(linePrefab.name, Vector3.zero, Quaternion.identity);
         currentLineRenderer = lineObject.GetComponent<LineRenderer>();
 
         float lineWidth = penWidthSlider.value;

@@ -31,6 +31,16 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("ルームに参加しました。");
     }
 
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log("新しいプレイヤーが参加しました。");
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Debug.Log("プレイヤーが退出しました。");
+    }
+
     // === 接続失敗時に呼ばれるコールバック ===
     public override void OnDisconnected(DisconnectCause cause)
     {
