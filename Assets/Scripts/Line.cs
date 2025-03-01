@@ -81,7 +81,7 @@ public class LineDrawing : MonoBehaviourPunCallbacks
             {
                 Debug.Log("points is null");
             }
-            linePhotonView.RPC("SyncLineData", RpcTarget.Others, points.ToArray());
+            photonView.RPC("SyncLineData", RpcTarget.Others, points.ToArray());
         }
     }
 
