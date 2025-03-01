@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ButtonController : MonoBehaviour
 {
-    [SerializeField] LineDrawing lineDrawing;
+    [SerializeField] LineManager lineManager;
     [SerializeField] GameObject palettePanel;
     [SerializeField] GameObject openButton;
     [SerializeField] GameObject fillButton;
@@ -10,23 +10,39 @@ public class ButtonController : MonoBehaviour
 
     public void onClickBlack()
     {
-        lineDrawing.index = 0;
-    }
-    public void onClickYellow()
-    {
-        lineDrawing.index = 1;
+        lineManager.index = 0;
     }
     public void onClickRed()
     {
-        lineDrawing.index = 2;
+        lineManager.index = 1;
+    }
+    public void onClickGreen()
+    {
+        lineManager.index = 2;
     }
     public void onClickBlue()
     {
-        lineDrawing.index = 3;
+        lineManager.index = 3;
     }
-    public void onClickGreen() 
+    public void onClickYellow()
     {
-        lineDrawing.index = 4;
+        lineManager.index = 4;
+    }
+    public void onClickCyan()
+    {
+        lineManager.index = 5;
+    }
+    public void onClickMagenta() 
+    {
+        lineManager.index = 6;
+    }
+    public void onClickGray()
+    {
+        lineManager.index = 7;
+    }
+    public void onClickWhite()
+    {
+        lineManager.index = 8;
     }
 
     public void onClickOpenPanelButton()
