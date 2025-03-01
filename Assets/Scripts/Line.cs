@@ -93,12 +93,28 @@ public class LineDrawing : MonoBehaviourPunCallbacks
         currentLineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         if (index == 0)
         {
-            currentLineRenderer.startColor = Color.red;
-            currentLineRenderer.endColor = Color.red;
-        } else
+            currentLineRenderer.startColor = Color.black;
+            currentLineRenderer.endColor = Color.black;
+        } else if (index == 1)
         {
             currentLineRenderer.startColor = Color.yellow;
             currentLineRenderer.endColor = Color.yellow;
+        } else if (index == 2)
+        {
+            currentLineRenderer.startColor = Color.red;
+            currentLineRenderer.endColor = Color.red;
+        } else if (index == 3)
+        {
+            currentLineRenderer.startColor = Color.blue;
+            currentLineRenderer.endColor = Color.blue;
+        } else if (index == 4)
+        {
+            currentLineRenderer.startColor = Color.green;
+            currentLineRenderer.endColor = Color.green;
+        } else
+        {
+            currentLineRenderer.startColor = Color.black;
+            currentLineRenderer.endColor = Color.black;
         }
         points.Clear();
 
