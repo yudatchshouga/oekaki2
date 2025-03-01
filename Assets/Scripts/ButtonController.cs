@@ -5,6 +5,8 @@ public class ButtonController : MonoBehaviour
     [SerializeField] LineDrawing lineDrawing;
     [SerializeField] GameObject palettePanel;
     [SerializeField] GameObject openButton;
+    [SerializeField] GameObject fillButton;
+    [SerializeField] GameObject fillButtonBackground;
 
     public void onClickBlack()
     {
@@ -37,6 +39,20 @@ public class ButtonController : MonoBehaviour
     {
         palettePanel.SetActive(false);
         openButton.SetActive(true);
+    }
+    
+    public void onClickFillButton()
+    {
+        if (!FillTool.instance.isFillMode)
+        {
+            FillTool.instance.isFillMode = true;
+            fillButtonBackground.SetActive(true);
+        }
+        else
+        {
+            FillTool.instance.isFillMode = false;
+            fillButtonBackground.SetActive(false);
+        }
     }
 }
 

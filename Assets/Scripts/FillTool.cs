@@ -4,26 +4,19 @@ using System.Runtime.CompilerServices;
 
 public class FillTool : MonoBehaviour
 {
+    public static FillTool instance;
     public Texture2D texture;
     public Color fillColor;
+    public bool isFillMode = false;
     private Color[] originalPixels;
-    private int textureWidth;
-    private int textureHeight;
 
-    private void Start()
+    private void Awake()
     {
-        Color[] pixels = texture.GetPixels();
-        foreach (Color pixel in pixels)
-        {
-            Debug.Log(pixel);
-        }
+        instance = this;
     }
 
-    /*
     void Start()
     {
-        textureWidth = texture.width;
-        textureHeight = texture.height;
         originalPixels = texture.GetPixels();
     }
 
@@ -34,8 +27,8 @@ public class FillTool : MonoBehaviour
             Vector2 uv;
             if (GetMouseUV(out uv))
             {
-                int x = (int)(uv.x * textureWidth);
-                int y = (int)(uv.y * textureHeight);
+                int x = (int)(uv.x * texture.width);
+                int y = (int)(uv.y * texture.height);
                 Color targetColor = texture.GetPixel(x, y);
                 FloodFill(x, y, targetColor);
                 texture.Apply();
@@ -71,7 +64,7 @@ public class FillTool : MonoBehaviour
             int px = (int)p.x;
             int py = (int)p.y;
 
-            if (px < 0 || px >= textureWidth || py < 0 || py >= textureHeight)
+            if (px < 0 || px >= texture.width || py < 0 || py >= texture.height)
                 continue;
 
             Color currentColor = texture.GetPixel(px, py);
@@ -86,5 +79,4 @@ public class FillTool : MonoBehaviour
             pixels.Push(new Vector2(px, py - 1));
         }
     }
-    */
 }
