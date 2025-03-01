@@ -25,8 +25,6 @@ public class LineDrawing : MonoBehaviourPunCallbacks
 
     public ClickChecker clickChecker;
 
-    private GameObject lineObject;
-
     void Start()
     {
         points = new List<Vector3>();
@@ -69,28 +67,18 @@ public class LineDrawing : MonoBehaviourPunCallbacks
         // マウスの左クリックを離した時
         if (Input.GetMouseButtonUp(0))
         {
-            //isClickedFrame = false;
+            currentLineRenderer = null;
             //同期
-            PhotonView linePhotonView = lineObject.GetComponent<PhotonView>();
-
-            if (linePhotonView == null)
-            {
-                Debug.Log("photonView is null");
-            }
-            if (points == null)
-            {
-                Debug.Log("points is null");
-            }
-            photonView.RPC("SyncLineData", RpcTarget.Others, points.ToArray());
+            photonView.RPC("SyncLineData", RpcTarget.Others, points.ToArray(), index, lineWidth);
         }
     }
 
     void CreateNewLine()
     {
-        lineObject = PhotonNetwork.Instantiate(linePrefab.name, Vector3.zero, Quaternion.identity);
+        GameObject lineObject = Instantiate(linePrefab);
         currentLineRenderer = lineObject.GetComponent<LineRenderer>();
 
-        float lineWidth = penWidthSlider.value;
+        lineWidth = penWidthSlider.value;
         currentLineRenderer.startWidth = lineWidth;
         currentLineRenderer.endWidth = lineWidth;
         currentLineRenderer.useWorldSpace = true;
@@ -112,28 +100,36 @@ public class LineDrawing : MonoBehaviourPunCallbacks
         // Redo 用の履歴をクリア
         redoHistory.Clear();
 
-        // === 修正点: Sorting Order のみで順序を制御 ===
+        // Sorting Order のみで順序を制御
         sortingOrderCounter++;
         currentLineRenderer.sortingOrder = sortingOrderCounter;
     }
 
     // === 受信側: `RPC` で座標を受け取る ===
     [PunRPC]
-    void SyncLineData(Vector3[] points)
+    void SyncLineData(Vector3[] points, int colorIndex, float lineWidth)
     {
         Debug.Log("SyncLineData");
-        //GameObject lineObject = Instantiate(linePrefab);
-        //LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
+        GameObject lineObject = Instantiate(linePrefab);
+        LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
 
-        //lineRenderer.startWidth = lineWidth;
-        //lineRenderer.endWidth = lineWidth;
-        //lineRenderer.useWorldSpace = true;
-        //lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        //lineRenderer.startColor = Color.yellow;
-        //lineRenderer.endColor = Color.yellow;
+        lineRenderer.startWidth = lineWidth;
+        lineRenderer.endWidth = lineWidth;
+        lineRenderer.useWorldSpace = true;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        if (colorIndex == 0)
+        {
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.red;
+        }
+        else
+        {
+            lineRenderer.startColor = Color.yellow;
+            lineRenderer.endColor = Color.yellow;
+        }
 
-        //lineRenderer.positionCount = receivedPoints.Length;
-        //lineRenderer.SetPositions(receivedPoints);
+        lineRenderer.positionCount = points.Length;
+        lineRenderer.SetPositions(points);
     }
 
     // スライダーの値が変更された時に呼ばれる
