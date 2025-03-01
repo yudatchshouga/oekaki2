@@ -25,6 +25,8 @@ public class LineDrawing : MonoBehaviourPunCallbacks
 
     public ClickChecker clickChecker;
 
+    private string lineId;
+
     void Start()
     {
         points = new List<Vector3>();
@@ -47,7 +49,6 @@ public class LineDrawing : MonoBehaviourPunCallbacks
                 CreateNewLine();
                 Debug.Log("CreateNewLine");
             }
-            //CreateNewLine();
         }
 
         // マウスの左クリックを押している間
@@ -65,11 +66,13 @@ public class LineDrawing : MonoBehaviourPunCallbacks
         }
 
         // マウスの左クリックを離した時
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) && !isClickedFrame)
         {
+            isClickedFrame = false;
             currentLineRenderer = null;
             //同期
-            photonView.RPC("SyncLineData", RpcTarget.Others, points.ToArray(), index, lineWidth);
+            photonView.RPC("SyncLineData", RpcTarget.Others, 
+                points.ToArray(), index, lineWidth, lineId);
         }
     }
 
@@ -82,6 +85,10 @@ public class LineDrawing : MonoBehaviourPunCallbacks
         currentLineRenderer.startWidth = lineWidth;
         currentLineRenderer.endWidth = lineWidth;
         currentLineRenderer.useWorldSpace = true;
+
+        lineId = System.Guid.NewGuid().ToString();
+        lineObject.name = lineId;
+
         //マテリアルの設定
         currentLineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         if (index == 0)
@@ -107,10 +114,11 @@ public class LineDrawing : MonoBehaviourPunCallbacks
 
     // === 受信側: `RPC` で座標を受け取る ===
     [PunRPC]
-    void SyncLineData(Vector3[] points, int colorIndex, float lineWidth)
+    void SyncLineData(Vector3[] points, int colorIndex, float lineWidth, string lineId)
     {
         Debug.Log("SyncLineData");
         GameObject lineObject = Instantiate(linePrefab);
+        lineObject.name = lineId;
         LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
 
         lineRenderer.startWidth = lineWidth;
@@ -159,6 +167,21 @@ public class LineDrawing : MonoBehaviourPunCallbacks
 
             // 履歴から削除
             lineHistory.RemoveAt(lineHistory.Count - 1);
+
+            string lineId = lastLine.name;
+            photonView.RPC("SyncUndo", RpcTarget.Others, lineId);
+        }
+    }
+
+    [PunRPC]
+    void SyncUndo(string lineId)
+    {
+        Debug.Log("SyncUndo");
+        GameObject lineObject = GameObject.Find(lineId);
+        if (lineObject != null) { 
+            Debug.Log("lineObject != null");
+            Debug.Log(lineId);
+            lineObject.SetActive(false);
         }
     }
 
@@ -176,6 +199,36 @@ public class LineDrawing : MonoBehaviourPunCallbacks
 
             // Redo リストから削除
             redoHistory.RemoveAt(redoHistory.Count - 1);
+
+            string lineId = lastRedoLine.name;
+            photonView.RPC("SyncRedo", RpcTarget.Others, lineId);
+        }
+    }
+
+    [PunRPC]
+    void SyncRedo(string lineId)
+    {
+
+        Debug.Log(lineId);
+        //GameObject lineObject = GameObject.Find(lineId)
+
+        LineRenderer[] lines = FindObjectsOfType<LineRenderer>(true);
+        GameObject lineObject = null;
+        foreach (LineRenderer line in lines)
+        {
+            if (line.gameObject.name == lineId)
+            {
+                lineObject = line.gameObject;
+                break;
+            }
+        }
+
+
+        if (lineObject != null)
+        {
+            Debug.Log("lineObject != null");
+            Debug.Log(lineId);
+            lineObject.SetActive(true);
         }
     }
 }
