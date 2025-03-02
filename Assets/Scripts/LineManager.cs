@@ -243,7 +243,6 @@ public class LineManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void SyncRedo(string lineId)
     {
-
         Debug.Log(lineId);
         //GameObject lineObject = GameObject.Find(lineId)
 

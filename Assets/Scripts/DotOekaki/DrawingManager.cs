@@ -1,28 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class DrawingManager : MonoBehaviour
 {
-    public RawImage rawImage;
     private Texture2D texture;
-    [SerializeField] Color drawColor = Color.black; // ペンの色
-    [SerializeField] int brushSize = 1; // ブラシの大きさ
+    [SerializeField] RawImage rawImage;
+    public int CanvasWidth; // キャンバスの横幅
+    public int CanvasHeight; // キャンバスの縦幅
+    public Color drawColor; // ペンの色
+    public int brushSize; // ブラシの大きさ
+    private Vector2Int? lastPoint = null; // 前回の描画位置
+    private Stack<Color[]> undoStack = new Stack<Color[]>(); // 元に戻すためのスタック
+    private Stack<Color[]> redoStack = new Stack<Color[]>(); // やり直しのためのスタック
 
     private void Start()
     {
-        int width = 64;
-        int height = 64;
-
-        // Texture2Dを作成し、白で塗りつぶす
-        texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        // Texture2Dを作成
+        texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point;
-        Color[] clearColors = new Color[width * height];
-        for (int i = 0; i < clearColors.Length; i++)
-        {
-            clearColors[i] = Color.white;
-        }
-        texture.SetPixels(clearColors);
-        texture.Apply();
+        // テクスチャを初期化(白で塗りつぶす)
+        ClearCanvas();
 
         rawImage.texture = texture;
     }
@@ -32,14 +30,14 @@ public class DrawingManager : MonoBehaviour
         if (Input.GetMouseButton(0)) // 左クリックまたはタッチで描画
         {
             Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rawImage.rectTransform,
-                Input.mousePosition,
-                null,
-                out localPoint
-            );
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rawImage.rectTransform, Input.mousePosition, null, out localPoint);
 
             DrawAtPoint(localPoint);
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            lastPoint = null;
         }
     }
 
@@ -53,68 +51,116 @@ public class DrawingManager : MonoBehaviour
 
         if (x >= 0 && x < texture.width && y >= 0 && y < texture.height)
         {
-            texture.SetPixel(x, y, drawColor);
+            SaveUndo();
+            if (lastPoint.HasValue)
+            {
+                DrawLine(lastPoint.Value.x, lastPoint.Value.y, x, y); // ２回目以降の描画
+            }
+            else
+            {
+                DrawPoint(x, y); // 最初の描画
+            }
+
+            lastPoint = new Vector2Int(x, y);
             texture.Apply();
         }
     }
-    /*
-    void Start()
-    {
-        // テクスチャの作成
-        texture = rawImage.texture as Texture2D;
-        clearPixels = new Color[texture.width * texture.height];
 
-        for (int i = 0; i < clearPixels.Length; i++)
+    // 最初のクリックの描画
+    private void DrawPoint(int cx, int cy)
+    { 
+        if (brushSize == 1)
         {
-            clearPixels[i] = clearColor;
+            texture.SetPixel(cx, cy, drawColor);
         }
-
-        ClearCanvas();
-
-        // テクスチャをRawImageに設定
-        rawImage.texture = texture;
-    }
-
-    void Update()
-    {
-        if (Input.GetMouseButton(0))
+        // ブラシの大きさが偶数の場合と奇数の場合で処理を分ける
+        else if (brushSize % 2 == 0)
         {
-            Vector2 pixelPos = GetMousePixelPosition();
-            Draw(pixelPos);
-        }
-
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            ClearCanvas();
-        }
-    }
-
-    Vector2 GetMousePixelPosition()
-    {
-        Vector2 localMousePosition = rawImage.rectTransform.InverseTransformPoint(Input.mousePosition);
-        Vector2 pixelPos = new Vector2(localMousePosition.x + rawImage.rectTransform.rect.width / 2,
-                                       localMousePosition.y + rawImage.rectTransform.rect.height / 2);
-        return pixelPos;
-    }
-
-    void Draw(Vector2 pixelPos)
-    {
-        for (int x = -brushSize; x <= brushSize; x++)
-        {
-            for (int y = -brushSize; y <= brushSize; y++)
+            int halfSize = brushSize / 2;
+            for (int dx = -halfSize + 1; dx <= halfSize; dx++)
             {
-                int px = Mathf.Clamp((int)pixelPos.x + x, 0, texture.width - 1);
-                int py = Mathf.Clamp((int)pixelPos.y + y, 0, texture.height - 1);
-                texture.SetPixel(px, py, drawColor);
+                for (int dy = -halfSize + 1; dy <= halfSize; dy++)
+                {
+                    int px = cx + dx;
+                    int py = cy + dy;
+                    if (px >= 0 && px < texture.width && py >= 0 && py < texture.height)
+                    {
+                        texture.SetPixel(px, py, drawColor);
+                    }
+                }
             }
         }
-        texture.Apply();
+        else if (brushSize % 2 == 1)
+        {
+            int halfSize = brushSize / 2;
+            for (int dx = -halfSize; dx <= halfSize; dx++)
+            {
+                for (int dy = -halfSize; dy <= halfSize; dy++)
+                {
+                    int px = cx + dx;
+                    int py = cy + dy;
+                    if (px >= 0 && px < texture.width && py >= 0 && py < texture.height)
+                    {
+                        texture.SetPixel(px, py, drawColor);
+                    }
+                }
+            }
+        }
     }
 
-    void ClearCanvas()
+    // Bresenhamの直線アルゴリズム
+    private void DrawLine(int x0, int y0, int x1, int y1)
     {
-        texture.SetPixels(clearPixels);
+        int dx = Mathf.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        int dy = -Mathf.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        int err = dx + dy, e2;
+
+        while (true)
+        {
+            DrawPoint(x0, y0);
+            if (x0 == x1 && y0 == y1) break;
+            e2 = 2 * err;
+            if (e2 >= dy) { err += dy; x0 += sx; }
+            if (e2 <= dx) { err += dx; y0 += sy; }
+        }
+    }
+
+    private void SaveUndo()
+    {
+        undoStack.Push(texture.GetPixels()); // 現在の状態を保存
+        redoStack.Clear(); // 新しく描画したらRedo履歴はクリア
+    }
+
+    public void Undo()
+    { 
+        if (undoStack.Count > 0)
+        {
+            redoStack.Push(texture.GetPixels());
+            Color[] previousPixels = undoStack.Pop();
+            texture.SetPixels(undoStack.Pop());
+            texture.Apply();
+        }
+    }
+    public void Redo()
+    {
+        if (redoStack.Count > 0)
+        {
+            undoStack.Push(texture.GetPixels());
+            Color[] nextPixels = redoStack.Pop();
+            texture.SetPixels(nextPixels);
+            texture.Apply();
+        }
+    }
+
+    // ドット絵をすべて削除する
+    public void ClearCanvas()
+    {
+        Color[] clearColors = new Color[texture.width * texture.height];
+        for (int i = 0; i < clearColors.Length; i++)
+        {
+            clearColors[i] = Color.white;
+        }
+        texture.SetPixels(clearColors);
         texture.Apply();
     }
-    */
 }
