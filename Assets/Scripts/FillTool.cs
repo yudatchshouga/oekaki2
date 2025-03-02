@@ -81,22 +81,4 @@ public class FillTool : MonoBehaviour
 
         return new Vector2Int(Mathf.FloorToInt(pixelX), Mathf.FloorToInt(pixelY));
     }
-    
-    
-    bool GetMouseUV(out Vector2 uv)
-    {
-        uv = Vector2.zero;
-        RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
-        {
-            Renderer renderer = hit.transform.GetComponent<Renderer>();
-            MeshCollider meshCollider = hit.collider as MeshCollider;
-            if (renderer == null || renderer.sharedMaterial == null || renderer.sharedMaterial.mainTexture == null || meshCollider == null)
-                return false;
-
-            uv = hit.textureCoord;
-            return true;
-        }
-        return false;
-    }
 }

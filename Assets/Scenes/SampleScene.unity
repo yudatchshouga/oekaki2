@@ -1335,7 +1335,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1525,7 +1525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fde0747ad4b4174c8dce22b33369a6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texture: {fileID: 2800000, guid: 9d8a37c7e6db20d4cb0d42bb5224f984, type: 3}
+  DrawerPanel: {fileID: 0}
   fillColor: {r: 0, g: 0, b: 0, a: 0}
   isFillMode: 0
 --- !u!4 &563034044
