@@ -30,7 +30,7 @@ public class DrawingManager : MonoBehaviour
     {
         // Texture2Dを作成
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point;
+        texture.filterMode = FilterMode.Point; // ドット絵を滑らかにしない
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();
@@ -89,7 +89,6 @@ public class DrawingManager : MonoBehaviour
     // 最初のクリックの描画
     private void DrawPoint(int cx, int cy)
     {
-
         /*
         // ペンの透明度を設定
         Color newColor = drawColor;

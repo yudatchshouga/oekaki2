@@ -56,19 +56,5 @@ public class ButtonController : MonoBehaviour
         palettePanel.SetActive(false);
         openButton.SetActive(true);
     }
-    
-    public void onClickFillButton()
-    {
-        if (!FillTool.instance.isFillMode)
-        {
-            FillTool.instance.isFillMode = true;
-            fillButtonBackground.SetActive(true);
-        }
-        else
-        {
-            FillTool.instance.isFillMode = false;
-            fillButtonBackground.SetActive(false);
-        }
-    }
 }
 
