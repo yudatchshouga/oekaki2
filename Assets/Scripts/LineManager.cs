@@ -246,7 +246,9 @@ public class LineManager : MonoBehaviourPunCallbacks
         Debug.Log(lineId);
         //GameObject lineObject = GameObject.Find(lineId)
 
+        // シーン上に表示されているすべてのLineRendererオブジェクトを取得
         LineRenderer[] lines = FindObjectsOfType<LineRenderer>(true);
+
         GameObject lineObject = null;
         foreach (LineRenderer line in lines)
         {

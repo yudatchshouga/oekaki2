@@ -4,46 +4,65 @@ using System.Collections.Generic;
 
 public class DrawingManager : MonoBehaviour
 {
-    private Texture2D texture;
-    [SerializeField] RawImage rawImage;
+    public static DrawingManager instance;
+
+    Texture2D texture;
+    [SerializeField] RawImage drawingPanel;
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
     public int brushSize; // ブラシの大きさ
-    private Vector2Int? lastPoint = null; // 前回の描画位置
-    private Stack<Color[]> undoStack = new Stack<Color[]>(); // 元に戻すためのスタック
-    private Stack<Color[]> redoStack = new Stack<Color[]>(); // やり直しのためのスタック
+    Vector2Int? lastPoint = null; // 前回の描画位置
+    Stack<Color[]> undoStacks; // 元に戻すためのスタック
+    Stack<Color[]> redoStacks; // やり直しのためのスタック
+
+    public int undoStacksCount { get { return undoStacks.Count; } }
+    public int redoStacksCount { get { return redoStacks.Count; } }
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
         // Texture2Dを作成
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point;
+
+        // スタックの初期生成
+        undoStacks = new Stack<Color[]>();
+        redoStacks = new Stack<Color[]>();
+
         // テクスチャを初期化(白で塗りつぶす)
         ClearCanvas();
-
-        rawImage.texture = texture;
+        undoStacks.Push(texture.GetPixels());
+        drawingPanel.texture = texture;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButton(0)) // 左クリックまたはタッチで描画
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(drawingPanel.rectTransform, Input.mousePosition, null, out localPoint);
+        
+        if (Input.GetMouseButton(0))
         {
-            Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(rawImage.rectTransform, Input.mousePosition, null, out localPoint);
-
             DrawAtPoint(localPoint);
         }
 
         if (Input.GetMouseButtonUp(0))
         {
             lastPoint = null;
+            if (IsInsideCanvas(localPoint))
+            {
+                SaveUndo();
+            }
         }
     }
 
     private void DrawAtPoint(Vector2 localPoint)
     {
-        Rect rect = rawImage.rectTransform.rect;
+        Rect rect = drawingPanel.rectTransform.rect;
 
         // ローカル座標をTexture2Dの座標に変換
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
@@ -51,10 +70,9 @@ public class DrawingManager : MonoBehaviour
 
         if (x >= 0 && x < texture.width && y >= 0 && y < texture.height)
         {
-            SaveUndo();
             if (lastPoint.HasValue)
             {
-                DrawLine(lastPoint.Value.x, lastPoint.Value.y, x, y); // ２回目以降の描画
+                DrawLine(lastPoint.Value.x, lastPoint.Value.y, x, y); // 2回目以降の描画
             }
             else
             {
@@ -127,32 +145,38 @@ public class DrawingManager : MonoBehaviour
 
     private void SaveUndo()
     {
-        undoStack.Push(texture.GetPixels()); // 現在の状態を保存
-        redoStack.Clear(); // 新しく描画したらRedo履歴はクリア
+        undoStacks.Push(texture.GetPixels()); // 現在の状態を保存
+        redoStacks.Clear(); // 新しく描画したらRedo履歴はクリア
     }
 
     public void Undo()
     { 
-        if (undoStack.Count > 0)
+        if (undoStacksCount > 1)
         {
-            redoStack.Push(texture.GetPixels());
-            Color[] previousPixels = undoStack.Pop();
-            texture.SetPixels(undoStack.Pop());
+            redoStacks.Push(undoStacks.Pop());
+            texture.SetPixels(undoStacks.Peek());
             texture.Apply();
+        }
+        else
+        {
+            Debug.Log("Cannot undo");
         }
     }
     public void Redo()
     {
-        if (redoStack.Count > 0)
+        if (redoStacksCount > 0)
         {
-            undoStack.Push(texture.GetPixels());
-            Color[] nextPixels = redoStack.Pop();
-            texture.SetPixels(nextPixels);
+            undoStacks.Push(redoStacks.Pop());
+            texture.SetPixels(undoStacks.Peek());
             texture.Apply();
+        }
+        else
+        {
+            Debug.Log("Cannot redo");
         }
     }
 
-    // ドット絵をすべて削除する
+    // ドット絵をすべて削除する(Undo, Redoはできなくなる)
     public void ClearCanvas()
     {
         Color[] clearColors = new Color[texture.width * texture.height];
@@ -162,5 +186,23 @@ public class DrawingManager : MonoBehaviour
         }
         texture.SetPixels(clearColors);
         texture.Apply();
+
+        if (undoStacks.Count > 0)
+        {
+            undoStacks.Clear();
+            undoStacks.Push(texture.GetPixels());
+        }
+
+        if (redoStacks.Count > 0)
+        {
+            redoStacks.Clear();
+        }
+    }
+
+    private bool IsInsideCanvas(Vector2 localPoint)
+    {
+        Rect rect = drawingPanel.rectTransform.rect;
+        return localPoint.x >= rect.x && localPoint.x <= rect.x + rect.width
+            && localPoint.y >= rect.y && localPoint.y <= rect.y + rect.height;
     }
 }
