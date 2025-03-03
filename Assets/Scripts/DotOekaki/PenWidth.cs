@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class PenWidth : MonoBehaviour
 {
-    [SerializeField] private Slider penWidthSlider;
+    [SerializeField] Slider penWidthSlider;
 
     private void Start()
     {

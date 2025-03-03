@@ -12,8 +12,8 @@ public class DrawingManager : MonoBehaviour
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
-    public int ColorIndex = 0; // ペンの色のインデックス
     public int brushSize; // ブラシの大きさ
+    public float penAlpha; // ペンの透明度(要らないかもしれない)
     Vector2Int? lastPoint = null; // 前回の描画位置
     Stack<Color[]> undoStack; // 元に戻すためのスタック
     Stack<Color[]> redoStack; // やり直しのためのスタック
@@ -46,7 +46,7 @@ public class DrawingManager : MonoBehaviour
     {
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(drawingPanel.rectTransform, Input.mousePosition, null, out localPoint);
-        
+
         if (Input.GetMouseButton(0))
         {
             DrawAtPoint(localPoint);
@@ -84,48 +84,19 @@ public class DrawingManager : MonoBehaviour
             lastPoint = new Vector2Int(x, y);
             texture.Apply();
         }
-
-        switch (ColorIndex)
-        {
-            case 0:
-                drawColor = Color.black;
-                break;
-            case 1:
-                drawColor = Color.red;
-                break;
-            case 2:
-                drawColor = Color.blue;
-                break;
-            case 3:
-                drawColor = Color.green;
-                break;
-            case 4:
-                drawColor = Color.yellow;
-                break;
-            case 5:
-                drawColor = Color.magenta;
-                break;
-            case 6:
-                drawColor = Color.cyan;
-                break;
-            case 7:
-                drawColor = Color.gray;
-                break;
-            case 8:
-                drawColor = new Color32(246, 184, 148, 255);
-                break;
-            case 9:
-                drawColor = Color.white;
-                break;
-            default:
-                drawColor = Color.black;
-                break;
-        }
     }
 
     // 最初のクリックの描画
     private void DrawPoint(int cx, int cy)
-    { 
+    {
+
+        /*
+        // ペンの透明度を設定
+        Color newColor = drawColor;
+        newColor.a = penAlpha;
+        Color brushColor = Color.Lerp(Color.white, newColor, newColor.a);
+        */
+
         if (brushSize == 1)
         {
             texture.SetPixel(cx, cy, drawColor);

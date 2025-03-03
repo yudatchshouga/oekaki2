@@ -43,42 +43,42 @@ public class DotButtonController : MonoBehaviour
 
     public void OnClickBlack()
     {
-        DrawingManager.instance.ColorIndex = 0;
+        DrawingManager.instance.drawColor = Color.black;
     }
     public void OnClickRed()
     { 
-        DrawingManager.instance.ColorIndex = 1;
+        DrawingManager.instance.drawColor = Color.red;
     }
     public void OnClickBlue()
     {
-        DrawingManager.instance.ColorIndex = 2;
+        DrawingManager.instance.drawColor = Color.blue;
     }
     public void OnClickGreen()
     {
-        DrawingManager.instance.ColorIndex = 3;
+        DrawingManager.instance.drawColor = Color.green;
     }
     public void OnClickYellow()
     {
-        DrawingManager.instance.ColorIndex = 4;
+        DrawingManager.instance.drawColor = Color.yellow;
     }
     public void OnClickMagenta()
     {
-        DrawingManager.instance.ColorIndex = 5;
+        DrawingManager.instance.drawColor = Color.magenta;
     }
     public void OnClickCyan()
     {
-        DrawingManager.instance.ColorIndex = 6;
+        DrawingManager.instance.drawColor = Color.cyan;
     }
     public void OnClickGray()
     {
-        DrawingManager.instance.ColorIndex = 7;
+        DrawingManager.instance.drawColor = Color.gray;
     }
     public void OnClickBeige()
     {
-        DrawingManager.instance.ColorIndex = 8;
+        DrawingManager.instance.drawColor = new Color32(246, 184, 148, 255);
     }
     public void OnClickWhite() 
     {
-        DrawingManager.instance.ColorIndex = 9;
+        DrawingManager.instance.drawColor = Color.white;
     }
 }
