@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEditor.ShaderGraph;
 
 public class DrawingManager : MonoBehaviour
 {
@@ -11,13 +12,14 @@ public class DrawingManager : MonoBehaviour
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
+    public int ColorIndex = 0; // ペンの色のインデックス
     public int brushSize; // ブラシの大きさ
     Vector2Int? lastPoint = null; // 前回の描画位置
-    Stack<Color[]> undoStacks; // 元に戻すためのスタック
-    Stack<Color[]> redoStacks; // やり直しのためのスタック
+    Stack<Color[]> undoStack; // 元に戻すためのスタック
+    Stack<Color[]> redoStack; // やり直しのためのスタック
 
-    public int undoStacksCount { get { return undoStacks.Count; } }
-    public int redoStacksCount { get { return redoStacks.Count; } }
+    public int undoStackCount { get { return undoStack.Count; } }
+    public int redoStackCount { get { return redoStack.Count; } }
 
     private void Awake()
     {
@@ -31,12 +33,12 @@ public class DrawingManager : MonoBehaviour
         texture.filterMode = FilterMode.Point;
 
         // スタックの初期生成
-        undoStacks = new Stack<Color[]>();
-        redoStacks = new Stack<Color[]>();
+        undoStack = new Stack<Color[]>();
+        redoStack = new Stack<Color[]>();
 
         // テクスチャを初期化(白で塗りつぶす)
         ClearCanvas();
-        undoStacks.Push(texture.GetPixels());
+        undoStack.Push(texture.GetPixels());
         drawingPanel.texture = texture;
     }
 
@@ -81,6 +83,43 @@ public class DrawingManager : MonoBehaviour
 
             lastPoint = new Vector2Int(x, y);
             texture.Apply();
+        }
+
+        switch (ColorIndex)
+        {
+            case 0:
+                drawColor = Color.black;
+                break;
+            case 1:
+                drawColor = Color.red;
+                break;
+            case 2:
+                drawColor = Color.blue;
+                break;
+            case 3:
+                drawColor = Color.green;
+                break;
+            case 4:
+                drawColor = Color.yellow;
+                break;
+            case 5:
+                drawColor = Color.magenta;
+                break;
+            case 6:
+                drawColor = Color.cyan;
+                break;
+            case 7:
+                drawColor = Color.gray;
+                break;
+            case 8:
+                drawColor = new Color32(246, 184, 148, 255);
+                break;
+            case 9:
+                drawColor = Color.white;
+                break;
+            default:
+                drawColor = Color.black;
+                break;
         }
     }
 
@@ -145,16 +184,16 @@ public class DrawingManager : MonoBehaviour
 
     private void SaveUndo()
     {
-        undoStacks.Push(texture.GetPixels()); // 現在の状態を保存
-        redoStacks.Clear(); // 新しく描画したらRedo履歴はクリア
+        undoStack.Push(texture.GetPixels()); // 現在の状態を保存
+        redoStack.Clear(); // 新しく描画したらRedo履歴はクリア
     }
 
     public void Undo()
     { 
-        if (undoStacksCount > 1)
+        if (undoStackCount > 1)
         {
-            redoStacks.Push(undoStacks.Pop());
-            texture.SetPixels(undoStacks.Peek());
+            redoStack.Push(undoStack.Pop());
+            texture.SetPixels(undoStack.Peek());
             texture.Apply();
         }
         else
@@ -164,10 +203,10 @@ public class DrawingManager : MonoBehaviour
     }
     public void Redo()
     {
-        if (redoStacksCount > 0)
+        if (redoStackCount > 0)
         {
-            undoStacks.Push(redoStacks.Pop());
-            texture.SetPixels(undoStacks.Peek());
+            undoStack.Push(redoStack.Pop());
+            texture.SetPixels(undoStack.Peek());
             texture.Apply();
         }
         else
@@ -187,15 +226,15 @@ public class DrawingManager : MonoBehaviour
         texture.SetPixels(clearColors);
         texture.Apply();
 
-        if (undoStacks.Count > 0)
+        if (undoStack.Count > 0)
         {
-            undoStacks.Clear();
-            undoStacks.Push(texture.GetPixels());
+            undoStack.Clear();
+            undoStack.Push(texture.GetPixels());
         }
 
-        if (redoStacks.Count > 0)
+        if (redoStack.Count > 0)
         {
-            redoStacks.Clear();
+            redoStack.Clear();
         }
     }
 

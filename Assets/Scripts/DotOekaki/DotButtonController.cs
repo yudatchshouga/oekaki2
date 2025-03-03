@@ -7,7 +7,7 @@ public class DotButtonController : MonoBehaviour
 
     private void Update()
     {
-        if (DrawingManager.instance.undoStacksCount > 1)
+        if (DrawingManager.instance.undoStackCount > 1)
         {
             undoButtonCover.SetActive(false);
         }
@@ -16,7 +16,7 @@ public class DotButtonController : MonoBehaviour
             undoButtonCover.SetActive(true);
         }
 
-        if (DrawingManager.instance.redoStacksCount > 0)
+        if (DrawingManager.instance.redoStackCount > 0)
         {
             redoButtonCover.SetActive(false);
         }
@@ -39,5 +39,46 @@ public class DotButtonController : MonoBehaviour
     public void OnClickAllClearButton()
     {
         DrawingManager.instance.ClearCanvas();
+    }
+
+    public void OnClickBlack()
+    {
+        DrawingManager.instance.ColorIndex = 0;
+    }
+    public void OnClickRed()
+    { 
+        DrawingManager.instance.ColorIndex = 1;
+    }
+    public void OnClickBlue()
+    {
+        DrawingManager.instance.ColorIndex = 2;
+    }
+    public void OnClickGreen()
+    {
+        DrawingManager.instance.ColorIndex = 3;
+    }
+    public void OnClickYellow()
+    {
+        DrawingManager.instance.ColorIndex = 4;
+    }
+    public void OnClickMagenta()
+    {
+        DrawingManager.instance.ColorIndex = 5;
+    }
+    public void OnClickCyan()
+    {
+        DrawingManager.instance.ColorIndex = 6;
+    }
+    public void OnClickGray()
+    {
+        DrawingManager.instance.ColorIndex = 7;
+    }
+    public void OnClickBeige()
+    {
+        DrawingManager.instance.ColorIndex = 8;
+    }
+    public void OnClickWhite() 
+    {
+        DrawingManager.instance.ColorIndex = 9;
     }
 }
