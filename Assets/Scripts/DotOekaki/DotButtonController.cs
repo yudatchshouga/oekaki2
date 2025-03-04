@@ -6,6 +6,7 @@ public class DotButtonController : MonoBehaviour
     [SerializeField] GameObject redoButtonCover;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
+    [SerializeField] GameObject lineButtonCover;
 
     private void Update()
     {
@@ -44,6 +45,15 @@ public class DotButtonController : MonoBehaviour
         {
             fillButtonCover.SetActive(false);
         }
+
+        if (DrawingManager.instance.isLineMode)
+        {
+            lineButtonCover.SetActive(true);
+        }
+        else
+        {
+            lineButtonCover.SetActive(false);
+        }
     }
 
 
@@ -63,12 +73,20 @@ public class DotButtonController : MonoBehaviour
     public void OnClickPenButton()
     {
         DrawingManager.instance.isFillMode = false;
+        DrawingManager.instance.isLineMode = false;
         DrawingManager.instance.isPenMode = true;
     }
     public void OnClickFillButton()
     {
         DrawingManager.instance.isPenMode = false;
+        DrawingManager.instance.isLineMode = false;
         DrawingManager.instance.isFillMode = true;
+    }
+    public void OnClickLineButton()
+    {
+        DrawingManager.instance.isPenMode = false;
+        DrawingManager.instance.isFillMode = false;
+        DrawingManager.instance.isLineMode = true;
     }
 
 

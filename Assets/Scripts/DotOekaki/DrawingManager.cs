@@ -19,6 +19,8 @@ public class DrawingManager : MonoBehaviour
     Stack<Color[]> redoStack; // やり直しのためのスタック
     public bool isPenMode = true; // ペンモード
     public bool isFillMode = false; // 塗りつぶしモード
+    public bool isLineMode = false; // 直線モード
+    Vector2Int? startPoint = null; // 直線モードの始点
 
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
@@ -32,7 +34,7 @@ public class DrawingManager : MonoBehaviour
     {
         // Texture2Dを作成
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point; // ドット絵くっきりモードOn
+        texture.filterMode = FilterMode.Point; // ドット絵くっきりモードON
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();
@@ -56,12 +58,37 @@ public class DrawingManager : MonoBehaviour
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(drawingPanel.rectTransform, Input.mousePosition, null, out localPoint);
 
-
         if (Input.GetMouseButtonDown(0))
         {
             if (isFillMode)
             {
                 FloodFill(localPoint);
+            }
+
+            if (isLineMode)
+            {
+                Rect rect = drawingPanel.rectTransform.rect;
+                int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
+                int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+
+                if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
+                { 
+                    return;
+                }
+                Vector2Int pixelPos = new Vector2Int(x, y);
+                // 一回目のクリックで始点を設定
+                if (startPoint == null)
+                {
+                    DrawPoint(pixelPos.x, pixelPos.y);
+                    texture.Apply();
+                    startPoint = pixelPos;
+                }
+                else
+                {
+                    DrawLine(startPoint.Value.x, startPoint.Value.y, pixelPos.x, pixelPos.y);
+                    texture.Apply();
+                    startPoint = null;
+                }
             }
         }
 
@@ -227,6 +254,7 @@ public class DrawingManager : MonoBehaviour
             && localPoint.y >= rect.y && localPoint.y <= rect.y + rect.height;
     }
 
+    // 塗りつぶしアルゴリズム
     public void FloodFill(Vector2 localPoint)
     {
         Rect rect = drawingPanel.rectTransform.rect;
