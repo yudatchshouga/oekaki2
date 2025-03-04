@@ -4,6 +4,8 @@ public class DotButtonController : MonoBehaviour
 {
     [SerializeField] GameObject undoButtonCover;
     [SerializeField] GameObject redoButtonCover;
+    [SerializeField] GameObject penButtonCover;
+    [SerializeField] GameObject fillButtonCover;
 
     private void Update()
     {
@@ -24,8 +26,28 @@ public class DotButtonController : MonoBehaviour
         {
             redoButtonCover.SetActive(true);
         }
+
+        if (DrawingManager.instance.isPenMode)
+        {
+            penButtonCover.SetActive(true);
+        }
+        else
+        {
+            penButtonCover.SetActive(false);
+        }
+
+        if (DrawingManager.instance.isFillMode)
+        {
+            fillButtonCover.SetActive(true);
+        }
+        else
+        {
+            fillButtonCover.SetActive(false);
+        }
     }
 
+
+    // Undo, Redoボタン
     public void OnClickUndoButton()
     {
         DrawingManager.instance.Undo();
@@ -36,6 +58,21 @@ public class DotButtonController : MonoBehaviour
         DrawingManager.instance.Redo();
     }
 
+
+    // ツールボタン各種
+    public void OnClickPenButton()
+    {
+        DrawingManager.instance.isFillMode = false;
+        DrawingManager.instance.isPenMode = true;
+    }
+    public void OnClickFillButton()
+    {
+        DrawingManager.instance.isPenMode = false;
+        DrawingManager.instance.isFillMode = true;
+    }
+
+
+    // ペンの色変更ボタン各種
     public void OnClickAllClearButton()
     {
         DrawingManager.instance.ClearCanvas();

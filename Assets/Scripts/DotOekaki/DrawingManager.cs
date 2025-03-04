@@ -17,6 +17,8 @@ public class DrawingManager : MonoBehaviour
     Vector2Int? lastPoint = null; // 前回の描画位置
     Stack<Color[]> undoStack; // 元に戻すためのスタック
     Stack<Color[]> redoStack; // やり直しのためのスタック
+    public bool isPenMode = true; // ペンモード
+    public bool isFillMode = false; // 塗りつぶしモード
 
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
@@ -30,14 +32,21 @@ public class DrawingManager : MonoBehaviour
     {
         // Texture2Dを作成
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point; // ドット絵を滑らかにしない
+        texture.filterMode = FilterMode.Point; // ドット絵くっきりモードOn
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();
         redoStack = new Stack<Color[]>();
 
         // テクスチャを初期化(白で塗りつぶす)
-        ClearCanvas();
+        Color[] colors = new Color[CanvasWidth * CanvasHeight];
+        for (int i = 0; i < colors.Length; i++)
+        {
+            colors[i] = Color.white;
+        }
+        texture.SetPixels(colors);
+        texture.Apply();
+
         undoStack.Push(texture.GetPixels());
         drawingPanel.texture = texture;
     }
@@ -47,9 +56,21 @@ public class DrawingManager : MonoBehaviour
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(drawingPanel.rectTransform, Input.mousePosition, null, out localPoint);
 
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (isFillMode)
+            {
+                FloodFill(localPoint);
+            }
+        }
+
         if (Input.GetMouseButton(0))
         {
-            DrawAtPoint(localPoint);
+            if (isPenMode) 
+            {
+                DrawAtPoint(localPoint);
+            }
         }
 
         if (Input.GetMouseButtonUp(0))
@@ -185,7 +206,7 @@ public class DrawingManager : MonoBehaviour
         }
     }
 
-    // ドット絵をすべて削除する(Undo, Redoはできなくなる)
+    // ドット絵をすべて削除する
     public void ClearCanvas()
     {
         Color[] clearColors = new Color[texture.width * texture.height];
@@ -196,16 +217,7 @@ public class DrawingManager : MonoBehaviour
         texture.SetPixels(clearColors);
         texture.Apply();
 
-        if (undoStack.Count > 0)
-        {
-            undoStack.Clear();
-            undoStack.Push(texture.GetPixels());
-        }
-
-        if (redoStack.Count > 0)
-        {
-            redoStack.Clear();
-        }
+        SaveUndo();
     }
 
     private bool IsInsideCanvas(Vector2 localPoint)
@@ -213,5 +225,43 @@ public class DrawingManager : MonoBehaviour
         Rect rect = drawingPanel.rectTransform.rect;
         return localPoint.x >= rect.x && localPoint.x <= rect.x + rect.width
             && localPoint.y >= rect.y && localPoint.y <= rect.y + rect.height;
+    }
+
+    public void FloodFill(Vector2 localPoint)
+    {
+        Rect rect = drawingPanel.rectTransform.rect;
+
+        // ローカル座標をTexture2Dの座標に変換
+        int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
+        int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+
+        Color targetColor = texture.GetPixel(x, y);
+        // クリックした場所の色と塗りつぶし色が同じ場合は何もしない
+        if (targetColor == drawColor)
+        {
+            return;
+        }
+
+        Queue<Vector2Int> pixelQueue = new Queue<Vector2Int>();
+        pixelQueue.Enqueue(new Vector2Int(x, y));
+
+        while (pixelQueue.Count > 0)
+        {
+            Vector2Int pos = pixelQueue.Dequeue();
+
+            if (pos.x < 0 || pos.x >= texture.width || pos.y < 0 || pos.y >= texture.height)
+                continue;
+
+            if (texture.GetPixel(pos.x, pos.y) != targetColor)
+                continue;
+
+            texture.SetPixel(pos.x, pos.y, drawColor);
+
+            pixelQueue.Enqueue(new Vector2Int(pos.x + 1, pos.y));
+            pixelQueue.Enqueue(new Vector2Int(pos.x - 1, pos.y));
+            pixelQueue.Enqueue(new Vector2Int(pos.x, pos.y + 1));
+            pixelQueue.Enqueue(new Vector2Int(pos.x, pos.y - 1));
+        }
+        texture.Apply();
     }
 }
