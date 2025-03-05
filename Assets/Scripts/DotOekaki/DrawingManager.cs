@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEditor.ShaderGraph;
+using Unity.Mathematics;
 
 public class DrawingManager : MonoBehaviour
 {
@@ -17,13 +18,23 @@ public class DrawingManager : MonoBehaviour
     Vector2Int? lastPoint = null; // 前回の描画位置
     Stack<Color[]> undoStack; // 元に戻すためのスタック
     Stack<Color[]> redoStack; // やり直しのためのスタック
-    public bool isPenMode = true; // ペンモード
-    public bool isFillMode = false; // 塗りつぶしモード
-    public bool isLineMode = false; // 直線モード
     Vector2Int? startPoint = null; // 直線モードの始点
+    Vector2Int startPixel; // 円モード、長方形モードの始点
+    bool isDrawing = false; // 描画中かどうか
+    public enum ToolMode
+    {
+        Pen,
+        Fill,
+        Line,
+        Circle,
+        Rectrangle,
+    }
+    public ToolMode currentMode;
 
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
+
+
 
     private void Awake()
     {
@@ -51,6 +62,9 @@ public class DrawingManager : MonoBehaviour
 
         undoStack.Push(texture.GetPixels());
         drawingPanel.texture = texture;
+
+        // ゲーム開始時はペンモード
+        currentMode = ToolMode.Pen;
     }
 
     private void Update()
@@ -58,19 +72,27 @@ public class DrawingManager : MonoBehaviour
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(drawingPanel.rectTransform, Input.mousePosition, null, out localPoint);
 
+        Rect rect = drawingPanel.rectTransform.rect;
+        int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
+        int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+
         if (Input.GetMouseButtonDown(0))
         {
-            if (isFillMode)
+            if (currentMode == ToolMode.Pen)
+            { 
+                if (IsInsideCanvas(localPoint))
+                {
+                    isDrawing = true;
+                }
+            }
+
+            if (currentMode == ToolMode.Fill)
             {
                 FloodFill(localPoint);
             }
 
-            if (isLineMode)
+            if (currentMode == ToolMode.Line)
             {
-                Rect rect = drawingPanel.rectTransform.rect;
-                int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
-                int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
-
                 if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
                 { 
                     return;
@@ -88,13 +110,29 @@ public class DrawingManager : MonoBehaviour
                     DrawLine(startPoint.Value.x, startPoint.Value.y, pixelPos.x, pixelPos.y);
                     texture.Apply();
                     startPoint = null;
+                    SaveUndo();
+                }
+            }
+
+            if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+            { 
+                if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
+                {
+                    return;
+                }
+                Vector2Int pixelPos = new Vector2Int(x, y);
+                // 始点を設定
+                if (!isDrawing)
+                { 
+                    startPixel = pixelPos;
+                    isDrawing = true;
                 }
             }
         }
 
         if (Input.GetMouseButton(0))
         {
-            if (isPenMode) 
+            if (currentMode == ToolMode.Pen) 
             {
                 DrawAtPoint(localPoint);
             }
@@ -103,9 +141,25 @@ public class DrawingManager : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             lastPoint = null;
-            if (IsInsideCanvas(localPoint))
+            if (currentMode == ToolMode.Pen)
             {
+                if (isDrawing)
+                {
+                    SaveUndo();
+                    isDrawing = false;
+                }
+            }
+            
+            if (isDrawing)
+            {
+                if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
+                {
+                    return;
+                }
+                Vector2Int endPixel = new Vector2Int(x, y);
+                DrawShape(startPixel, endPixel);
                 SaveUndo();
+                isDrawing = false;
             }
         }
     }
@@ -200,6 +254,103 @@ public class DrawingManager : MonoBehaviour
         }
     }
 
+    private void DrawShape(Vector2Int start, Vector2Int end)
+    {
+        if (currentMode == ToolMode.Circle)
+        {
+            DrawCircle(start, end);
+        }
+        else if (currentMode == ToolMode.Rectrangle)
+        {
+            DrawRectangle(start, end);
+        }
+    }
+
+    // Bresenhamの楕円アルゴリズム
+    private void DrawCircle(Vector2Int start, Vector2Int end)
+    {
+        int centerX = (start.x + end.x) / 2;
+        int centerY = (start.y + end.y) / 2;
+        int radiusX = Mathf.Abs(centerX - start.x);
+        int radiusY = Mathf.Abs(centerY - start.y);
+
+        int x, y;
+        float dx, dy, d1, d2;
+
+        x = 0;
+        y = radiusY;
+
+        // 第一区間(x増加,y一定)
+        d1 = (radiusY * radiusY) - (radiusX * radiusX * radiusY) + (0.25f * radiusX * radiusX);
+        dx = 2 * radiusY * radiusY * x;
+        dy = 2 * radiusX * radiusX * y;
+
+        while (dx < dy)
+        { 
+            DrawPoint(centerX + x, centerY + y);
+            DrawPoint(centerX - x, centerY + y);
+            DrawPoint(centerX + x, centerY - y);
+            DrawPoint(centerX - x, centerY - y);
+
+            x++;
+            dx += 2 * radiusY * radiusY;
+            if (d1 < 0)
+            {
+                d1 += dx + radiusY * radiusY;
+            }
+            else
+            {
+                y--;
+                dy -= 2 * radiusX * radiusX;
+                d1 += dx - dy + radiusY * radiusY;
+            }
+        }
+        // 第二区間(x一定,y減少)
+        d2 = ((radiusY * radiusY) * ((x + 0.5f) * (x + 0.5f))) + ((radiusX * radiusX) * ((y - 1) * (y - 1))) - (radiusX * radiusX * radiusY * radiusY);
+
+        while (y >= 0)
+        {
+            DrawPoint(centerX + x, centerY + y);
+            DrawPoint(centerX - x, centerY + y);
+            DrawPoint(centerX + x, centerY - y);
+            DrawPoint(centerX - x, centerY - y);
+
+            y--;
+            dy -= 2 * radiusX * radiusX;
+            if (d2 > 0)
+            {
+                d2 += radiusX * radiusX - dy;
+            }
+            else
+            {
+                x++;
+                dx += 2 * radiusY * radiusY;
+                d2 += dx - dy + radiusX * radiusX;
+            }
+        }
+        texture.Apply();
+    }
+
+    private void DrawRectangle(Vector2Int start, Vector2Int end)
+    { 
+        int xMin = Mathf.Min(start.x, end.x);
+        int xMax = Mathf.Max(start.x, end.x);
+        int yMin = Mathf.Min(start.y, end.y);
+        int yMax = Mathf.Max(start.y, end.y);
+
+        for (int x = xMin; x <= xMax; x++)
+        {
+            DrawPoint(x, start.y);
+            DrawPoint(x, end.y);
+        }
+        for (int y = yMin; y <= yMax; y++)
+        {
+            DrawPoint(start.x, y);
+            DrawPoint(end.x, y);
+        }
+        texture.Apply();
+    }
+
     private void SaveUndo()
     {
         undoStack.Push(texture.GetPixels()); // 現在の状態を保存
@@ -257,6 +408,12 @@ public class DrawingManager : MonoBehaviour
     // 塗りつぶしアルゴリズム
     public void FloodFill(Vector2 localPoint)
     {
+        // キャンバス外をクリックした場合は何もしない
+        if (!IsInsideCanvas(localPoint))
+        {
+            return;
+        }
+
         Rect rect = drawingPanel.rectTransform.rect;
 
         // ローカル座標をTexture2Dの座標に変換
@@ -291,5 +448,6 @@ public class DrawingManager : MonoBehaviour
             pixelQueue.Enqueue(new Vector2Int(pos.x, pos.y - 1));
         }
         texture.Apply();
+        SaveUndo();
     }
 }

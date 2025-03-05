@@ -7,6 +7,9 @@ public class DotButtonController : MonoBehaviour
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
     [SerializeField] GameObject lineButtonCover;
+    [SerializeField] GameObject circleButtonCover;
+    [SerializeField] GameObject rectangleButtonCover;
+
 
     private void Update()
     {
@@ -28,7 +31,7 @@ public class DotButtonController : MonoBehaviour
             redoButtonCover.SetActive(true);
         }
 
-        if (DrawingManager.instance.isPenMode)
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen)
         {
             penButtonCover.SetActive(true);
         }
@@ -37,7 +40,7 @@ public class DotButtonController : MonoBehaviour
             penButtonCover.SetActive(false);
         }
 
-        if (DrawingManager.instance.isFillMode)
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill)
         {
             fillButtonCover.SetActive(true);
         }
@@ -46,13 +49,31 @@ public class DotButtonController : MonoBehaviour
             fillButtonCover.SetActive(false);
         }
 
-        if (DrawingManager.instance.isLineMode)
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line)
         {
             lineButtonCover.SetActive(true);
         }
         else
         {
             lineButtonCover.SetActive(false);
+        }
+
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Circle)
+        {
+            circleButtonCover.SetActive(true);
+        }
+        else
+        {
+            circleButtonCover.SetActive(false);
+        }
+
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Rectrangle)
+        {
+            rectangleButtonCover.SetActive(true);
+        }
+        else
+        {
+            rectangleButtonCover.SetActive(false);
         }
     }
 
@@ -72,21 +93,23 @@ public class DotButtonController : MonoBehaviour
     // ツールボタン各種
     public void OnClickPenButton()
     {
-        DrawingManager.instance.isFillMode = false;
-        DrawingManager.instance.isLineMode = false;
-        DrawingManager.instance.isPenMode = true;
+        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Pen;
     }
     public void OnClickFillButton()
     {
-        DrawingManager.instance.isPenMode = false;
-        DrawingManager.instance.isLineMode = false;
-        DrawingManager.instance.isFillMode = true;
+        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Fill;
     }
     public void OnClickLineButton()
     {
-        DrawingManager.instance.isPenMode = false;
-        DrawingManager.instance.isFillMode = false;
-        DrawingManager.instance.isLineMode = true;
+        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Line;
+    }
+    public void OnClickCircleButton()
+    {
+        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Circle;
+    }
+    public void OnClickRectangleButton()
+    {
+        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Rectrangle;
     }
 
 
