@@ -5,40 +5,57 @@ using UnityEngine.UI;
 public class GridGenerator : MonoBehaviour
 {
     Texture2D gridTexture;
-    [SerializeField] RawImage gridImage;
-    [SerializeField] int gridSizeWidth;
-    [SerializeField] int gridSizeHeight;
+    [SerializeField] RawImage gridPanel;
+    [SerializeField] Toggle gridToggle;
+    [SerializeField] int gridSize;
+    [SerializeField] int gridThickness; // ÉOÉäÉbÉhê¸ÇÃëæÇ≥
     Color clearColor = new Color(0, 0, 0, 0);
-    Color gridColor = new Color(0, 0, 0, 1);
+    Color gridColor = new Color(0, 0, 0, 0.92f);
 
     private void Start()
     {
-        gridSizeWidth = DrawingManager.instance.CanvasWidth;
-        gridSizeHeight = DrawingManager.instance.CanvasHeight;
+        int gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
+        int gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
 
-        gridTexture = new Texture2D(gridSizeWidth * 30, gridSizeHeight * 30, TextureFormat.RGBA32, false);
+        gridTexture = new Texture2D(gridSizeWidth, gridSizeHeight, TextureFormat.RGBA32, false);
         gridTexture.filterMode = FilterMode.Point;
-        gridImage.texture = gridTexture;
+        gridPanel.texture = gridTexture;
 
-        CreateGrid();
+        Color[] colors = new Color[gridSizeWidth * gridSizeHeight];
+        for (int i = 0; i < colors.Length; i++)
+        {
+            colors[i] = clearColor;
+        }
+        gridTexture.SetPixels(colors);
+        gridTexture.Apply();
+
+        CreateGrid(gridSizeWidth, gridSizeHeight);
     }
 
-    public void CreateGrid()
+    private void CreateGrid(int width, int height)
     {
-        for (int x = 0; x < gridTexture.width; x++)
+        for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < gridTexture.height; y++)
+            for (int y = 0; y < height; y++)
             {
-                if (x % (gridSizeWidth * 3) == 0 || y % (gridSizeHeight * 3) == 0)
+                if (x % gridSize < gridThickness || y % gridSize < gridThickness || x >= width - gridThickness || y >= height - gridThickness)
                 {
                     gridTexture.SetPixel(x, y, gridColor);
-                }
-                else
-                {
-                    gridTexture.SetPixel(x, y, clearColor);
                 }
             }
         }
         gridTexture.Apply();
+    }
+
+    public void ToggleGrid()
+    {
+        if (gridToggle.isOn)
+        {
+            gridPanel.enabled = true;
+        }
+        else
+        {
+            gridPanel.enabled = false;
+        }
     }
 }
