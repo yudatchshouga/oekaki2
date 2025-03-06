@@ -55,7 +55,7 @@ public class DrawingManager : MonoBehaviour
         Color[] colors = new Color[CanvasWidth * CanvasHeight];
         for (int i = 0; i < colors.Length; i++)
         {
-            colors[i] = Color.white;
+            colors[i] = new Color(1, 1, 1, 0);
         }
         texture.SetPixels(colors);
         texture.Apply();
@@ -391,7 +391,7 @@ public class DrawingManager : MonoBehaviour
         Color[] clearColors = new Color[texture.width * texture.height];
         for (int i = 0; i < clearColors.Length; i++)
         {
-            clearColors[i] = Color.white;
+            clearColors[i] = new Color(1, 1, 1, 0);
         }
         texture.SetPixels(clearColors);
         texture.Apply();
@@ -456,5 +456,10 @@ public class DrawingManager : MonoBehaviour
     {
         currentMode = mode;
         isDrawing = false;
+    }
+
+    public void ChangeColor(Color color)
+    {
+        drawColor = color;
     }
 }

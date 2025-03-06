@@ -9,11 +9,14 @@ public class GridGenerator : MonoBehaviour
     [SerializeField] Toggle gridToggle;
     [SerializeField] int gridSize;
     [SerializeField] int gridThickness; // ÉOÉäÉbÉhê¸ÇÃëæÇ≥
-    Color clearColor = new Color(0, 0, 0, 0);
-    Color gridColor = new Color(0, 0, 0, 0.92f);
+    Color clearColor;
+    [SerializeField] Color gridColor;
 
     private void Start()
     {
+        clearColor = new Color(0, 0, 0, 0);
+        gridColor = new Color(51f / 255f, 51f / 255f, 51f / 255f, 1);
+
         int gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
         int gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
 
@@ -52,6 +55,7 @@ public class GridGenerator : MonoBehaviour
         if (gridToggle.isOn)
         {
             gridPanel.enabled = true;
+            CreateGrid(gridTexture.width, gridTexture.height);
         }
         else
         {

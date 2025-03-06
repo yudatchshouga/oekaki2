@@ -121,42 +121,46 @@ public class DotButtonController : MonoBehaviour
 
     public void OnClickBlack()
     {
-        DrawingManager.instance.drawColor = Color.black;
+        DrawingManager.instance.ChangeColor(Color.black);
     }
     public void OnClickRed()
-    { 
-        DrawingManager.instance.drawColor = Color.red;
+    {
+        DrawingManager.instance.ChangeColor(Color.red);
     }
     public void OnClickBlue()
     {
-        DrawingManager.instance.drawColor = Color.blue;
+        DrawingManager.instance.ChangeColor(Color.blue);
     }
     public void OnClickGreen()
     {
-        DrawingManager.instance.drawColor = Color.green;
+        DrawingManager.instance.ChangeColor(Color.green);
     }
     public void OnClickYellow()
     {
-        DrawingManager.instance.drawColor = Color.yellow;
+        DrawingManager.instance.ChangeColor(Color.yellow);
     }
     public void OnClickMagenta()
     {
-        DrawingManager.instance.drawColor = Color.magenta;
+        DrawingManager.instance.ChangeColor(Color.magenta);
     }
     public void OnClickCyan()
     {
-        DrawingManager.instance.drawColor = Color.cyan;
+        DrawingManager.instance.ChangeColor(Color.cyan);
     }
     public void OnClickGray()
     {
-        DrawingManager.instance.drawColor = Color.gray;
+        DrawingManager.instance.ChangeColor(Color.gray);
     }
     public void OnClickBeige()
     {
-        DrawingManager.instance.drawColor = new Color32(246, 184, 148, 255);
+        DrawingManager.instance.ChangeColor(new Color32(246, 184, 148, 255));
     }
     public void OnClickWhite() 
     {
-        DrawingManager.instance.drawColor = Color.white;
+        DrawingManager.instance.ChangeColor(Color.white);
+    }
+    public void OnClickEraserButton()
+    {
+        DrawingManager.instance.ChangeColor(new Color(0, 0, 0, 0));
     }
 }
