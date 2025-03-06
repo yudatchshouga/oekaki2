@@ -5,8 +5,7 @@ using UnityEngine.UI;
 public class PixelSizeInputField : MonoBehaviour
 {
     [SerializeField] InputField inputField;
-    [SerializeField] Text errorText;
-    [SerializeField] Button startButton;
+    public bool isError;
 
     public int number;
 
@@ -16,8 +15,6 @@ public class PixelSizeInputField : MonoBehaviour
         inputField.onValueChanged.AddListener(OnInputValueChanged);
         inputField.onEndEdit.AddListener(ValidateInput);
         inputField.text = number.ToString();
-
-        startButton.interactable = true;
     }
 
     private void ValidateInput(string input)
@@ -36,22 +33,17 @@ public class PixelSizeInputField : MonoBehaviour
             // 入力値が制限内かどうかをチェック
             if (value >= 1 && value <= 50)
             {
-                errorText.gameObject.SetActive(false);
                 number = int.Parse(inputField.text);
-                startButton.interactable = true;
+                isError = false;
             }
             else
             {
-                errorText.text = "1 から 50 の間の整数値を入力してください";
-                errorText.gameObject.SetActive(true);
-                startButton.interactable = false;
+                isError = true;
             }
         }
         else
         {
-            errorText.text = "1 から 50 の間の整数値を入力してください";
-            errorText.gameObject.SetActive(true);
-            startButton.interactable = false;
+            isError = true;
         }
     }
 
