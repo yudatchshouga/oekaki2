@@ -10,14 +10,14 @@ public class SizeManager : MonoBehaviour
 
     private void Update()
     {
-        if (!widthInputField.isError && !heightInputField.isError)
+        if (!widthInputField.IsError && !heightInputField.IsError)
         {
             errorText.gameObject.SetActive(false);
             startButton.interactable = true;
         }
         else
         {
-            errorText.text = "1 ‚©‚ç 50 ‚ÌŠÔ‚Ì®”’l‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢";
+            errorText.text = $"{widthInputField.minValue} ‚©‚ç {widthInputField.maxValue} ‚ÌŠÔ‚Ì®”’l‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢";
             errorText.gameObject.SetActive(true);
             startButton.interactable = false;
         }

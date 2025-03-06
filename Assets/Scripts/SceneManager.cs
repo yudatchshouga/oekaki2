@@ -9,8 +9,8 @@ public class SceneManager : MonoBehaviour
 
     public void OnStartButtonClick()
     {
-        PlayerPrefs.SetInt("Width", widthInputField.number);
-        PlayerPrefs.SetInt("Height", heightInputField.number);
+        PlayerPrefs.SetInt("Width", widthInputField.inputPixelSize);
+        PlayerPrefs.SetInt("Height", heightInputField.inputPixelSize);
         PlayerPrefs.Save();
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("DotOekaki");
