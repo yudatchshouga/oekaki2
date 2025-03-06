@@ -19,7 +19,6 @@ public class GridGenerator : MonoBehaviour
 
         gridTexture = new Texture2D(gridSizeWidth, gridSizeHeight, TextureFormat.RGBA32, false);
         gridTexture.filterMode = FilterMode.Point;
-        gridPanel.texture = gridTexture;
 
         Color[] colors = new Color[gridSizeWidth * gridSizeHeight];
         for (int i = 0; i < colors.Length; i++)
@@ -28,6 +27,7 @@ public class GridGenerator : MonoBehaviour
         }
         gridTexture.SetPixels(colors);
         gridTexture.Apply();
+        gridPanel.texture = gridTexture;
 
         CreateGrid(gridSizeWidth, gridSizeHeight);
     }

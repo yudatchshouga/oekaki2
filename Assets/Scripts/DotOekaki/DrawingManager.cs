@@ -91,29 +91,6 @@ public class DrawingManager : MonoBehaviour
                 FloodFill(localPoint);
             }
 
-            if (currentMode == ToolMode.Line)
-            {
-                if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
-                { 
-                    return;
-                }
-                Vector2Int pixelPos = new Vector2Int(x, y);
-                // 一回目のクリックで始点を設定
-                if (startPoint == null)
-                {
-                    DrawPoint(pixelPos.x, pixelPos.y);
-                    texture.Apply();
-                    startPoint = pixelPos;
-                }
-                else
-                {
-                    DrawLine(startPoint.Value.x, startPoint.Value.y, pixelPos.x, pixelPos.y);
-                    texture.Apply();
-                    startPoint = null;
-                    SaveUndo();
-                }
-            }
-
             if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
             { 
                 if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
@@ -149,17 +126,41 @@ public class DrawingManager : MonoBehaviour
                     isDrawing = false;
                 }
             }
-            
-            if (isDrawing)
+
+            if (currentMode == ToolMode.Line)
             {
                 if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
                 {
                     return;
                 }
-                Vector2Int endPixel = new Vector2Int(x, y);
-                DrawShape(startPixel, endPixel);
-                SaveUndo();
-                isDrawing = false;
+                Vector2Int pixelPos = new Vector2Int(x, y);
+                // 一回目のクリックで始点を設定
+                if (startPoint == null)
+                {
+                    DrawPoint(pixelPos.x, pixelPos.y);
+                    startPoint = pixelPos;
+                }
+                else
+                {
+                    DrawLine(startPoint.Value.x, startPoint.Value.y, pixelPos.x, pixelPos.y);
+                    startPoint = null;
+                    SaveUndo();
+                }
+            }
+
+            if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+            {
+                if (isDrawing)
+                {
+                    if (x < 0 || x >= texture.width || y < 0 || y >= texture.height)
+                    {
+                        return;
+                    }
+                    Vector2Int endPixel = new Vector2Int(x, y);
+                    DrawShape(startPixel, endPixel);
+                    SaveUndo();
+                    isDrawing = false;
+                }
             }
         }
     }
@@ -188,7 +189,6 @@ public class DrawingManager : MonoBehaviour
         }
     }
 
-    // 最初のクリックの描画
     private void DrawPoint(int cx, int cy)
     {
         /*
@@ -235,6 +235,7 @@ public class DrawingManager : MonoBehaviour
                 }
             }
         }
+        texture.Apply();
     }
 
     // Bresenhamの直線アルゴリズム
@@ -449,5 +450,11 @@ public class DrawingManager : MonoBehaviour
         }
         texture.Apply();
         SaveUndo();
+    }
+
+    public void ChangeMode(ToolMode mode)
+    {
+        currentMode = mode;
+        isDrawing = false;
     }
 }

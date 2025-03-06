@@ -93,23 +93,23 @@ public class DotButtonController : MonoBehaviour
     // ツールボタン各種
     public void OnClickPenButton()
     {
-        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Pen;
+        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
     }
     public void OnClickFillButton()
     {
-        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Fill;
+        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
     }
     public void OnClickLineButton()
     {
-        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Line;
+        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Line);
     }
     public void OnClickCircleButton()
     {
-        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Circle;
+        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
     }
     public void OnClickRectangleButton()
     {
-        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Rectrangle;
+        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
     }
 
 
