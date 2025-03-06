@@ -43,6 +43,9 @@ public class DrawingManager : MonoBehaviour
 
     private void Start()
     {
+        CanvasWidth = PlayerPrefs.GetInt("Width", 10);
+        CanvasHeight = PlayerPrefs.GetInt("Height", 10);
+
         // Texture2Dを作成
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point; // ドット絵くっきりモードON
