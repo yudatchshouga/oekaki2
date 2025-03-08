@@ -116,7 +116,7 @@ public class DotButtonController : MonoBehaviour
     // ペンの色変更ボタン各種
     public void OnClickAllClearButton()
     {
-        DrawingManager.instance.ClearCanvas();
+        DrawingManager.instance.AllClear();
     }
 
     public void OnClickBlack()

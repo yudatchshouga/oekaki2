@@ -14,6 +14,7 @@ public class PreviewGenerator : MonoBehaviour
     Color previewColor;
     ToolMode currentPreviewMode;
     int previewBrushSize;
+    DrawingUtils drawer;
 
     private void Start()
     {
@@ -38,12 +39,13 @@ public class PreviewGenerator : MonoBehaviour
         previewColor = DrawingManager.instance.drawColor;
         previewBrushSize = DrawingManager.instance.brushSize;
         currentPreviewMode = DrawingManager.instance.currentMode;
+        drawer = new DrawingUtils(previewTexture, previewColor, previewBrushSize);
 
         if (Input.GetMouseButtonDown(0))
         {
             if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectrangle)
             {
-                if (x < 0 || x >= previewTexture.width || y < 0 || y >= previewTexture.height)
+                if (!IsInsideCanvas(localPoint))
                 {
                     return;
                 }
@@ -92,13 +94,13 @@ public class PreviewGenerator : MonoBehaviour
                     {
                         return;
                     }
-                    DrawPoint(pixelPos.x, pixelPos.y);
+                    DrawPoint(pixelPos);
                     startPoint = pixelPos;
                     isDrawing = true;
                 }
                 else
                 {
-                    if (x < 0 || x >= previewTexture.width || y < 0 || y >= previewTexture.height)
+                    if (!IsInsideCanvas(localPoint))
                     {
                         return;
                     }
@@ -118,45 +120,9 @@ public class PreviewGenerator : MonoBehaviour
     }
 
 
-    private void DrawPoint(int cx, int cy)
+    private void DrawPoint(Vector2Int position)
     {
-        if (previewBrushSize == 1)
-        {
-            previewTexture.SetPixel(cx, cy, previewColor);
-        }
-        // ブラシの大きさが偶数の場合と奇数の場合で処理を分ける
-        else if (previewBrushSize % 2 == 0)
-        {
-            int halfSize = previewBrushSize / 2;
-            for (int dx = -halfSize + 1; dx <= halfSize; dx++)
-            {
-                for (int dy = -halfSize + 1; dy <= halfSize; dy++)
-                {
-                    int px = cx + dx;
-                    int py = cy + dy;
-                    if (px >= 0 && px < previewTexture.width && py >= 0 && py < previewTexture.height)
-                    {
-                        previewTexture.SetPixel(px, py, previewColor);
-                    }
-                }
-            }
-        }
-        else if (previewBrushSize % 2 == 1)
-        {
-            int halfSize = previewBrushSize / 2;
-            for (int dx = -halfSize; dx <= halfSize; dx++)
-            {
-                for (int dy = -halfSize; dy <= halfSize; dy++)
-                {
-                    int px = cx + dx;
-                    int py = cy + dy;
-                    if (px >= 0 && px < previewTexture.width && py >= 0 && py < previewTexture.height)
-                    {
-                        previewTexture.SetPixel(px, py, previewColor);
-                    }
-                }
-            }
-        }
+        drawer.DrawPoint(position);
         previewTexture.Apply();
     }
 
@@ -164,7 +130,7 @@ public class PreviewGenerator : MonoBehaviour
     {
         if (currentPreviewMode == ToolMode.Line)
         {
-            DrawLine(start.x, start.y, end.x, end.y);
+            DrawLine(start, end);
         }
         else if (currentPreviewMode == ToolMode.Circle)
         {
@@ -177,21 +143,10 @@ public class PreviewGenerator : MonoBehaviour
     }
 
     // Bresenhamの直線アルゴリズム
-    private void DrawLine(int x0, int y0, int x1, int y1)
+    private void DrawLine(Vector2Int start, Vector2Int end)
     {
         ClearCanvas();
-        int dx = Mathf.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-        int dy = -Mathf.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-        int err = dx + dy, e2;
-
-        while (true)
-        {
-            DrawPoint(x0, y0);
-            if (x0 == x1 && y0 == y1) break;
-            e2 = 2 * err;
-            if (e2 >= dy) { err += dy; x0 += sx; }
-            if (e2 <= dx) { err += dx; y0 += sy; }
-        }
+        drawer.DrawLine(start, end);
         previewTexture.Apply();
     }
 
@@ -199,86 +154,14 @@ public class PreviewGenerator : MonoBehaviour
     private void DrawCircle(Vector2Int start, Vector2Int end)
     {
         ClearCanvas();
-        int centerX = (start.x + end.x) / 2;
-        int centerY = (start.y + end.y) / 2;
-        int radiusX = Mathf.Abs(centerX - start.x);
-        int radiusY = Mathf.Abs(centerY - start.y);
-
-        int x, y;
-        float dx, dy, d1, d2;
-
-        x = 0;
-        y = radiusY;
-
-        // 第一区間(x増加,y一定)
-        d1 = (radiusY * radiusY) - (radiusX * radiusX * radiusY) + (0.25f * radiusX * radiusX);
-        dx = 2 * radiusY * radiusY * x;
-        dy = 2 * radiusX * radiusX * y;
-
-        while (dx < dy)
-        {
-            DrawPoint(centerX + x, centerY + y);
-            DrawPoint(centerX - x, centerY + y);
-            DrawPoint(centerX + x, centerY - y);
-            DrawPoint(centerX - x, centerY - y);
-
-            x++;
-            dx += 2 * radiusY * radiusY;
-            if (d1 < 0)
-            {
-                d1 += dx + radiusY * radiusY;
-            }
-            else
-            {
-                y--;
-                dy -= 2 * radiusX * radiusX;
-                d1 += dx - dy + radiusY * radiusY;
-            }
-        }
-        // 第二区間(x一定,y減少)
-        d2 = ((radiusY * radiusY) * ((x + 0.5f) * (x + 0.5f))) + ((radiusX * radiusX) * ((y - 1) * (y - 1))) - (radiusX * radiusX * radiusY * radiusY);
-
-        while (y >= 0)
-        {
-            DrawPoint(centerX + x, centerY + y);
-            DrawPoint(centerX - x, centerY + y);
-            DrawPoint(centerX + x, centerY - y);
-            DrawPoint(centerX - x, centerY - y);
-
-            y--;
-            dy -= 2 * radiusX * radiusX;
-            if (d2 > 0)
-            {
-                d2 += radiusX * radiusX - dy;
-            }
-            else
-            {
-                x++;
-                dx += 2 * radiusY * radiusY;
-                d2 += dx - dy + radiusX * radiusX;
-            }
-        }
+        drawer.DrawCircle(start, end);
         previewTexture.Apply();
     }
 
     private void DrawRectangle(Vector2Int start, Vector2Int end)
     {
         ClearCanvas();
-        int xMin = Mathf.Min(start.x, end.x);
-        int xMax = Mathf.Max(start.x, end.x);
-        int yMin = Mathf.Min(start.y, end.y);
-        int yMax = Mathf.Max(start.y, end.y);
-
-        for (int x = xMin; x <= xMax; x++)
-        {
-            DrawPoint(x, start.y);
-            DrawPoint(x, end.y);
-        }
-        for (int y = yMin; y <= yMax; y++)
-        {
-            DrawPoint(start.x, y);
-            DrawPoint(end.x, y);
-        }
+        drawer.DrawRectangle(start, end);
         previewTexture.Apply();
     }
 

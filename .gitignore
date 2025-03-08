@@ -82,4 +82,5 @@ Assets/Photon/Editor/
 # ただし、 PhotonServerSettings は管理対象
 !Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset
 
+# ビルドデータを除外
 Buildtest

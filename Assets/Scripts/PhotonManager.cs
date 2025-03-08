@@ -14,6 +14,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         Debug.Log("Photon に接続成功！");
+    }
+
+    public void JoinRandomRoom()
+    {
         Debug.Log("ランダムルームに参加します。");
         PhotonNetwork.JoinRandomRoom();
     }
@@ -22,7 +26,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.Log("ランダムルームが存在しないため、新しいルームを作成します。");
-        PhotonNetwork.CreateRoom(null);
+
+        var roomOptions = new RoomOptions
+        {
+            MaxPlayers = 4, // 最大プレイヤー数4人
+            IsOpen = true, // ルームを一般公開する
+            IsVisible = true, // ルームがロビーで表示される
+        };
+        PhotonNetwork.CreateRoom(null, roomOptions);
     }
 
     // === ルームに参加したときのコールバック ===
