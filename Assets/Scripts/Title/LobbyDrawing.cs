@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 using Photon.Pun;
 
 public class LobbyDrawing : MonoBehaviourPunCallbacks
@@ -10,7 +11,9 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     int penSize;
     int CanvasWidth;
     int CanvasHeight;
-    Vector2Int? lastPoint = null;
+    Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
+    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
+    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
     DrawingUtils drawer;
 
     private void Start()
@@ -22,55 +25,68 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         rawImage.texture = texture;
         drawColor = Color.black;
         penSize = 1;
+        drawer = new DrawingUtils(texture, drawColor, penSize);
 
         ClearCanvas();
     }
 
     void Update()
     {
-        drawer = new DrawingUtils(texture, drawColor, penSize);
-
-        Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rawImage.rectTransform, Input.mousePosition, null, out localPoint);
-
-        Rect rect = rawImage.rectTransform.rect;
-        int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
-        int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+        Vector2Int localPoint = GetMouseCanvasPosition();
 
         if (Input.GetMouseButton(0))
         {
             if (IsInsideCanvas(localPoint))
             {
-                photonView.RPC("DrawAtPoint", RpcTarget.All, localPoint);
+                int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+                photonView.RPC("DrawAtPoint", RpcTarget.All, actorNumber, localPoint.x, localPoint.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, penSize);
             }
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            lastPoint = null;
+            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+            photonView.RPC("ResetLastPoint", RpcTarget.All, actorNumber);
         }
     }
 
     [PunRPC]
-    private void DrawAtPoint(Vector2 localPoint)
+    private void DrawAtPoint(int actorNumber, int x, int y, float r, float g, float b, float a, int size)
     {
-        Rect rect = rawImage.rectTransform.rect;
+        Vector2Int point = new Vector2Int(x, y);
+        Color color = new Color(r, g, b, a);
 
-        // ローカル座標をTexture2Dの座標に変換
-        int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
-        int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+        // プレイヤーの設定を更新
+        playerColors[actorNumber] = color;
+        playerPenSizes[actorNumber] = size;
 
-        if (lastPoint.HasValue)
+        if (!lastPoints.ContainsKey(actorNumber))
         {
-            drawer.DrawLine(lastPoint.Value, new Vector2Int(x, y)); // 2回目以降の描画
+            lastPoints[actorNumber] = null;
+        }
+
+        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
+        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
+
+        if (lastPoints[actorNumber].HasValue)
+        {
+            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2回目以降の描画
         }
         else
         {
-            drawer.DrawPoint(new Vector2Int(x, y)); // 最初の描画
+            tempDrawer.DrawPoint(point); // 最初の描画
         }
-
-        lastPoint = new Vector2Int(x, y);
         texture.Apply();
+        lastPoints[actorNumber] = point;
+    }
+
+    [PunRPC]
+    private void ResetLastPoint(int actorNumber)
+    {
+        if (lastPoints.ContainsKey(actorNumber))
+        {
+            lastPoints[actorNumber] = null;
+        }
     }
 
     public void ClearCanvas()
@@ -84,10 +100,21 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         texture.Apply();
     }
 
-    private bool IsInsideCanvas(Vector2 localPoint)
+    private bool IsInsideCanvas(Vector2Int localPoint)
     {
         Rect rect = rawImage.rectTransform.rect;
         return rect.Contains(localPoint);
+    }
+
+    private Vector2Int GetMouseCanvasPosition()
+    {
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(rawImage.rectTransform, Input.mousePosition, null, out localPoint);
+
+        Rect rect = rawImage.rectTransform.rect;
+        int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
+        int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+        return new Vector2Int(x, y);
     }
 
     // パレットのボタンをクリックしたときにdrawColorを変更する
@@ -126,11 +153,13 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
                 drawColor = new Color32(246, 184, 148, 1);
                 break;
         }
+        drawer = new DrawingUtils(texture, drawColor, penSize);
     }
 
     // スライダーの値をpenSizeに反映する
     public void OnValueChangedPenSize(Slider slider)
     {
         penSize = (int)slider.value;
+        drawer = new DrawingUtils(texture, drawColor, penSize);
     }
 }
