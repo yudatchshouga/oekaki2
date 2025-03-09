@@ -22,4 +22,13 @@ public class SizeManager : MonoBehaviour
             startButton.interactable = false;
         }
     }
+
+    public void OnStartButtonClick()
+    {
+        PlayerPrefs.SetInt("Width", widthInputField.inputPixelSize);
+        PlayerPrefs.SetInt("Height", heightInputField.inputPixelSize);
+        PlayerPrefs.Save();
+
+        SceneController.LoadScene("DotOekaki");
+    }
 }

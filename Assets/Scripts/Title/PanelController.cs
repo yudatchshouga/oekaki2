@@ -2,18 +2,36 @@ using UnityEngine;
 
 public class PanelController : MonoBehaviour
 {
-    public void OnClickOfflineButton()
+    [SerializeField] LobbyDrawing lobbyDrawing;
+
+    private enum Panels
     {
-        transform.localPosition = new Vector3(-2000, 0, 0);
+        Title,
+        SizeSelect,
+        OnlineMenu,
+        Lobby,
     }
 
-    public void OnClickOnlineButton()
-    {
-        transform.localPosition = new Vector3(0, 1500, 0);
-    }
+    private Panels currentPanel;
 
-    public void OnClickBackButton()
+    public void OnClickButton(int panel)
     {
-        transform.localPosition = new Vector3(0, 0, 0);
+        currentPanel = (Panels)panel;
+        switch (currentPanel)
+        {
+            case Panels.Title:
+                transform.localPosition = new Vector3(0, 0, 0);
+                break;
+            case Panels.SizeSelect:
+                transform.localPosition = new Vector3(-2000, 0, 0);
+                break;
+            case Panels.OnlineMenu:
+                transform.localPosition = new Vector3(0, 1500, 0);
+                break;
+            case Panels.Lobby:
+                transform.localPosition = new Vector3(0, 3000, 0);
+                break;
+        }
+        lobbyDrawing.ClearCanvas();
     }
 }

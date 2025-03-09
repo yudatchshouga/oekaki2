@@ -49,7 +49,7 @@ public class DrawingManager : MonoBehaviour
 
         // Texture2Dを作成
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point; // ドット絵くっきりモードON
+        texture.filterMode = FilterMode.Point; // ドット絵くっきりモード
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();
