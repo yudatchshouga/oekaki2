@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class LobbyDrawing : MonoBehaviour
+public class LobbyDrawing : MonoBehaviourPunCallbacks
 {
     Texture2D texture;
     [SerializeField] RawImage rawImage;
@@ -14,8 +15,8 @@ public class LobbyDrawing : MonoBehaviour
 
     private void Start()
     {
-        CanvasWidth = 100;
-        CanvasHeight = 50;
+        CanvasWidth = 96;
+        CanvasHeight = 54;
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point;
         rawImage.texture = texture;
@@ -38,7 +39,10 @@ public class LobbyDrawing : MonoBehaviour
 
         if (Input.GetMouseButton(0))
         {
-            DrawAtPoint(localPoint);
+            if (IsInsideCanvas(localPoint))
+            {
+                photonView.RPC("DrawAtPoint", RpcTarget.All, localPoint);
+            }
         }
 
         if (Input.GetMouseButtonUp(0))
@@ -47,6 +51,7 @@ public class LobbyDrawing : MonoBehaviour
         }
     }
 
+    [PunRPC]
     private void DrawAtPoint(Vector2 localPoint)
     {
         Rect rect = rawImage.rectTransform.rect;
@@ -77,5 +82,55 @@ public class LobbyDrawing : MonoBehaviour
         }
         texture.SetPixels(colors);
         texture.Apply();
+    }
+
+    private bool IsInsideCanvas(Vector2 localPoint)
+    {
+        Rect rect = rawImage.rectTransform.rect;
+        return rect.Contains(localPoint);
+    }
+
+    // パレットのボタンをクリックしたときにdrawColorを変更する
+    public void OnClickColorButton(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                drawColor = Color.black;
+                break;
+            case 1:
+                drawColor = Color.white;
+                break;
+            case 2:
+                drawColor = Color.red;
+                break;
+            case 3:
+                drawColor = Color.green;
+                break;
+            case 4:
+                drawColor = Color.blue;
+                break;
+            case 5:
+                drawColor = Color.yellow;
+                break;
+            case 6:
+                drawColor = Color.magenta;
+                break;
+            case 7:
+                drawColor = Color.cyan;
+                break;
+            case 8:
+                drawColor = Color.gray;
+                break;
+            case 9:
+                drawColor = new Color32(246, 184, 148, 1);
+                break;
+        }
+    }
+
+    // スライダーの値をpenSizeに反映する
+    public void OnValueChangedPenSize(Slider slider)
+    {
+        penSize = (int)slider.value;
     }
 }

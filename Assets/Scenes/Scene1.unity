@@ -288,7 +288,19 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnValueChangedPenSize
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 79676608}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Slider, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &88452375
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,7 +382,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 88452378}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &88452378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1247,7 +1271,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 334632053}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &334632053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1579,7 +1615,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 427082060}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 8
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &427082060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3835,7 +3883,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 749991463}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 5
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &749991463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4640,7 +4700,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1043661460}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 7
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1043661460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4997,7 +5069,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1146465248}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 6
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1146465248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6840,6 +6924,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1547737343}
   - component: {fileID: 1547737342}
+  - component: {fileID: 1547737344}
   m_Layer: 0
   m_Name: LobbyDrawing
   m_TagString: Untagged
@@ -6875,6 +6960,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1547737344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547737341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1548018243
 GameObject:
   m_ObjectHideFlags: 0
@@ -6956,7 +7063,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1548018246}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1548018246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7251,7 +7370,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1595292762}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1595292762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8397,7 +8528,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1814553892}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1814553892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8896,7 +9039,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1892879291}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1547737342}
+        m_TargetAssemblyTypeName: LobbyDrawing, Assembly-CSharp
+        m_MethodName: OnClickColorButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 9
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1892879291
 MonoBehaviour:
   m_ObjectHideFlags: 0
