@@ -31,8 +31,6 @@ public class GridGenerator : MonoBehaviour
         gridTexture.SetPixels(colors);
         gridTexture.Apply();
         gridPanel.texture = gridTexture;
-
-        CreateGrid(gridSizeWidth, gridSizeHeight);
     }
 
     private void CreateGrid(int width, int height)
