@@ -8,6 +8,7 @@ public class DrawingManager : MonoBehaviour
     public static DrawingManager instance;
 
     Texture2D texture;
+    [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
@@ -63,6 +64,24 @@ public class DrawingManager : MonoBehaviour
         currentMode = ToolMode.Pen;
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
+
+        SetDrawFieldSize();
+    }
+
+    // 描画領域のサイズを設定
+    private void SetDrawFieldSize()
+    {
+        RectTransform rectTransform = drawField.GetComponent<RectTransform>();
+        float aspectRatio = (float)CanvasWidth / CanvasHeight;
+
+        if (aspectRatio > 1)
+        {
+            rectTransform.sizeDelta = new Vector2(900, 900 / aspectRatio);
+        }
+        else
+        {
+            rectTransform.sizeDelta = new Vector2(900 * aspectRatio, 900);
+        }
     }
 
     private void Update()

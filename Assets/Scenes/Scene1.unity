@@ -6910,8 +6910,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 1515905951}
-  minValue: 1
-  maxValue: 50
+  minValue: 5
+  maxValue: 100
   inputPixelSize: 50
   isError: 0
 --- !u!1 &1547737341
@@ -8954,8 +8954,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 1870457185}
-  minValue: 1
-  maxValue: 50
+  minValue: 5
+  maxValue: 100
   inputPixelSize: 50
   isError: 0
 --- !u!1 &1892879288
