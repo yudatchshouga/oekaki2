@@ -13,7 +13,6 @@ public class DrawingManager : MonoBehaviour
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
     public int brushSize; // ブラシの大きさ
-    public float penAlpha; // ペンの透明度(要らないかもしれない)
     Vector2Int? lastPoint = null; // 前回の描画位置
     Stack<Color[]> undoStack; // 元に戻すためのスタック
     Stack<Color[]> redoStack; // やり直しのためのスタック
@@ -62,20 +61,12 @@ public class DrawingManager : MonoBehaviour
 
         // ゲーム開始時はペンモード
         currentMode = ToolMode.Pen;
+
+        drawer = new DrawingUtils(texture, drawColor, brushSize);
     }
 
     private void Update()
     {
-        /*
-        // ペンの透明度を設定
-        Color newColor = drawColor;
-        newColor.a = penAlpha;
-        Color brushColor = Color.Lerp(Color.white, newColor, newColor.a);
-        DrawingUtils.DrawPoint(texture, x, y, brushSize, brushColor);
-        */
-
-        drawer = new DrawingUtils(texture, drawColor, brushSize);
-
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(drawingPanel.rectTransform, Input.mousePosition, null, out localPoint);
 
@@ -146,8 +137,6 @@ public class DrawingManager : MonoBehaviour
                 // 一回目のクリックで始点を設定
                 if (startPoint == null)
                 {
-                    drawer.DrawPoint(pixelPos);
-                    texture.Apply();
                     startPoint = pixelPos;
                 }
                 else
@@ -165,6 +154,7 @@ public class DrawingManager : MonoBehaviour
                 {
                     if (!IsInsideCanvas(localPoint))
                     {
+                        isDrawing = false;
                         return;
                     }
                     Vector2Int endPixel = new Vector2Int(x, y);
@@ -297,5 +287,12 @@ public class DrawingManager : MonoBehaviour
     public void ChangeColor(Color color)
     {
         drawColor = color;
+        drawer = new DrawingUtils(texture, drawColor, brushSize);
+    }
+
+    public void OnValueChangedBrushSize(Slider slider)
+    {
+        brushSize = (int)slider.value;
+        drawer = new DrawingUtils(texture, drawColor, brushSize);
     }
 }
