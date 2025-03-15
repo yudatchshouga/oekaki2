@@ -1,10 +1,12 @@
 using Photon.Pun;
+using Photon.Pun.Demo.PunBasics;
 using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using UnityEngine;
 
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
+    [SerializeField] public GameManager gameManager;
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();
@@ -61,7 +63,17 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("ゲームを開始します。");
             Debug.Log("ゲーム画面に遷移します。");
+            SceneController.LoadScene("DotOekaki");
+            photonView.RPC("StartGameRPC", RpcTarget.All);
         }
+    }
+
+    [PunRPC]
+    private void StartGameRPC()
+    {
+        Debug.Log("ゲームを開始します。");
+        Debug.Log("ゲーム画面に遷移します。");
+        SceneController.LoadScene("DotOekaki");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
