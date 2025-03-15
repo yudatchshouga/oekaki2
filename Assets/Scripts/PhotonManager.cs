@@ -1,12 +1,11 @@
 using Photon.Pun;
-using Photon.Pun.Demo.PunBasics;
-using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using UnityEngine;
 
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] public GameManager gameManager;
+    private Player questionner;
+
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();
@@ -63,9 +62,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("ゲームを開始します。");
             Debug.Log("ゲーム画面に遷移します。");
-            SceneController.LoadScene("DotOekaki");
             photonView.RPC("StartGameRPC", RpcTarget.All);
+            // ゲーム開始時に出題者を決定
+            Debug.Log("出題者を決定します");
+            SelectQuestionner();
         }
+    }
+
+    private void SelectQuestionner()
+    {
+        Player[] players = PhotonNetwork.PlayerList;
+        // actorNumber は1始まり
+        int selectedActorNumber = Random.Range(0, players.Length) + 1;
+        photonView.RPC("SetQuestionner", RpcTarget.All, selectedActorNumber);
     }
 
     [PunRPC]
@@ -74,6 +83,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("ゲームを開始します。");
         Debug.Log("ゲーム画面に遷移します。");
         SceneController.LoadScene("DotOekaki");
+    }
+
+    [PunRPC]
+    private void SetQuestionner(int actorNumber)
+    {
+        if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            PlayerPrefs.SetString("role", "questionner");
+        }
+        else
+        {
+            PlayerPrefs.SetString("role", "answerer");
+        }
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)

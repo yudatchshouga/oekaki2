@@ -1,15 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Unity.Mathematics;
+//using Unity.Mathematics;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class DrawingManager : MonoBehaviour
+public class DrawingManager : MonoBehaviourPunCallbacks
 {
     public static DrawingManager instance;
 
     Texture2D texture;
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
+    [SerializeField] Text answer;
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
@@ -43,6 +46,7 @@ public class DrawingManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("DrawingManager Start");
         CanvasWidth = PlayerPrefs.GetInt("Width", 50);
         CanvasHeight = PlayerPrefs.GetInt("Height", 50);
 
@@ -66,6 +70,17 @@ public class DrawingManager : MonoBehaviour
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
         SetDrawFieldSize();
+
+        string role = PlayerPrefs.GetString("role", "answerer");
+        Debug.Log(role);
+        if (role == "answerer")
+        {
+            answer.text = "お題はなんでしょう？";
+        }
+        else
+        {
+            answer.text = "お題：ヨクバリス";
+        }
     }
 
     // 描画領域のサイズを設定
@@ -313,5 +328,11 @@ public class DrawingManager : MonoBehaviour
     {
         brushSize = (int)slider.value;
         drawer = new DrawingUtils(texture, drawColor, brushSize);
+    }
+
+    // テキストをセット
+    public void SetAnswerText(string text)
+    {
+        answer.text = text;
     }
 }

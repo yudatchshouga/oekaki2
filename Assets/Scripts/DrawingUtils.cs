@@ -139,7 +139,7 @@ public class DrawingUtils
         }
     }
 
-    public void DrawRectangle(Vector2Int start, Vector2Int end)
+    public void      DrawRectangle(Vector2Int start, Vector2Int end)
     {
         int xMin = Mathf.Min(start.x, end.x);
         int xMax = Mathf.Max(start.x, end.x);
