@@ -8217,7 +8217,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 729401691}
         m_TargetAssemblyTypeName: PhotonManager, Assembly-CSharp
-        m_MethodName: OnLeftRoom
+        m_MethodName: OnClickLeave
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

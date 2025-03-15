@@ -16,6 +16,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("Photon に接続成功！");
     }
 
+    // 参加ボタンが押されたときに呼び出される
     public void JoinRandomRoom()
     {
         Debug.Log("ランダムルームに参加します。");
@@ -52,11 +53,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("プレイヤーが退出しました。");
     }
 
+    // 退出ボタンが押されたときに呼び出される
+    public void OnClickLeave()
+    {
+        Debug.Log("ルームから退出します。");
+        PhotonNetwork.LeaveRoom();
+    }
+
     public override void OnLeftRoom()
     {
+        //PhotonNetwork.ConnectUsingSettings();
+        //PhotonNetwork.LeaveRoom();
         Debug.Log("ルームから退出しました。");
-        PhotonNetwork.ConnectUsingSettings();
-        Debug.Log("Photon に接続中...");
+        //Debug.Log("Photon に接続中...");
     }
 
     // === 接続失敗時に呼ばれるコールバック ===
