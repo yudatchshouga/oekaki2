@@ -28,6 +28,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         Pen,
         Fill,
+        Spoit,
         Line,
         Circle,
         Rectrangle,
@@ -108,93 +109,125 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
-        if (Input.GetMouseButtonDown(0))
+        // ペンツール
+        if (currentMode == ToolMode.Pen)
         {
-            if (currentMode == ToolMode.Pen)
-            { 
+            if (Input.GetMouseButtonDown(0))
+            {
                 if (IsInsideCanvas(localPoint))
                 {
                     isDrawing = true;
                 }
             }
 
-            // 塗りつぶしツール
-            if (currentMode == ToolMode.Fill)
-            {
-                FloodFill(localPoint);
-            }
-
-            // 円、長方形ツールの始点の設定
-            if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
-            { 
-                if (!IsInsideCanvas(localPoint))
-                {
-                    return;
-                }
-                Vector2Int pixelPos = new Vector2Int(x, y);
-                if (!isDrawing)
-                { 
-                    startPixel = pixelPos;
-                    isDrawing = true;
-                }
-            }
-        }
-
-        if (Input.GetMouseButton(0))
-        {
-            if (currentMode == ToolMode.Pen) 
+            if (Input.GetMouseButton(0))
             {
                 DrawAtPoint(localPoint);
             }
-        }
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            lastPoint = null;
-            if (currentMode == ToolMode.Pen)
+            if (Input.GetMouseButtonUp(0))
             {
+                lastPoint = null;
                 if (isDrawing)
                 {
                     SaveUndo();
                     isDrawing = false;
                 }
             }
+        }
 
-            // 直線ツール
-            if (currentMode == ToolMode.Line)
+        // スポイトツール
+        else if (currentMode == ToolMode.Spoit)
+        {
+            Debug.Log("Spoit");
+            /*
+            if (Input.GetMouseButtonDown(0))
             {
-                if (!IsInsideCanvas(localPoint))
-                {
-                    return;
-                }
-                Vector2Int pixelPos = new Vector2Int(x, y);
-                // 一回目のクリックで始点を設定
-                if (startPoint == null)
-                {
-                    startPoint = pixelPos;
-                }
-                else
-                {
-                    DrawShape(startPoint.Value, pixelPos);
-                    startPoint = null;
-                    SaveUndo();
-                }
+                drawColor = drawer.SpoitColor(localPoint);
+                drawer = new DrawingUtils(texture, drawColor, brushSize);
             }
+            */
+        }
 
-            // 円、長方形ツール
-            if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+        // 塗りつぶしツール
+        else if (currentMode == ToolMode.Fill)
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                if (isDrawing)
+                if (currentMode == ToolMode.Fill)
                 {
                     if (!IsInsideCanvas(localPoint))
                     {
-                        isDrawing = false;
                         return;
                     }
-                    Vector2Int endPixel = new Vector2Int(x, y);
-                    DrawShape(startPixel, endPixel);
-                    SaveUndo();
-                    isDrawing = false;
+                    FloodFill(localPoint);
+                }
+            }
+        }
+
+        // 直線ツール
+        else if (currentMode == ToolMode.Line)
+        {
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (currentMode == ToolMode.Line)
+                {
+                    if (!IsInsideCanvas(localPoint))
+                    {
+                        return;
+                    }
+                    Vector2Int pixelPos = new Vector2Int(x, y);
+                    // 一回目のクリックで始点を設定
+                    if (startPoint == null)
+                    {
+                        startPoint = pixelPos;
+                    }
+                    else
+                    {
+                        DrawShape(startPoint.Value, pixelPos);
+                        startPoint = null;
+                        SaveUndo();
+                    }
+                }
+            }
+        }
+
+        // 円、長方形ツール
+        else if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                // 始点の設定
+                if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+                {
+                    if (!IsInsideCanvas(localPoint))
+                    {
+                        return;
+                    }
+                    Vector2Int pixelPos = new Vector2Int(x, y);
+                    if (!isDrawing)
+                    {
+                        startPixel = pixelPos;
+                        isDrawing = true;
+                    }
+                }
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+                {
+                    if (isDrawing)
+                    {
+                        if (!IsInsideCanvas(localPoint))
+                        {
+                            isDrawing = false;
+                            return;
+                        }
+                        Vector2Int endPixel = new Vector2Int(x, y);
+                        DrawShape(startPixel, endPixel);
+                        SaveUndo();
+                        isDrawing = false;
+                    }
                 }
             }
         }
@@ -298,15 +331,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             && localPoint.y >= rect.y && localPoint.y <= rect.y + rect.height;
     }
 
-    // 塗りつぶし
     private void FloodFill(Vector2 localPoint)
     {
-        // キャンバス外をクリックした場合は何もしない
-        if (!IsInsideCanvas(localPoint))
-        {
-            return;
-        }
-
         drawer.FloddFill(drawingPanel, localPoint);
         texture.Apply();
         SaveUndo();

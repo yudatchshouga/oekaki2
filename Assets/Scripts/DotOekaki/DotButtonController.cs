@@ -6,6 +6,7 @@ public class DotButtonController : MonoBehaviour
     [SerializeField] GameObject redoButtonCover;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
+    [SerializeField] GameObject spoitButtonCover;
     [SerializeField] GameObject lineButtonCover;
     [SerializeField] GameObject circleButtonCover;
     [SerializeField] GameObject rectangleButtonCover;
@@ -47,6 +48,15 @@ public class DotButtonController : MonoBehaviour
         else
         {
             fillButtonCover.SetActive(false);
+        }
+
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Spoit)
+        {
+            spoitButtonCover.SetActive(true);
+        }
+        else
+        {
+            spoitButtonCover.SetActive(false);
         }
 
         if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line)
@@ -98,6 +108,10 @@ public class DotButtonController : MonoBehaviour
     public void OnClickFillButton()
     {
         DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
+    }
+    public void OnClickSpoitButtton()
+    {
+        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Spoit);
     }
     public void OnClickLineButton()
     {
