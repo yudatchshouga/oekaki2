@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -41,11 +42,26 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("ルームに参加しました。");
+        // ルーム内のプレイヤー数を取得
+        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+        Debug.Log($"現在のプレイヤー数: {playerCount}");
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("新しいプレイヤーが参加しました。");
+        // 現在の人数を取得
+        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+        Debug.Log($"現在のプレイヤー数: {playerCount}");
+    }
+
+    public void OnClickStart()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("ゲームを開始します。");
+            Debug.Log("ゲーム画面に遷移します。");
+        }
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -62,10 +78,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        //PhotonNetwork.ConnectUsingSettings();
-        //PhotonNetwork.LeaveRoom();
         Debug.Log("ルームから退出しました。");
-        //Debug.Log("Photon に接続中...");
     }
 
     // === 接続失敗時に呼ばれるコールバック ===
