@@ -12,8 +12,8 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     int CanvasWidth;
     int CanvasHeight;
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
-    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
-    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
+    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // 繝励Ξ繧､繝､繝ｼ縺斐→縺ｮ濶ｲ險ｭ螳・
+    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // 繝励Ξ繧､繝､繝ｼ縺斐→縺ｮ繝壹Φ繧ｵ繧､繧ｺ險ｭ螳・
     DrawingUtils drawer;
 
     private void Start()
@@ -56,7 +56,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         Vector2Int point = new Vector2Int(x, y);
         Color color = new Color(r, g, b, a);
 
-        // プレイヤーの設定を更新
+        // 繝励Ξ繧､繝､繝ｼ縺ｮ險ｭ螳壹ｒ譖ｴ譁ｰ
         playerColors[actorNumber] = color;
         playerPenSizes[actorNumber] = size;
 
@@ -65,16 +65,16 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
             lastPoints[actorNumber] = null;
         }
 
-        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
+        // 荳譎ら噪縺ｫ縺昴・繝励Ξ繧､繝､繝ｼ險ｭ螳壹〒DrawingUtils繧剃ｽｿ縺・
         DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
 
         if (lastPoints[actorNumber].HasValue)
         {
-            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2回目以降の描画
+            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2蝗樒岼莉･髯阪・謠冗判
         }
         else
         {
-            tempDrawer.DrawPoint(point); // 最初の描画
+            tempDrawer.DrawPoint(point); // 譛蛻昴・謠冗判
         }
         texture.Apply();
         lastPoints[actorNumber] = point;
@@ -100,7 +100,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         texture.Apply();
     }
 
-    // �L�����o�X�����ǂ����𔻒肷��
+    // キャンバス内かどうかを判定する
     private bool IsInsideCanvas(Vector2Int localPoint)
     {
         return localPoint.x >= 0 && localPoint.x < CanvasWidth && localPoint.y >= 0 && localPoint.y < CanvasHeight;
@@ -117,7 +117,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         return new Vector2Int(x, y);
     }
 
-    // パレットのボタンをクリックしたときにdrawColorを変更する
+    // 繝代Ξ繝・ヨ縺ｮ繝懊ち繝ｳ繧偵け繝ｪ繝・け縺励◆縺ｨ縺阪↓drawColor繧貞､画峩縺吶ｋ
     public void OnClickColorButton(int index)
     {
         switch (index)
@@ -156,7 +156,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         drawer = new DrawingUtils(texture, drawColor, penSize);
     }
 
-    // スライダーの値をpenSizeに反映する
+    // 繧ｹ繝ｩ繧､繝繝ｼ縺ｮ蛟､繧恥enSize縺ｫ蜿肴丐縺吶ｋ
     public void OnValueChangedPenSize(Slider slider)
     {
         penSize = (int)slider.value;

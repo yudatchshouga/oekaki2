@@ -16,7 +16,21 @@ public class PanelController : MonoBehaviour
 
     public void Start()
     {
-        OnClickButton((int)currentPanel);
+        switch (currentPanel)
+        {
+            case Panels.Title:
+                transform.localPosition = new Vector3(0, 0, 0);
+                break;
+            case Panels.SizeSelect:
+                transform.localPosition = new Vector3(-2000, 0, 0);
+                break;
+            case Panels.OnlineMenu:
+                transform.localPosition = new Vector3(0, 1500, 0);
+                break;
+            case Panels.Lobby:
+                transform.localPosition = new Vector3(0, 3000, 0);
+                break;
+        }
     }
 
     public void OnClickButton(int panel)

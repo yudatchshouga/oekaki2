@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using Unity.VisualScripting;
 
 public class DrawingManager : MonoBehaviourPunCallbacks
 {
@@ -183,8 +184,12 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                     {
                         int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
                         photonView.RPC("ResetLastPoint", RpcTarget.All, actorNumber);
+                        photonView.RPC("SaveUndo", RpcTarget.All);
                     }
-                    SaveUndo();
+                    else
+                    {
+                        SaveUndo();
+                    }
                     isDrawing = false;
                 }
             }
@@ -250,13 +255,14 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                         {
                             int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
                             photonView.RPC("DrawShapeRPC", RpcTarget.All, actorNumber, startPoint.Value.x, startPoint.Value.y, pixelPos.x, pixelPos.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
+                            photonView.RPC("SaveUndo", RpcTarget.All);
                         }
                         else
                         {
                             DrawShape(startPoint.Value, pixelPos);
+                            SaveUndo();
                         }
                         startPoint = null;
-                        SaveUndo();
                     }
                 }
             }
@@ -297,13 +303,14 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                         if (PhotonNetwork.InRoom)
                         {
                             int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-                            photonView.RPC("DrawShapeRPC", RpcTarget.All, actorNumber, startPoint.Value.x, startPoint.Value.y, endPixel.x, endPixel.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
+                            photonView.RPC("DrawShapeRPC", RpcTarget.All, actorNumber, startPixel.x, startPixel.y, endPixel.x, endPixel.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
+                            photonView.RPC("SaveUndo", RpcTarget.All);
                         }
                         else
                         {
                             DrawShape(startPixel, endPixel);
+                            SaveUndo();
                         }
-                        SaveUndo();
                         isDrawing = false;
                     }
                 }
@@ -394,6 +401,58 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         texture.Apply();
     }
 
+    [PunRPC]
+    private void DrawShapeRPC(int actorNumber, int startX, int startY, int endX, int endY, float r, float g, float b, float a, int size)
+    {
+        Color color = new Color(r, g, b, a);
+
+        // プレイヤーの設定を更新
+        playerColors[actorNumber] = color;
+        playerPenSizes[actorNumber] = size;
+
+        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
+        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
+
+        if (currentMode == ToolMode.Line)
+        {
+            tempDrawer.DrawLine(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
+        }
+        else if (currentMode == ToolMode.Circle)
+        {
+            tempDrawer.DrawCircle(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
+        }
+        else if (currentMode == ToolMode.Rectrangle)
+        {
+            tempDrawer.DrawRectangle(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
+        }
+        texture.Apply();
+    }
+
+    private void FloodFill(Vector2 localPoint)
+    {
+        drawer.FloodFill(drawingPanel, localPoint);
+        texture.Apply();
+        SaveUndo();
+    }
+
+    [PunRPC]
+    private void FloodFillRPC(int actorNumber, Vector2 localPoint, float r, float g, float b, float a, int size)
+    {
+        Color color = new Color(r, g, b, a);
+
+        // プレイヤーの設定を更新
+        playerColors[actorNumber] = color;
+        playerPenSizes[actorNumber] = size;
+
+        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
+        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
+
+        tempDrawer.FloodFill(drawingPanel, localPoint);
+        texture.Apply();
+        SaveUndo();
+    }
+
+    [PunRPC]
     private void SaveUndo()
     {
         undoStack.Push(texture.GetPixels()); // 現在の状態を保存
@@ -484,34 +543,23 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             && localPoint.y >= rect.y && localPoint.y <= rect.y + rect.height;
     }
 
-    private void FloodFill(Vector2 localPoint)
-    {
-        drawer.FloodFill(drawingPanel, localPoint);
-        texture.Apply();
-        SaveUndo();
+    public void ChangeMode(ToolMode mode)
+    { 
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("ChangeModeRPC", RpcTarget.All, mode);
+        }
+        else
+        {
+            currentMode = mode;
+        }
+        isDrawing = false;
     }
 
     [PunRPC]
-    private void FloodFillRPC(int actorNumber, Vector2 localPoint, float r, float g, float b, float a, int size)
-    {
-        Color color = new Color(r, g, b, a);
-
-        // プレイヤーの設定を更新
-        playerColors[actorNumber] = color;
-        playerPenSizes[actorNumber] = size;
-
-        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
-        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
-
-        tempDrawer.FloodFill(drawingPanel, localPoint);
-        texture.Apply();
-        SaveUndo();
-    }
-
-    public void ChangeMode(ToolMode mode)
+    private void ChangeModeRPC(ToolMode mode)
     {
         currentMode = mode;
-        isDrawing = false;
     }
 
     public void ChangeColor(Color color)
@@ -530,21 +578,5 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     public void SetMessageText(string text)
     {
         message.text = text;
-    }
-
-    // RPCで描画するためのメソッド(Vector2Int型が使えないから)
-    [PunRPC]
-    private void DrawShapeRPC(int actorNumber, int startX, int startY, int endX, int endY, float r, float g, float b, float a, int size)
-    {
-        Color color = new Color(r, g, b, a);
-
-        // プレイヤーの設定を更新
-        playerColors[actorNumber] = color;
-        playerPenSizes[actorNumber] = size;
-
-        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
-        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
-
-        DrawShape(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
     }
 }
