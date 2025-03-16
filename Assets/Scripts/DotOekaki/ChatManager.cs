@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 
-public class ChatManager : MonoBehaviour
+public class ChatManager : MonoBehaviourPunCallbacks
 {
     public InputField chatInputField;
     public Text chatLogText;
@@ -16,10 +17,24 @@ public class ChatManager : MonoBehaviour
         // エンターキーまたはテンキーのエンターキーが押されたらメッセージを送信
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            SubmitChatMessage();
+            //SubmitChatMessage();
+            string message = chatInputField.text;
+            if (!string.IsNullOrEmpty(message))
+            {
+                chatMessages.Add(message);
+                // チャット入力欄をリセット
+                chatInputField.text = "";
+                chatLogText.text = string.Join("\n", chatMessages.ToArray());
+                Canvas.ForceUpdateCanvases();
+                // ワンフレーム待つ必要あり？
+                chatScrollRect.verticalNormalizedPosition = 0;
+            }
             // チャット入力欄にフォーカスを移す
             chatInputField.Select();
             chatInputField.ActivateInputField();
+
+            // RPCで送信
+            photonView.RPC("SendChatMessage", RpcTarget.Others, message);
         }
     }
 
@@ -29,21 +44,33 @@ public class ChatManager : MonoBehaviour
         if (!string.IsNullOrEmpty(message))
         {
             chatMessages.Add(message);
-            chatInputField.text = ""; // チャット入力欄をリセット
-            UpdateChatLog();
-            StartCoroutine(ScrollToBottom());
+            // チャット入力欄をリセット
+            chatInputField.text = "";
+            chatLogText.text = string.Join("\n", chatMessages.ToArray());
+            Canvas.ForceUpdateCanvases();
+            // ワンフレーム待つ必要あり？
+            chatScrollRect.verticalNormalizedPosition = 0;
         }
     }
 
-    private void UpdateChatLog()
+    [PunRPC]
+    public void SendChatMessage(string message)
     {
-        chatLogText.text = string.Join("\n", chatMessages.ToArray());　// チャットログを更新
-        Canvas.ForceUpdateCanvases();  // チャットログの更新
+        chatMessages.Add(message);
+        chatLogText.text = string.Join("\n", chatMessages.ToArray());
+        Canvas.ForceUpdateCanvases();
+        // ワンフレーム待つ必要あり？
+        chatScrollRect.verticalNormalizedPosition = 0;
     }
 
-    private IEnumerator ScrollToBottom()
-    {
-        yield return new WaitForEndOfFrame();
-        chatScrollRect.verticalNormalizedPosition = 0; // チャットログを一番下にスクロール
-    }
+    //private void UpdateChatLog()
+    //{
+    //    chatLogText.text = string.Join("\n", chatMessages.ToArray());　// チャットログを更新
+    //    Canvas.ForceUpdateCanvases();  // チャットログの更新
+    //}
+    //private IEnumerator ScrollToBottom()
+    //{
+    //    yield return new WaitForEndOfFrame();
+    //    chatScrollRect.verticalNormalizedPosition = 0; // チャットログを一番下にスクロール
+    //}
 }
