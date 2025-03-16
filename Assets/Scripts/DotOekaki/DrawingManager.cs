@@ -516,12 +516,13 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom)
         {
             photonView.RPC("ClearCanvas", RpcTarget.All);
+            photonView.RPC("SaveUndo", RpcTarget.All);
         }
         else
         {
             ClearCanvas();
+            SaveUndo();
         }
-        SaveUndo();
     }
 
     [PunRPC]
