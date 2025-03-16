@@ -17,7 +17,7 @@ public class SizeManager : MonoBehaviour
         }
         else
         {
-            errorText.text = $"{widthInputField.minValue} ‚©‚ç {widthInputField.maxValue} ‚ÌŠÔ‚Ì®”’l‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢";
+            errorText.text = $"{widthInputField.minValue} ã‹ã‚‰ {widthInputField.maxValue} ã®é–“ã®æ•´æ•°å€¤ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„";
             errorText.gameObject.SetActive(true);
             startButton.interactable = false;
         }
