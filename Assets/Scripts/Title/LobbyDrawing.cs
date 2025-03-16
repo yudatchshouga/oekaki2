@@ -100,10 +100,10 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         texture.Apply();
     }
 
+    // ƒLƒƒƒ“ƒoƒX“à‚©‚Ç‚¤‚©‚ð”»’è‚·‚é
     private bool IsInsideCanvas(Vector2Int localPoint)
     {
-        Rect rect = rawImage.rectTransform.rect;
-        return rect.Contains(localPoint);
+        return localPoint.x >= 0 && localPoint.x < CanvasWidth && localPoint.y >= 0 && localPoint.y < CanvasHeight;
     }
 
     private Vector2Int GetMouseCanvasPosition()
@@ -150,7 +150,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
                 drawColor = Color.gray;
                 break;
             case 9:
-                drawColor = new Color32(246, 184, 148, 1);
+                drawColor = new Color32(246, 184, 148, 255);
                 break;
         }
         drawer = new DrawingUtils(texture, drawColor, penSize);

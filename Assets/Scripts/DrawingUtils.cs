@@ -159,7 +159,7 @@ public class DrawingUtils
     }
 
     // “h‚è‚Â‚Ô‚µƒAƒ‹ƒSƒŠƒYƒ€
-    public void FloddFill(RawImage rawImage, Vector2 position)
+    public void FloodFill(RawImage rawImage, Vector2 position)
     {
         Rect rect = rawImage.rectTransform.rect;
 

@@ -12,7 +12,7 @@ public class PanelController : MonoBehaviour
         Lobby,
     }
 
-    private Panels currentPanel;
+    [SerializeField] Panels currentPanel;
 
     public void OnClickButton(int panel)
     {

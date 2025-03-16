@@ -91,39 +91,39 @@ public class DotButtonController : MonoBehaviour
     // Undo, Redoボタン
     public void OnClickUndoButton()
     {
-        DrawingManager.instance.Undo();
+        DrawingManager.instance.UndoButton();
     }
 
     public void OnClickRedoButton()
     {
-        DrawingManager.instance.Redo();
+        DrawingManager.instance.RedoButton();
     }
 
 
-    // ツールボタン各種
-    public void OnClickPenButton()
+    // ツールボタン
+    public void OnClickToolButton(int index)
     {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
-    }
-    public void OnClickFillButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
-    }
-    public void OnClickSpoitButtton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Spoit);
-    }
-    public void OnClickLineButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Line);
-    }
-    public void OnClickCircleButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
-    }
-    public void OnClickRectangleButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
+        switch (index)
+        {
+            case 0:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
+                break;
+            case 1:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Spoit);
+                break;
+            case 2:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
+                break;
+            case 3:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Line);
+                break;
+            case 4:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
+                break;
+            case 5:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
+                break;
+        }
     }
 
 
