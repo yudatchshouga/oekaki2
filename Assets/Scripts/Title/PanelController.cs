@@ -3,6 +3,7 @@ using UnityEngine;
 public class PanelController : MonoBehaviour
 {
     [SerializeField] LobbyDrawing lobbyDrawing;
+    [SerializeField] Panels currentPanel;
 
     private enum Panels
     {
@@ -12,7 +13,13 @@ public class PanelController : MonoBehaviour
         Lobby,
     }
 
-    private Panels currentPanel;
+    //private Panels currentPanel;
+
+    public void Start()
+    {
+        //currentPanel = Panels.Title;
+        OnClickButton((int)currentPanel);
+    }
 
     public void OnClickButton(int panel)
     {
