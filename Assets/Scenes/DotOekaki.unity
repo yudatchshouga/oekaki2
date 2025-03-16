@@ -1316,7 +1316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   drawField: {fileID: 407545135}
   drawingPanel: {fileID: 710897161}
-  answer: {fileID: 1447085794}
+  message: {fileID: 1447085794}
   CanvasWidth: 50
   CanvasHeight: 50
   drawColor: {r: 0, g: 0, b: 0, a: 1}
@@ -4850,7 +4850,7 @@ GameObject:
   - component: {fileID: 1447085795}
   - component: {fileID: 1447085794}
   m_Layer: 5
-  m_Name: answer
+  m_Name: message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

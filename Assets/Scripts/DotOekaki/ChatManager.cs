@@ -18,10 +18,10 @@ public class ChatManager : MonoBehaviourPunCallbacks
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             //SubmitChatMessage();
-            string message = chatInputField.text;
-            if (!string.IsNullOrEmpty(message))
+            string answer = chatInputField.text;
+            if (!string.IsNullOrEmpty(answer))
             {
-                chatMessages.Add(message);
+                chatMessages.Add(answer);
                 // チャット入力欄をリセット
                 chatInputField.text = "";
                 chatLogText.text = string.Join("\n", chatMessages.ToArray());
@@ -34,16 +34,16 @@ public class ChatManager : MonoBehaviourPunCallbacks
             chatInputField.ActivateInputField();
 
             // RPCで送信
-            photonView.RPC("SendChatMessage", RpcTarget.Others, message);
+            photonView.RPC("SendChatMessage", RpcTarget.Others, answer);
         }
     }
 
     public void SubmitChatMessage()
     {
-        string message = chatInputField.text;
-        if (!string.IsNullOrEmpty(message))
+        string answer = chatInputField.text;
+        if (!string.IsNullOrEmpty(answer))
         {
-            chatMessages.Add(message);
+            chatMessages.Add(answer);
             // チャット入力欄をリセット
             chatInputField.text = "";
             chatLogText.text = string.Join("\n", chatMessages.ToArray());
@@ -65,15 +65,4 @@ public class ChatManager : MonoBehaviourPunCallbacks
         // 正誤判定
         DrawingManager.instance.CheckAnswer(message);
     }
-
-    //private void UpdateChatLog()
-    //{
-    //    chatLogText.text = string.Join("\n", chatMessages.ToArray());　// チャットログを更新
-    //    Canvas.ForceUpdateCanvases();  // チャットログの更新
-    //}
-    //private IEnumerator ScrollToBottom()
-    //{
-    //    yield return new WaitForEndOfFrame();
-    //    chatScrollRect.verticalNormalizedPosition = 0; // チャットログを一番下にスクロール
-    //}
 }

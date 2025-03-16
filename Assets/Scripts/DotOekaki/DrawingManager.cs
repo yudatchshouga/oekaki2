@@ -13,7 +13,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Texture2D texture;
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
-    [SerializeField] Text answer;
+    [SerializeField] Text message;
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
@@ -40,6 +40,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     //string role;
     Role role = Role.None;
+
+    private string theme = "ヨクバリス";
 
     private void Awake()
     {
@@ -77,9 +79,9 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Debug.Log(role);
         if (role == Role.Questioner)
         {
-            answer.text = "ヨクバリス";
+            message.text = "お題：" + theme;
         } else {
-            answer.text = "お題はなんでしょう？";
+            message.text = "お題はなんでしょう？";
         }
 
         // photonの接続状態を確認
@@ -93,15 +95,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void CheckAnswer(string message)
+    public void CheckAnswer(string answer)
     {
         Debug.Log("CheckAnswer");
-        Debug.Log("message" + message);
-        Debug.Log(answer.text);
+        Debug.Log("answer" + answer);
+        //Debug.Log(this.message.text);
         Debug.Log(role);
         if (role == Role.Questioner)
         {
-            if (message == answer.text)
+            if (answer == this.theme)
             {
                 Debug.Log("正解");
             }
@@ -360,8 +362,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     }
 
     // テキストをセット
-    public void SetAnswerText(string text)
+    public void SetMessageText(string text)
     {
-        answer.text = text;
+        message.text = text;
     }
 }
