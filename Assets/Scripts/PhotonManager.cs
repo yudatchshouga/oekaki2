@@ -70,11 +70,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
     }
 
+    public bool randamMode = false;
+
     private void SelectQuestionner()
     {
         Player[] players = PhotonNetwork.PlayerList;
         // actorNumber は1始まり
-        int selectedActorNumber = Random.Range(0, players.Length) + 1;
+        int selectedActorNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
         photonView.RPC("SetQuestionner", RpcTarget.All, selectedActorNumber);
     }
 
@@ -91,11 +93,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
         {
-            PlayerPrefs.SetString("role", "questionner");
+            PlayerPrefs.SetString("role", Role.Questioner.ToString());
         }
         else
         {
-            PlayerPrefs.SetString("role", "answerer");
+            PlayerPrefs.SetString("role", Role.Answerer.ToString());
         }
     }
 

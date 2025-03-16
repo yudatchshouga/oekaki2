@@ -4,6 +4,7 @@ using System.Collections.Generic;
 //using Unity.Mathematics;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 
 public class DrawingManager : MonoBehaviourPunCallbacks
 {
@@ -37,7 +38,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
 
-
+    //string role;
+    Role role = Role.None;
 
     private void Awake()
     {
@@ -71,15 +73,13 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
         SetDrawFieldSize();
 
-        string role = PlayerPrefs.GetString("role", "answerer");
+        role = PlayerPrefs.GetString("role").toRole();
         Debug.Log(role);
-        if (role == "answerer")
+        if (role == Role.Questioner)
         {
+            answer.text = "ヨクバリス";
+        } else {
             answer.text = "お題はなんでしょう？";
-        }
-        else
-        {
-            answer.text = "お題：ヨクバリス";
         }
 
         // photonの接続状態を確認
@@ -90,6 +90,25 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         else
         {
             Debug.Log("Photonに未接続");
+        }
+    }
+
+    public void CheckAnswer(string message)
+    {
+        Debug.Log("CheckAnswer");
+        Debug.Log("message" + message);
+        Debug.Log(answer.text);
+        Debug.Log(role);
+        if (role == Role.Questioner)
+        {
+            if (message == answer.text)
+            {
+                Debug.Log("正解");
+            }
+            else
+            {
+                Debug.Log("不正解");
+            }
         }
     }
 

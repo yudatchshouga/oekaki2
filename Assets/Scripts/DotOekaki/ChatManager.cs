@@ -61,6 +61,9 @@ public class ChatManager : MonoBehaviourPunCallbacks
         Canvas.ForceUpdateCanvases();
         // ワンフレーム待つ必要あり？
         chatScrollRect.verticalNormalizedPosition = 0;
+
+        // 正誤判定
+        DrawingManager.instance.CheckAnswer(message);
     }
 
     //private void UpdateChatLog()
