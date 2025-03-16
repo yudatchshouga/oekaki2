@@ -17,6 +17,9 @@ public class ChatManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             SubmitChatMessage();
+            // チャット入力欄にフォーカスを移す
+            chatInputField.Select();
+            chatInputField.ActivateInputField();
         }
     }
 
