@@ -8,7 +8,7 @@ public class GridGenerator : MonoBehaviour
     [SerializeField] RawImage gridPanel;
     [SerializeField] Toggle gridToggle;
     [SerializeField] int gridSize;
-    [SerializeField] int gridThickness; // ƒOƒŠƒbƒhü‚Ì‘¾‚³
+    [SerializeField] int gridThickness; // ã‚°ãƒªãƒƒãƒ‰ç·šã®å¤ªã•
     Color clearColor;
     [SerializeField] Color gridColor;
 

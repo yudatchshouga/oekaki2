@@ -87,8 +87,6 @@ public class DotButtonController : MonoBehaviour
         }
     }
 
-
-    // Undo, Redoボタン
     public void OnClickUndoButton()
     {
         DrawingManager.instance.UndoButton();
@@ -99,8 +97,7 @@ public class DotButtonController : MonoBehaviour
         DrawingManager.instance.RedoButton();
     }
 
-
-    // ツールボタン
+    // 繝�繝ｼ繝ｫ繝懊ち繝ｳ
     public void OnClickToolButton(int index)
     {
         switch (index)
@@ -126,8 +123,6 @@ public class DotButtonController : MonoBehaviour
         }
     }
 
-
-    // ペンの色変更ボタン各種
     public void OnClickAllClearButton()
     {
         DrawingManager.instance.AllClear();

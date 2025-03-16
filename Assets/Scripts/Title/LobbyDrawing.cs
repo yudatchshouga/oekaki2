@@ -12,8 +12,8 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     int CanvasWidth;
     int CanvasHeight;
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
-    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // ƒvƒŒƒCƒ„[‚²‚Æ‚ÌFİ’è
-    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // ƒvƒŒƒCƒ„[‚²‚Æ‚Ìƒyƒ“ƒTƒCƒYİ’è
+    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®è‰²è¨­å®š
+    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®ãƒšãƒ³ã‚µã‚¤ã‚ºè¨­å®š
     DrawingUtils drawer;
 
     private void Start()
@@ -56,7 +56,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         Vector2Int point = new Vector2Int(x, y);
         Color color = new Color(r, g, b, a);
 
-        // ƒvƒŒƒCƒ„[‚Ìİ’è‚ğXV
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¨­å®šã‚’æ›´æ–°
         playerColors[actorNumber] = color;
         playerPenSizes[actorNumber] = size;
 
@@ -65,16 +65,16 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
             lastPoints[actorNumber] = null;
         }
 
-        // ˆê“I‚É‚»‚ÌƒvƒŒƒCƒ„[İ’è‚ÅDrawingUtils‚ğg‚¤
+        // ä¸€æ™‚çš„ã«ãã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¨­å®šã§DrawingUtilsã‚’ä½¿ã†
         DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
 
         if (lastPoints[actorNumber].HasValue)
         {
-            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2‰ñ–ÚˆÈ~‚Ì•`‰æ
+            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2å›ç›®ä»¥é™ã®æç”»
         }
         else
         {
-            tempDrawer.DrawPoint(point); // Å‰‚Ì•`‰æ
+            tempDrawer.DrawPoint(point); // æœ€åˆã®æç”»
         }
         texture.Apply();
         lastPoints[actorNumber] = point;
@@ -117,7 +117,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         return new Vector2Int(x, y);
     }
 
-    // ƒpƒŒƒbƒg‚Ìƒ{ƒ^ƒ“‚ğƒNƒŠƒbƒN‚µ‚½‚Æ‚«‚ÉdrawColor‚ğ•ÏX‚·‚é
+    // ãƒ‘ãƒ¬ãƒƒãƒˆã®ãƒœã‚¿ãƒ³ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ãŸã¨ãã«drawColorã‚’å¤‰æ›´ã™ã‚‹
     public void OnClickColorButton(int index)
     {
         switch (index)
@@ -156,7 +156,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         drawer = new DrawingUtils(texture, drawColor, penSize);
     }
 
-    // ƒXƒ‰ƒCƒ_[‚Ì’l‚ğpenSize‚É”½‰f‚·‚é
+    // ã‚¹ãƒ©ã‚¤ãƒ€ãƒ¼ã®å€¤ã‚’penSizeã«åæ˜ ã™ã‚‹
     public void OnValueChangedPenSize(Slider slider)
     {
         penSize = (int)slider.value;

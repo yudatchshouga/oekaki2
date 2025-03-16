@@ -21,7 +21,7 @@ public class PixelSizeInputField : MonoBehaviour
 
     private void ValidateInput(string input)
     {
-        // ”ŽšˆÈŠO‚Ì“ü—Í‚ð–³Œø‰»
+        // æ•°å­—ä»¥å¤–ã®å…¥åŠ›ã‚’ç„¡åŠ¹åŒ–
         if (!Regex.IsMatch(input, @"^\d+$"))
         {
             inputField.text = "0";
@@ -32,7 +32,7 @@ public class PixelSizeInputField : MonoBehaviour
     {
         if (int.TryParse(input, out int value))
         {
-            // “ü—Í’l‚ª§ŒÀ“à‚©‚Ç‚¤‚©‚ðƒ`ƒFƒbƒN
+            // å…¥åŠ›å€¤ãŒåˆ¶é™å†…ã‹ã©ã†ã‹ã‚’ãƒã‚§ãƒƒã‚¯
             if (value >= minValue && value <= maxValue)
             {
                 inputPixelSize = int.Parse(inputField.text);
