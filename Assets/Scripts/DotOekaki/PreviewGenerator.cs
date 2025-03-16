@@ -8,9 +8,9 @@ public class PreviewGenerator : MonoBehaviour
 {
     Texture2D previewTexture;
     [SerializeField] RawImage previewPanel;
-    Vector2Int? startPoint = null; // ’¼üƒ‚[ƒh‚Ìn“_
-    Vector2Int startPixel; // ‰~ƒ‚[ƒhA’·•ûŒ`ƒ‚[ƒh‚Ìn“_
-    bool isDrawing = false; // •`‰æ’†‚©‚Ç‚¤‚©
+    Vector2Int? startPoint = null; // ç›´ç·šãƒ¢ãƒ¼ãƒ‰ã®å§‹ç‚¹
+    Vector2Int startPixel; // å††ãƒ¢ãƒ¼ãƒ‰ã€é•·æ–¹å½¢ãƒ¢ãƒ¼ãƒ‰ã®å§‹ç‚¹
+    bool isDrawing = false; // æç”»ä¸­ã‹ã©ã†ã‹
     Color previewColor;
     ToolMode currentPreviewMode;
     int previewBrushSize;
@@ -50,7 +50,7 @@ public class PreviewGenerator : MonoBehaviour
                     return;
                 }
                 Vector2Int pixelPos = new Vector2Int(x, y);
-                // n“_‚ğİ’è
+                // å§‹ç‚¹ã‚’è¨­å®š
                 if (!isDrawing)
                 {
                     startPixel = pixelPos;
@@ -142,7 +142,7 @@ public class PreviewGenerator : MonoBehaviour
         }
     }
 
-    // Bresenham‚Ì’¼üƒAƒ‹ƒSƒŠƒYƒ€
+    // Bresenhamã®ç›´ç·šã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
     private void DrawLine(Vector2Int start, Vector2Int end)
     {
         ClearCanvas();
@@ -150,7 +150,7 @@ public class PreviewGenerator : MonoBehaviour
         previewTexture.Apply();
     }
 
-    // Bresenham‚Ì‘È‰~ƒAƒ‹ƒSƒŠƒYƒ€
+    // Bresenhamã®æ¥•å††ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
     private void DrawCircle(Vector2Int start, Vector2Int end)
     {
         ClearCanvas();

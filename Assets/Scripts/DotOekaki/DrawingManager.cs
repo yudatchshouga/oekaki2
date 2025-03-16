@@ -13,16 +13,16 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
     [SerializeField] Text answer;
-    public int CanvasWidth; // ƒLƒƒƒ“ƒoƒX‚Ì‰¡•
-    public int CanvasHeight; // ƒLƒƒƒ“ƒoƒX‚Ìc•
-    public Color drawColor; // ƒyƒ“‚ÌF
-    public int brushSize; // ƒuƒ‰ƒV‚Ì‘å‚«‚³
-    Vector2Int? lastPoint = null; // ‘O‰ñ‚Ì•`‰æˆÊ’u
-    Stack<Color[]> undoStack; // Œ³‚É–ß‚·‚½‚ß‚ÌƒXƒ^ƒbƒN
-    Stack<Color[]> redoStack; // ‚â‚è’¼‚µ‚Ì‚½‚ß‚ÌƒXƒ^ƒbƒN
-    Vector2Int? startPoint = null; // ’¼üƒ‚[ƒh‚Ìn“_
-    Vector2Int startPixel; // ‰~ƒ‚[ƒhA’·•ûŒ`ƒ‚[ƒh‚Ìn“_
-    bool isDrawing = false; // •`‰æ’†‚©‚Ç‚¤‚©
+    public int CanvasWidth; // ã‚­ãƒ£ãƒ³ãƒã‚¹ã®æ¨ªå¹…
+    public int CanvasHeight; // ã‚­ãƒ£ãƒ³ãƒã‚¹ã®ç¸¦å¹…
+    public Color drawColor; // ãƒšãƒ³ã®è‰²
+    public int brushSize; // ãƒ–ãƒ©ã‚·ã®å¤§ãã•
+    Vector2Int? lastPoint = null; // å‰å›ã®æç”»ä½ç½®
+    Stack<Color[]> undoStack; // å…ƒã«æˆ»ã™ãŸã‚ã®ã‚¹ã‚¿ãƒƒã‚¯
+    Stack<Color[]> redoStack; // ã‚„ã‚Šç›´ã—ã®ãŸã‚ã®ã‚¹ã‚¿ãƒƒã‚¯
+    Vector2Int? startPoint = null; // ç›´ç·šãƒ¢ãƒ¼ãƒ‰ã®å§‹ç‚¹
+    Vector2Int startPixel; // å††ãƒ¢ãƒ¼ãƒ‰ã€é•·æ–¹å½¢ãƒ¢ãƒ¼ãƒ‰ã®å§‹ç‚¹
+    bool isDrawing = false; // æç”»ä¸­ã‹ã©ã†ã‹
     DrawingUtils drawer;
     public enum ToolMode
     {
@@ -50,21 +50,21 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         CanvasWidth = PlayerPrefs.GetInt("Width", 50);
         CanvasHeight = PlayerPrefs.GetInt("Height", 50);
 
-        // Texture2D‚ğì¬
+        // Texture2Dã‚’ä½œæˆ
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point; // ƒhƒbƒgŠG‚­‚Á‚«‚èƒ‚[ƒh
+        texture.filterMode = FilterMode.Point; // ãƒ‰ãƒƒãƒˆçµµãã£ãã‚Šãƒ¢ãƒ¼ãƒ‰
 
-        // ƒXƒ^ƒbƒN‚Ì‰Šú¶¬
+        // ã‚¹ã‚¿ãƒƒã‚¯ã®åˆæœŸç”Ÿæˆ
         undoStack = new Stack<Color[]>();
         redoStack = new Stack<Color[]>();
 
-        // ƒeƒNƒXƒ`ƒƒ‚ğ‰Šú‰»
+        // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’åˆæœŸåŒ–
         ClearCanvas();
 
         undoStack.Push(texture.GetPixels());
         drawingPanel.texture = texture;
 
-        // ƒQ[ƒ€ŠJn‚Íƒyƒ“ƒ‚[ƒh
+        // ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã¯ãƒšãƒ³ãƒ¢ãƒ¼ãƒ‰
         currentMode = ToolMode.Pen;
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
@@ -75,15 +75,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Debug.Log(role);
         if (role == "answerer")
         {
-            answer.text = "‚¨‘è‚Í‚È‚ñ‚Å‚µ‚å‚¤H";
+            answer.text = "ãŠé¡Œã¯ãªã‚“ã§ã—ã‚‡ã†ï¼Ÿ";
         }
         else
         {
-            answer.text = "‚¨‘èFƒˆƒNƒoƒŠƒX";
+            answer.text = "ãŠé¡Œï¼šãƒ¨ã‚¯ãƒãƒªã‚¹";
         }
     }
 
-    // •`‰æ—Ìˆæ‚ÌƒTƒCƒY‚ğİ’è
+    // æç”»é ˜åŸŸã®ã‚µã‚¤ã‚ºã‚’è¨­å®š
     private void SetDrawFieldSize()
     {
         RectTransform rectTransform = drawField.GetComponent<RectTransform>();
@@ -118,13 +118,13 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                 }
             }
 
-            // “h‚è‚Â‚Ô‚µƒc[ƒ‹
+            // å¡—ã‚Šã¤ã¶ã—ãƒ„ãƒ¼ãƒ«
             if (currentMode == ToolMode.Fill)
             {
                 FloodFill(localPoint);
             }
 
-            // ‰~A’·•ûŒ`ƒc[ƒ‹‚Ìn“_‚Ìİ’è
+            // å††ã€é•·æ–¹å½¢ãƒ„ãƒ¼ãƒ«ã®å§‹ç‚¹ã®è¨­å®š
             if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
             { 
                 if (!IsInsideCanvas(localPoint))
@@ -160,7 +160,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                 }
             }
 
-            // ’¼üƒc[ƒ‹
+            // ç›´ç·šãƒ„ãƒ¼ãƒ«
             if (currentMode == ToolMode.Line)
             {
                 if (!IsInsideCanvas(localPoint))
@@ -168,7 +168,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                     return;
                 }
                 Vector2Int pixelPos = new Vector2Int(x, y);
-                // ˆê‰ñ–Ú‚ÌƒNƒŠƒbƒN‚Ån“_‚ğİ’è
+                // ä¸€å›ç›®ã®ã‚¯ãƒªãƒƒã‚¯ã§å§‹ç‚¹ã‚’è¨­å®š
                 if (startPoint == null)
                 {
                     startPoint = pixelPos;
@@ -181,7 +181,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                 }
             }
 
-            // ‰~A’·•ûŒ`ƒc[ƒ‹
+            // å††ã€é•·æ–¹å½¢ãƒ„ãƒ¼ãƒ«
             if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
             {
                 if (isDrawing)
@@ -204,7 +204,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         Rect rect = drawingPanel.rectTransform.rect;
 
-        // ƒ[ƒJƒ‹À•W‚ğTexture2D‚ÌÀ•W‚É•ÏŠ·
+        // ãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã‚’Texture2Dã®åº§æ¨™ã«å¤‰æ›
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
@@ -212,11 +212,11 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         {
             if (lastPoint.HasValue)
             {
-                drawer.DrawLine(lastPoint.Value, new Vector2Int(x, y)); // 2‰ñ–ÚˆÈ~‚Ì•`‰æ
+                drawer.DrawLine(lastPoint.Value, new Vector2Int(x, y)); // 2å›ç›®ä»¥é™ã®æç”»
             }
             else
             {
-                drawer.DrawPoint(new Vector2Int(x, y)); // Å‰‚Ì•`‰æ
+                drawer.DrawPoint(new Vector2Int(x, y)); // æœ€åˆã®æç”»
             }
 
             lastPoint = new Vector2Int(x, y);
@@ -243,8 +243,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     private void SaveUndo()
     {
-        undoStack.Push(texture.GetPixels()); // Œ»İ‚Ìó‘Ô‚ğ•Û‘¶
-        redoStack.Clear(); // V‚µ‚­•`‰æ‚µ‚½‚çRedo—š—ğ‚ÍƒNƒŠƒA
+        undoStack.Push(texture.GetPixels()); // ç¾åœ¨ã®çŠ¶æ…‹ã‚’ä¿å­˜
+        redoStack.Clear(); // æ–°ã—ãæç”»ã—ãŸã‚‰Redoå±¥æ­´ã¯ã‚¯ãƒªã‚¢
     }
 
     public void Undo()
@@ -298,10 +298,10 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             && localPoint.y >= rect.y && localPoint.y <= rect.y + rect.height;
     }
 
-    // “h‚è‚Â‚Ô‚µ
+    // å¡—ã‚Šã¤ã¶ã—
     private void FloodFill(Vector2 localPoint)
     {
-        // ƒLƒƒƒ“ƒoƒXŠO‚ğƒNƒŠƒbƒN‚µ‚½ê‡‚Í‰½‚à‚µ‚È‚¢
+        // ã‚­ãƒ£ãƒ³ãƒã‚¹å¤–ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ãŸå ´åˆã¯ä½•ã‚‚ã—ãªã„
         if (!IsInsideCanvas(localPoint))
         {
             return;
@@ -330,7 +330,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         drawer = new DrawingUtils(texture, drawColor, brushSize);
     }
 
-    // ƒeƒLƒXƒg‚ğƒZƒbƒg
+    // ãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚»ãƒƒãƒˆ
     public void SetAnswerText(string text)
     {
         answer.text = text;

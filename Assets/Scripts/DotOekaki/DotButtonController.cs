@@ -78,7 +78,7 @@ public class DotButtonController : MonoBehaviour
     }
 
 
-    // Undo, Redoƒ{ƒ^ƒ“
+    // Undo, Redoãƒœã‚¿ãƒ³
     public void OnClickUndoButton()
     {
         DrawingManager.instance.Undo();
@@ -90,7 +90,7 @@ public class DotButtonController : MonoBehaviour
     }
 
 
-    // ƒc[ƒ‹ƒ{ƒ^ƒ“ŠeŽí
+    // ãƒ„ãƒ¼ãƒ«ãƒœã‚¿ãƒ³å„ç¨®
     public void OnClickPenButton()
     {
         DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
@@ -113,7 +113,7 @@ public class DotButtonController : MonoBehaviour
     }
 
 
-    // ƒyƒ“‚ÌF•ÏXƒ{ƒ^ƒ“ŠeŽí
+    // ãƒšãƒ³ã®è‰²å¤‰æ›´ãƒœã‚¿ãƒ³å„ç¨®
     public void OnClickAllClearButton()
     {
         DrawingManager.instance.AllClear();

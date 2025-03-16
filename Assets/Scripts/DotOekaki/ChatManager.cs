@@ -13,7 +13,7 @@ public class ChatManager : MonoBehaviour
 
     void Update()
     {
-        // ƒGƒ“ƒ^[ƒL[‚Ü‚½‚Íƒeƒ“ƒL[‚ÌƒGƒ“ƒ^[ƒL[‚ª‰Ÿ‚³‚ê‚½‚çƒƒbƒZ[ƒW‚ğ‘—M
+        // ã‚¨ãƒ³ã‚¿ãƒ¼ã‚­ãƒ¼ã¾ãŸã¯ãƒ†ãƒ³ã‚­ãƒ¼ã®ã‚¨ãƒ³ã‚¿ãƒ¼ã‚­ãƒ¼ãŒæŠ¼ã•ã‚ŒãŸã‚‰ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ä¿¡
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             SubmitChatMessage();
@@ -26,7 +26,7 @@ public class ChatManager : MonoBehaviour
         if (!string.IsNullOrEmpty(message))
         {
             chatMessages.Add(message);
-            chatInputField.text = ""; // ƒ`ƒƒƒbƒg“ü—Í—“‚ğƒŠƒZƒbƒg
+            chatInputField.text = ""; // ãƒãƒ£ãƒƒãƒˆå…¥åŠ›æ¬„ã‚’ãƒªã‚»ãƒƒãƒˆ
             UpdateChatLog();
             StartCoroutine(ScrollToBottom());
         }
@@ -34,13 +34,13 @@ public class ChatManager : MonoBehaviour
 
     private void UpdateChatLog()
     {
-        chatLogText.text = string.Join("\n", chatMessages.ToArray());@// ƒ`ƒƒƒbƒgƒƒO‚ğXV
-        Canvas.ForceUpdateCanvases();  // ƒ`ƒƒƒbƒgƒƒO‚ÌXV
+        chatLogText.text = string.Join("\n", chatMessages.ToArray());ã€€// ãƒãƒ£ãƒƒãƒˆãƒ­ã‚°ã‚’æ›´æ–°
+        Canvas.ForceUpdateCanvases();  // ãƒãƒ£ãƒƒãƒˆãƒ­ã‚°ã®æ›´æ–°
     }
 
     private IEnumerator ScrollToBottom()
     {
         yield return new WaitForEndOfFrame();
-        chatScrollRect.verticalNormalizedPosition = 0; // ƒ`ƒƒƒbƒgƒƒO‚ğˆê”Ô‰º‚ÉƒXƒNƒ[ƒ‹
+        chatScrollRect.verticalNormalizedPosition = 0; // ãƒãƒ£ãƒƒãƒˆãƒ­ã‚°ã‚’ä¸€ç•ªä¸‹ã«ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
     }
 }
