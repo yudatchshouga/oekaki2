@@ -23,7 +23,7 @@ public class DrawingUtils
         {
             texture.SetPixel(position.x, position.y, color);
         }
-        // ƒuƒ‰ƒV‚Ì‘å‚«‚³‚ª‹ô”‚Ìê‡‚ÆŠï”‚Ìê‡‚Åˆ—‚ğ•ª‚¯‚é
+        // ãƒ–ãƒ©ã‚·ã®å¤§ãã•ãŒå¶æ•°ã®å ´åˆã¨å¥‡æ•°ã®å ´åˆã§å‡¦ç†ã‚’åˆ†ã‘ã‚‹
         else if (brushSize % 2 == 0)
         {
             int halfSize = brushSize / 2;
@@ -58,7 +58,7 @@ public class DrawingUtils
         }
     }
 
-    // Bresenham‚Ì’¼üƒAƒ‹ƒSƒŠƒYƒ€
+    // Bresenhamã®ç›´ç·šã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
     public void DrawLine(Vector2Int start, Vector2Int end)
     {
         int dx = Mathf.Abs(end.x - start.x), sx = start.x < end.x ? 1 : -1;
@@ -75,7 +75,7 @@ public class DrawingUtils
         }
     }
 
-    // Bresenham‚Ì‘È‰~ƒAƒ‹ƒSƒŠƒYƒ€
+    // Bresenhamã®æ¥•å††ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
     public void DrawCircle(Vector2Int start, Vector2Int end)
     {
         int centerX = (start.x + end.x) / 2;
@@ -89,7 +89,7 @@ public class DrawingUtils
         x = 0;
         y = radiusY;
 
-        // ‘æˆê‹æŠÔ(x‘‰Á,yˆê’è)
+        // ç¬¬ä¸€åŒºé–“(xå¢—åŠ ,yä¸€å®š)
         d1 = (radiusY * radiusY) - (radiusX * radiusX * radiusY) + (0.25f * radiusX * radiusX);
         dx = 2 * radiusY * radiusY * x;
         dy = 2 * radiusX * radiusX * y;
@@ -114,7 +114,7 @@ public class DrawingUtils
                 d1 += dx - dy + radiusY * radiusY;
             }
         }
-        // ‘æ“ñ‹æŠÔ(xˆê’è,yŒ¸­)
+        // ç¬¬äºŒåŒºé–“(xä¸€å®š,yæ¸›å°‘)
         d2 = ((radiusY * radiusY) * ((x + 0.5f) * (x + 0.5f))) + ((radiusX * radiusX) * ((y - 1) * (y - 1))) - (radiusX * radiusX * radiusY * radiusY);
 
         while (y >= 0)
@@ -158,17 +158,17 @@ public class DrawingUtils
         }
     }
 
-    // “h‚è‚Â‚Ô‚µƒAƒ‹ƒSƒŠƒYƒ€
+    // å¡—ã‚Šã¤ã¶ã—ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
     public void FloddFill(RawImage rawImage, Vector2 position)
     {
         Rect rect = rawImage.rectTransform.rect;
 
-        // ƒ[ƒJƒ‹À•W‚ğTexture2D‚ÌÀ•W‚É•ÏŠ·
+        // ãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã‚’Texture2Dã®åº§æ¨™ã«å¤‰æ›
         int x = Mathf.FloorToInt((position.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((position.y - rect.y) / rect.height * texture.height);
 
         Color targetColor = texture.GetPixel(x, y);
-        // ƒNƒŠƒbƒN‚µ‚½êŠ‚ÌF‚Æ“h‚è‚Â‚Ô‚µF‚ª“¯‚¶ê‡‚Í‰½‚à‚µ‚È‚¢
+        // ã‚¯ãƒªãƒƒã‚¯ã—ãŸå ´æ‰€ã®è‰²ã¨å¡—ã‚Šã¤ã¶ã—è‰²ãŒåŒã˜å ´åˆã¯ä½•ã‚‚ã—ãªã„
         if (targetColor == color)
         {
             return;
