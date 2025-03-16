@@ -6,6 +6,7 @@ public class DotButtonController : MonoBehaviour
     [SerializeField] GameObject redoButtonCover;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
+    [SerializeField] GameObject spoitButtonCover;
     [SerializeField] GameObject lineButtonCover;
     [SerializeField] GameObject circleButtonCover;
     [SerializeField] GameObject rectangleButtonCover;
@@ -49,6 +50,15 @@ public class DotButtonController : MonoBehaviour
             fillButtonCover.SetActive(false);
         }
 
+        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Spoit)
+        {
+            spoitButtonCover.SetActive(true);
+        }
+        else
+        {
+            spoitButtonCover.SetActive(false);
+        }
+
         if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line)
         {
             lineButtonCover.SetActive(true);
@@ -77,43 +87,42 @@ public class DotButtonController : MonoBehaviour
         }
     }
 
-
-    // Undo, Redoボタン
     public void OnClickUndoButton()
     {
-        DrawingManager.instance.Undo();
+        DrawingManager.instance.UndoButton();
     }
 
     public void OnClickRedoButton()
     {
-        DrawingManager.instance.Redo();
+        DrawingManager.instance.RedoButton();
     }
 
+    // ツールボタン
+    public void OnClickToolButton(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
+                break;
+            case 1:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Spoit);
+                break;
+            case 2:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
+                break;
+            case 3:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Line);
+                break;
+            case 4:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
+                break;
+            case 5:
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
+                break;
+        }
+    }
 
-    // ツールボタン各種
-    public void OnClickPenButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
-    }
-    public void OnClickFillButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
-    }
-    public void OnClickLineButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Line);
-    }
-    public void OnClickCircleButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
-    }
-    public void OnClickRectangleButton()
-    {
-        DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
-    }
-
-
-    // ペンの色変更ボタン各種
     public void OnClickAllClearButton()
     {
         DrawingManager.instance.AllClear();
