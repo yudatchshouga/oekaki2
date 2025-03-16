@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 //using Unity.Mathematics;
@@ -13,16 +13,16 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
     [SerializeField] Text answer;
-    public int CanvasWidth; // ƒLƒƒƒ“ƒoƒX‚Ì‰¡•
-    public int CanvasHeight; // ƒLƒƒƒ“ƒoƒX‚Ìc•
-    public Color drawColor; // ƒyƒ“‚ÌF
-    public int brushSize; // ƒuƒ‰ƒV‚Ì‘å‚«‚³
-    Vector2Int? lastPoint = null; // ‘O‰ñ‚Ì•`‰æˆÊ’u
-    Stack<Color[]> undoStack; // Œ³‚É–ß‚·‚½‚ß‚ÌƒXƒ^ƒbƒN
-    Stack<Color[]> redoStack; // ‚â‚è’¼‚µ‚Ì‚½‚ß‚ÌƒXƒ^ƒbƒN
-    Vector2Int? startPoint = null; // ’¼üƒ‚[ƒh‚Ìn“_
-    Vector2Int startPixel; // ‰~ƒ‚[ƒhA’·•ûŒ`ƒ‚[ƒh‚Ìn“_
-    bool isDrawing = false; // •`‰æ’†‚©‚Ç‚¤‚©
+    public int CanvasWidth; // ã‚­ãƒ£ãƒ³ãƒã‚¹ã®æ¨ªå¹…
+    public int CanvasHeight; // ã‚­ãƒ£ãƒ³ãƒã‚¹ã®ç¸¦å¹…
+    public Color drawColor; // ãƒšãƒ³ã®è‰²
+    public int brushSize; // ãƒ–ãƒ©ã‚·ã®å¤§ãã•
+    Vector2Int? lastPoint = null; // å‰å›ã®æç”»ä½ç½®
+    Stack<Color[]> undoStack; // å…ƒã«æˆ»ã™ãŸã‚ã®ã‚¹ã‚¿ãƒƒã‚¯
+    Stack<Color[]> redoStack; // ã‚„ã‚Šç›´ã—ã®ãŸã‚ã®ã‚¹ã‚¿ãƒƒã‚¯
+    Vector2Int? startPoint = null; // ç›´ç·šãƒ¢ãƒ¼ãƒ‰ã®å§‹ç‚¹
+    Vector2Int startPixel; // å††ãƒ¢ãƒ¼ãƒ‰ã€é•·æ–¹å½¢ãƒ¢ãƒ¼ãƒ‰ã®å§‹ç‚¹
+    bool isDrawing = false; // æç”»ä¸­ã‹ã©ã†ã‹
     DrawingUtils drawer;
     public enum ToolMode
     {
@@ -39,8 +39,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     public int redoStackCount { get { return redoStack.Count; } }
 
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
-    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // ƒvƒŒƒCƒ„[‚²‚Æ‚ÌFİ’è
-    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // ƒvƒŒƒCƒ„[‚²‚Æ‚Ìƒyƒ“ƒTƒCƒYİ’è
+    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®è‰²è¨­å®š
+    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®ãƒšãƒ³ã‚µã‚¤ã‚ºè¨­å®š
 
 
     private void Awake()
@@ -54,21 +54,21 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         CanvasWidth = PlayerPrefs.GetInt("Width", 50);
         CanvasHeight = PlayerPrefs.GetInt("Height", 50);
 
-        // Texture2D‚ğì¬
+        // Texture2Dã‚’ä½œæˆ
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point; // ƒhƒbƒgŠG‚­‚Á‚«‚èƒ‚[ƒh
+        texture.filterMode = FilterMode.Point; // ãƒ‰ãƒƒãƒˆçµµãã£ãã‚Šãƒ¢ãƒ¼ãƒ‰
 
-        // ƒXƒ^ƒbƒN‚Ì‰Šú¶¬
+        // ã‚¹ã‚¿ãƒƒã‚¯ã®åˆæœŸç”Ÿæˆ
         undoStack = new Stack<Color[]>();
         redoStack = new Stack<Color[]>();
 
-        // ƒeƒNƒXƒ`ƒƒ‚ğ‰Šú‰»
+        // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’åˆæœŸåŒ–
         ClearCanvas();
 
         undoStack.Push(texture.GetPixels());
         drawingPanel.texture = texture;
 
-        // ƒQ[ƒ€ŠJn‚Íƒyƒ“ƒ‚[ƒh
+        // ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã¯ãƒšãƒ³ãƒ¢ãƒ¼ãƒ‰
         currentMode = ToolMode.Pen;
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
@@ -79,15 +79,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Debug.Log(role);
         if (role == "answerer")
         {
-            answer.text = "‚¨‘è‚Í‚È‚ñ‚Å‚µ‚å‚¤H";
+            answer.text = "ãŠé¡Œã¯ãªã‚“ã§ã—ã‚‡ã†ï¼Ÿ";
         }
         else
         {
-            answer.text = "‚¨‘èFƒˆƒNƒoƒŠƒX";
+            answer.text = "ãŠé¡Œï¼šãƒ¨ã‚¯ãƒãƒªã‚¹";
         }
     }
 
-    // •`‰æ—Ìˆæ‚ÌƒTƒCƒY‚ğİ’è
+    // æç”»é ˜åŸŸã®ã‚µã‚¤ã‚ºã‚’è¨­å®š
     [PunRPC]
     private void SetDrawFieldSize()
     {
@@ -113,7 +113,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
-        // ƒyƒ“ƒc[ƒ‹
+        // ãƒšãƒ³ãƒ„ãƒ¼ãƒ«
         if (currentMode == ToolMode.Pen)
         {
             if (Input.GetMouseButtonDown(0))
@@ -159,7 +159,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             }
         }
 
-        // ƒXƒ|ƒCƒgƒc[ƒ‹
+        // ã‚¹ãƒã‚¤ãƒˆãƒ„ãƒ¼ãƒ«
         else if (currentMode == ToolMode.Spoit)
         {
             Debug.Log("Spoit");
@@ -172,7 +172,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             */
         }
 
-        // “h‚è‚Â‚Ô‚µƒc[ƒ‹
+        // å¡—ã‚Šã¤ã¶ã—ãƒ„ãƒ¼ãƒ«
         else if (currentMode == ToolMode.Fill)
         {
             if (Input.GetMouseButtonDown(0))
@@ -196,7 +196,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             }
         }
 
-        // ’¼üƒc[ƒ‹
+        // ç›´ç·šãƒ„ãƒ¼ãƒ«
         else if (currentMode == ToolMode.Line)
         {
             if (Input.GetMouseButtonUp(0))
@@ -208,7 +208,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                         return;
                     }
                     Vector2Int pixelPos = new Vector2Int(x, y);
-                    // ˆê‰ñ–Ú‚ÌƒNƒŠƒbƒN‚Ån“_‚ğİ’è
+                    // ä¸€å›ç›®ã®ã‚¯ãƒªãƒƒã‚¯ã§å§‹ç‚¹ã‚’è¨­å®š
                     if (startPoint == null)
                     {
                         startPoint = pixelPos;
@@ -231,12 +231,12 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             }
         }
 
-        // ‰~A’·•ûŒ`ƒc[ƒ‹
+        // å††ã€é•·æ–¹å½¢ãƒ„ãƒ¼ãƒ«
         else if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                // n“_‚Ìİ’è
+                // å§‹ç‚¹ã®è¨­å®š
                 if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
                 {
                     if (!IsInsideCanvas(localPoint))
@@ -286,7 +286,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Vector2Int point = new Vector2Int(x, y);
         Color color = new Color(r, g, b, a);
 
-        // ƒvƒŒƒCƒ„[‚Ìİ’è‚ğXV
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¨­å®šã‚’æ›´æ–°
         playerColors[actorNumber] = color;
         playerPenSizes[actorNumber] = size;
 
@@ -295,18 +295,18 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             lastPoints[actorNumber] = null;
         }
 
-        // ˆê“I‚É‚»‚ÌƒvƒŒƒCƒ„[İ’è‚ÅDrawingUtils‚ğg‚¤
+        // ä¸€æ™‚çš„ã«ãã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¨­å®šã§DrawingUtilsã‚’ä½¿ã†
         DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
 
         if (IsInsideCanvas(new Vector2(x, y)))
         {
             if (lastPoints[actorNumber].HasValue)
             {
-                tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2‰ñ–ÚˆÈ~‚Ì•`‰æ
+                tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2å›ç›®ä»¥é™ã®æç”»
             }
             else
             {
-                tempDrawer.DrawPoint(point); // Å‰‚Ì•`‰æ
+                tempDrawer.DrawPoint(point); // æœ€åˆã®æç”»
             }
             lastPoints[actorNumber] = point;
         }
@@ -326,7 +326,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         Rect rect = drawingPanel.rectTransform.rect;
 
-        // ƒ[ƒJƒ‹À•W‚ğTexture2D‚ÌÀ•W‚É•ÏŠ·
+        // ãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã‚’Texture2Dã®åº§æ¨™ã«å¤‰æ›
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
@@ -334,11 +334,11 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         {
             if (lastPoint.HasValue)
             {
-                drawer.DrawLine(lastPoint.Value, new Vector2Int(x, y)); // 2‰ñ–ÚˆÈ~‚Ì•`‰æ
+                drawer.DrawLine(lastPoint.Value, new Vector2Int(x, y)); // 2å›ç›®ä»¥é™ã®æç”»
             }
             else
             {
-                drawer.DrawPoint(new Vector2Int(x, y)); // Å‰‚Ì•`‰æ
+                drawer.DrawPoint(new Vector2Int(x, y)); // æœ€åˆã®æç”»
             }
 
             lastPoint = new Vector2Int(x, y);
@@ -365,8 +365,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     private void SaveUndo()
     {
-        undoStack.Push(texture.GetPixels()); // Œ»İ‚Ìó‘Ô‚ğ•Û‘¶
-        redoStack.Clear(); // V‚µ‚­•`‰æ‚µ‚½‚çRedo—š—ğ‚ÍƒNƒŠƒA
+        undoStack.Push(texture.GetPixels()); // ç¾åœ¨ã®çŠ¶æ…‹ã‚’ä¿å­˜
+        redoStack.Clear(); // æ–°ã—ãæç”»ã—ãŸã‚‰Redoå±¥æ­´ã¯ã‚¯ãƒªã‚¢
     }
 
     public void UndoButton()
@@ -465,11 +465,11 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         Color color = new Color(r, g, b, a);
 
-        // ƒvƒŒƒCƒ„[‚Ìİ’è‚ğXV
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¨­å®šã‚’æ›´æ–°
         playerColors[actorNumber] = color;
         playerPenSizes[actorNumber] = size;
 
-        // ˆê“I‚É‚»‚ÌƒvƒŒƒCƒ„[İ’è‚ÅDrawingUtils‚ğg‚¤
+        // ä¸€æ™‚çš„ã«ãã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¨­å®šã§DrawingUtilsã‚’ä½¿ã†
         DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
 
         tempDrawer.FloodFill(drawingPanel, localPoint);
@@ -495,23 +495,23 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         drawer = new DrawingUtils(texture, drawColor, brushSize);
     }
 
-    // ƒeƒLƒXƒg‚ğƒZƒbƒg
+    // ãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚»ãƒƒãƒˆ
     public void SetAnswerText(string text)
     {
         answer.text = text;
     }
 
-    // RPC‚Å•`‰æ‚·‚é‚½‚ß‚Ìƒƒ\ƒbƒh(Vector2IntŒ^‚ªg‚¦‚È‚¢‚©‚ç)
+    // RPCã§æç”»ã™ã‚‹ãŸã‚ã®ãƒ¡ã‚½ãƒƒãƒ‰(Vector2Intå‹ãŒä½¿ãˆãªã„ã‹ã‚‰)
     [PunRPC]
     private void DrawShapeRPC(int actorNumber, int startX, int startY, int endX, int endY, float r, float g, float b, float a, int size)
     {
         Color color = new Color(r, g, b, a);
 
-        // ƒvƒŒƒCƒ„[‚Ìİ’è‚ğXV
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¨­å®šã‚’æ›´æ–°
         playerColors[actorNumber] = color;
         playerPenSizes[actorNumber] = size;
 
-        // ˆê“I‚É‚»‚ÌƒvƒŒƒCƒ„[İ’è‚ÅDrawingUtils‚ğg‚¤
+        // ä¸€æ™‚çš„ã«ãã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¨­å®šã§DrawingUtilsã‚’ä½¿ã†
         DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
 
         DrawShape(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
