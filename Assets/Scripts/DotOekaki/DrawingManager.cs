@@ -81,6 +81,16 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         {
             answer.text = "お題：ヨクバリス";
         }
+
+        // photonの接続状態を確認
+        if (PhotonNetwork.IsConnected)
+        {
+            Debug.Log("Photonに接続済み");
+        }
+        else
+        {
+            Debug.Log("Photonに未接続");
+        }
     }
 
     // 描画領域のサイズを設定
