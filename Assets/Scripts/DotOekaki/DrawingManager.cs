@@ -30,7 +30,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         Pen,
         Fill,
-        Spoit,
         Line,
         Circle,
         Rectrangle,
@@ -193,19 +192,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                     isDrawing = false;
                 }
             }
-        }
-
-        // スポイトツール
-        else if (currentMode == ToolMode.Spoit)
-        {
-            Debug.Log("Spoit");
-            /*
-            if (Input.GetMouseButtonDown(0))
-            {
-                drawColor = drawer.SpoitColor(localPoint);
-                drawer = new DrawingUtils(texture, drawColor, brushSize);
-            }
-            */
         }
 
         // 塗りつぶしツール
@@ -491,10 +477,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             texture.SetPixels(undoStack.Peek());
             texture.Apply();
         }
-        else
-        {
-            Debug.Log("Cannot undo");
-        }
     }
     [PunRPC]
     private void Redo()
@@ -504,10 +486,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             undoStack.Push(redoStack.Pop());
             texture.SetPixels(undoStack.Peek());
             texture.Apply();
-        }
-        else
-        {
-            Debug.Log("Cannot redo");
         }
     }
 

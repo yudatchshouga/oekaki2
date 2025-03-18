@@ -1,35 +1,34 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DotButtonController : MonoBehaviour
 {
-    [SerializeField] GameObject undoButtonCover;
-    [SerializeField] GameObject redoButtonCover;
+    [SerializeField] Button undoButton;
+    [SerializeField] Button redoButton;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
-    [SerializeField] GameObject spoitButtonCover;
     [SerializeField] GameObject lineButtonCover;
     [SerializeField] GameObject circleButtonCover;
     [SerializeField] GameObject rectangleButtonCover;
-
 
     private void Update()
     {
         if (DrawingManager.instance.undoStackCount > 1)
         {
-            undoButtonCover.SetActive(false);
+            undoButton.interactable = true;
         }
         else
         {
-            undoButtonCover.SetActive(true);
+            undoButton.interactable = false;
         }
 
         if (DrawingManager.instance.redoStackCount > 0)
         {
-            redoButtonCover.SetActive(false);
+            redoButton.interactable = true;
         }
         else
         {
-            redoButtonCover.SetActive(true);
+            redoButton.interactable = false;
         }
 
         if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen)
@@ -48,15 +47,6 @@ public class DotButtonController : MonoBehaviour
         else
         {
             fillButtonCover.SetActive(false);
-        }
-
-        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Spoit)
-        {
-            spoitButtonCover.SetActive(true);
-        }
-        else
-        {
-            spoitButtonCover.SetActive(false);
         }
 
         if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line)
@@ -106,18 +96,15 @@ public class DotButtonController : MonoBehaviour
                 DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Pen);
                 break;
             case 1:
-                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Spoit);
-                break;
-            case 2:
                 DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Fill);
                 break;
-            case 3:
+            case 2:
                 DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Line);
                 break;
-            case 4:
+            case 3:
                 DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
                 break;
-            case 5:
+            case 4:
                 DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
                 break;
         }

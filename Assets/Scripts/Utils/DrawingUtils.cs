@@ -195,16 +195,4 @@ public class DrawingUtils
             pixelQueue.Enqueue(new Vector2Int(pos.x, pos.y - 1));
         }
     }
-
-    public Color SpoitColor(Vector2 position)
-    {
-        Rect rect = new Rect(0, 0, 1920, 1080);
-
-        // ローカル座標をTexture2Dの座標に変換
-        int x = Mathf.FloorToInt((position.x - rect.x) / rect.width * 1920);
-        int y = Mathf.FloorToInt((position.y - rect.y) / rect.height * 1080);
-
-        color = texture.GetPixel(x, y);
-        return color;
-    }
 }
