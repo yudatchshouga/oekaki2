@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-//using Unity.Mathematics;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class DrawingManager : MonoBehaviourPunCallbacks
 {
@@ -14,7 +14,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Texture2D texture;
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
-    [SerializeField] Text message;
+    [SerializeField] Text roleText;
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
@@ -25,6 +25,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Vector2Int? startPoint = null; // 直線モードの始点
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
+    public bool isDrawable; // 描画可能かどうか
     DrawingUtils drawer;
     public enum ToolMode
     {
@@ -35,17 +36,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Rectrangle,
     }
     public ToolMode currentMode;
+    public Role role;
 
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
-
-    Role role = Role.None;
 
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
     Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
     Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
 
-    private string theme = "ヨクバリス";
 
     private void Awake()
     {
@@ -54,7 +53,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        Debug.Log("DrawingManager Start");
         CanvasWidth = PlayerPrefs.GetInt("Width", 50);
         CanvasHeight = PlayerPrefs.GetInt("Height", 50);
 
@@ -77,44 +75,29 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
-        photonView.RPC("SetDrawFieldSize", RpcTarget.All);
+        // オンラインモードとオフラインモードで処理を分ける
+        if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("オンラインモードで実行");
+            photonView.RPC("SetDrawFieldSize", RpcTarget.All);
 
-        role = PlayerPrefs.GetString("role").toRole();
-        Debug.Log(role);
-        if (role == Role.Questioner)
-        {
-            message.text = "お題：" + theme;
-        } else {
-            message.text = "お題はなんでしょう？";
-        }
-
-        // photonの接続状態を確認
-        if (PhotonNetwork.IsConnected)
-        {
-            Debug.Log("Photonに接続済み");
-        }
-        else
-        {
-            Debug.Log("Photonに未接続");
-        }
-    }
-
-    public void CheckAnswer(string answer)
-    {
-        Debug.Log("CheckAnswer");
-        Debug.Log("answer" + answer);
-        //Debug.Log(this.message.text);
-        Debug.Log(role);
-        if (role == Role.Questioner)
-        {
-            if (answer == this.theme)
+            role = PlayerPrefs.GetString("role").toRole();
+            Debug.Log(role);
+            if (role == Role.Questioner)
             {
-                Debug.Log("正解");
+                isDrawable = true;
+                roleText.text = "あなたは描き手です";
             }
             else
             {
-                Debug.Log("不正解");
+                isDrawable = false;
+                roleText.text = "あなたは回答者です";
             }
+        }
+        else
+        {
+            Debug.Log("オフラインモードで実行");
+            SetDrawFieldSize();
         }
     }
 
@@ -143,6 +126,11 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Rect rect = drawingPanel.rectTransform.rect;
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
+
+        if (!isDrawable)
+        {
+            return;
+        }
 
         // ペンツール
         if (currentMode == ToolMode.Pen)
@@ -515,6 +503,20 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         texture.Apply();
     }
 
+    // 盤面に何か描かれているかどうか
+    public bool HasDrawing()
+    {
+        Color32[] pixels = texture.GetPixels32();
+        foreach (Color32 pixel in pixels)
+        {
+            if (pixel.a != 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private bool IsInsideCanvas(Vector2 localPoint)
     {
         Rect rect = drawingPanel.rectTransform.rect;
@@ -551,11 +553,5 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         brushSize = (int)slider.value;
         drawer = new DrawingUtils(texture, drawColor, brushSize);
-    }
-
-    // テキストをセット
-    public void SetMessageText(string text)
-    {
-        message.text = text;
     }
 }

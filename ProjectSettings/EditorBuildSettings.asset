@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/OekakiScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
-    path: Assets/Scenes/Scene1.unity
+    path: Assets/Scenes/Title.unity
     guid: c5283bf4eb489e0449d73d738834e7bb
   - enabled: 1
     path: Assets/Scenes/DotOekaki.unity

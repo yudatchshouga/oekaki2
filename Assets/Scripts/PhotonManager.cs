@@ -1,16 +1,36 @@
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
-    private Player questionner;
+    public static PhotonManager instance;
+
+    [SerializeField] GameObject startButton;
+    [SerializeField] Text playerCountText;
+    Player questionner;
+    int maxPlayers = 4;
+
+    public bool randamMode = false;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();
         Debug.Log("Photon に接続中...");
-        DontDestroyOnLoad(gameObject);
     }
 
     // === 接続成功時に呼ばれるコールバック ===
@@ -33,7 +53,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         var roomOptions = new RoomOptions
         {
-            MaxPlayers = 4, // 最大プレイヤー数4人
+            MaxPlayers = maxPlayers, // 最大プレイヤー数4人
             IsOpen = true, // ルームを一般公開する
             IsVisible = true, // ルームがロビーで表示される
         };
@@ -46,31 +66,34 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("ルームに参加しました。");
         // ルーム内のプレイヤー数を取得
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
-        Debug.Log($"現在のプレイヤー数: {playerCount}");
+        playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
+        // ホストのみゲームルールを選んで開始することができる
+        if (PhotonNetwork.IsMasterClient)
+        {
+            startButton.SetActive(true);
+        }
+        else
+        { 
+            startButton.SetActive(false);
+        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("新しいプレイヤーが参加しました。");
-        // 現在の人数を取得
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
-        Debug.Log($"現在のプレイヤー数: {playerCount}");
+        playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
     }
 
-    public void OnClickStart()
+    public void OnClickOekakiQuiz()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("ゲームを開始します。");
-            Debug.Log("ゲーム画面に遷移します。");
-            photonView.RPC("StartGameRPC", RpcTarget.All);
             // ゲーム開始時に出題者を決定
             Debug.Log("出題者を決定します");
             SelectQuestionner();
         }
     }
-
-    public bool randamMode = false;
 
     private void SelectQuestionner()
     {
@@ -81,16 +104,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void StartGameRPC()
-    {
-        Debug.Log("ゲームを開始します。");
-        Debug.Log("ゲーム画面に遷移します。");
-        SceneController.LoadScene("DotOekaki");
-    }
-
-    [PunRPC]
     private void SetQuestionner(int actorNumber)
     {
+        SceneController.instance.LoadScene("DotOekaki");
         if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
         {
             PlayerPrefs.SetString("role", Role.Questioner.ToString());
@@ -106,13 +122,23 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("プレイヤーが退出しました。");
     }
 
-    // 退出ボタンが押されたときに呼び出される
-    public void OnClickLeave()
+    // ルームから退出する
+    public void OnLeaveRoom()
     {
         Debug.Log("ルームから退出します。");
         PhotonNetwork.LeaveRoom();
     }
 
+    // ルームから退出する(タイトルシーンに戻る)
+    public void OnLeaveRoomAndDestroy()
+    {
+        Debug.Log("ルームから退出します。");
+        PhotonNetwork.LeaveRoom();
+        Destroy(gameObject);
+        SceneController.instance.LoadScene("Title");
+    }
+
+    // === ルームから退出したときのコールバック ===
     public override void OnLeftRoom()
     {
         Debug.Log("ルームから退出しました。");

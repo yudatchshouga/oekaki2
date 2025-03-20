@@ -5,21 +5,7 @@ using UnityEngine.UI;
 
 public class SceneController : MonoBehaviour
 {
-    private static SceneController instance;
-
-    public static SceneController Instance
-    {
-        get
-        { 
-            if (instance == null)
-            {
-                GameObject obj = new GameObject("SceneManager");
-                instance = obj.AddComponent<SceneController>();
-                DontDestroyOnLoad(obj);
-            }
-            return instance;
-        }
-    }
+    public static SceneController instance;
 
     [SerializeField] PixelSizeInputField widthInputField;
     [SerializeField] PixelSizeInputField heightInputField;
@@ -37,9 +23,9 @@ public class SceneController : MonoBehaviour
         }
     }
 
-    public static void LoadScene(string sceneName)
+    public void LoadScene(string sceneName)
     {
-        Instance.StartCoroutine(Instance.LoadSceneAsync(sceneName));
+        StartCoroutine(LoadSceneAsync(sceneName));
     }
 
     private IEnumerator LoadSceneAsync(string sceneName)

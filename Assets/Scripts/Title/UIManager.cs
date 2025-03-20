@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] Toggle hostToggle;
     [SerializeField] Toggle guestToggle;

@@ -8,9 +8,11 @@ public class PanelController : MonoBehaviour
     private enum Panels
     {
         Title,
-        SizeSelect,
+        Option,
+        SizeSetting,
         OnlineMenu,
         Lobby,
+        GameSelect,
     }
 
 
@@ -21,14 +23,20 @@ public class PanelController : MonoBehaviour
             case Panels.Title:
                 transform.localPosition = new Vector3(0, 0, 0);
                 break;
-            case Panels.SizeSelect:
-                transform.localPosition = new Vector3(-2000, 0, 0);
+            case Panels.Option:
+                transform.localPosition = new Vector3(0, -1500, 0);
+                break;
+            case Panels.SizeSetting:
+                transform.localPosition = new Vector3(-2500, 0, 0);
                 break;
             case Panels.OnlineMenu:
                 transform.localPosition = new Vector3(0, 1500, 0);
                 break;
             case Panels.Lobby:
                 transform.localPosition = new Vector3(0, 3000, 0);
+                break;
+            case Panels.GameSelect:
+                transform.localPosition = new Vector3(-2500, 3000, 0);
                 break;
         }
     }
@@ -41,14 +49,20 @@ public class PanelController : MonoBehaviour
             case Panels.Title:
                 transform.localPosition = new Vector3(0, 0, 0);
                 break;
-            case Panels.SizeSelect:
-                transform.localPosition = new Vector3(-2000, 0, 0);
+            case Panels.Option:
+                transform.localPosition = new Vector3(0, -1500, 0);
+                break;
+            case Panels.SizeSetting:
+                transform.localPosition = new Vector3(-2500, 0, 0);
                 break;
             case Panels.OnlineMenu:
                 transform.localPosition = new Vector3(0, 1500, 0);
                 break;
             case Panels.Lobby:
                 transform.localPosition = new Vector3(0, 3000, 0);
+                break;
+            case Panels.GameSelect:
+                transform.localPosition = new Vector3(-2500, 3000, 0);
                 break;
         }
         lobbyDrawing.ClearCanvas();

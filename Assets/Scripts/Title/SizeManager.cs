@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class SizeManager : MonoBehaviour
+public class SizeManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] PixelSizeInputField widthInputField;
     [SerializeField] PixelSizeInputField heightInputField;
@@ -25,10 +26,23 @@ public class SizeManager : MonoBehaviour
 
     public void OnStartButtonClick()
     {
-        PlayerPrefs.SetInt("Width", widthInputField.inputPixelSize);
-        PlayerPrefs.SetInt("Height", heightInputField.inputPixelSize);
-        PlayerPrefs.Save();
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("SetWidthAndHeight", RpcTarget.All, widthInputField.inputPixelSize, heightInputField.inputPixelSize);
+            PhotonManager.instance.OnClickOekakiQuiz();
+        }
+        else
+        {
+            SetWidthAndHeight(widthInputField.inputPixelSize, heightInputField.inputPixelSize);
+            SceneController.instance.LoadScene("DotOekaki");
+        }
+    }
 
-        SceneController.LoadScene("DotOekaki");
+    [PunRPC]
+    private void SetWidthAndHeight(int width, int height)
+    {
+        PlayerPrefs.SetInt("Width", width);
+        PlayerPrefs.SetInt("Height", height);
+        PlayerPrefs.Save();
     }
 }

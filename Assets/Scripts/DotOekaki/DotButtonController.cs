@@ -3,16 +3,36 @@ using UnityEngine.UI;
 
 public class DotButtonController : MonoBehaviour
 {
+    [SerializeField] GameObject dotUI;
     [SerializeField] Button undoButton;
     [SerializeField] Button redoButton;
+    [SerializeField] Button clearButton;
+    [SerializeField] Button backButton;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
     [SerializeField] GameObject lineButtonCover;
     [SerializeField] GameObject circleButtonCover;
     [SerializeField] GameObject rectangleButtonCover;
 
+    private void Start()
+    {
+        backButton.onClick.AddListener(() =>
+        {
+            PhotonManager.instance.OnLeaveRoomAndDestroy();
+        });
+    }
+
     private void Update()
     {
+        if (DrawingManager.instance.isDrawable)
+        {
+            dotUI.SetActive(true);
+        }
+        else
+        {
+            dotUI.SetActive(false);
+        }
+
         if (DrawingManager.instance.undoStackCount > 1)
         {
             undoButton.interactable = true;
@@ -29,6 +49,15 @@ public class DotButtonController : MonoBehaviour
         else
         {
             redoButton.interactable = false;
+        }
+
+        if (DrawingManager.instance.HasDrawing())
+        {
+            clearButton.interactable = true;
+        }
+        else
+        {
+            clearButton.interactable = false;
         }
 
         if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen)

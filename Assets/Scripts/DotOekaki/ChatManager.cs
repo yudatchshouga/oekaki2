@@ -6,6 +6,7 @@ using Photon.Pun;
 
 public class ChatManager : MonoBehaviourPunCallbacks
 {
+    [SerializeField] ThemeGenerator themeGenerator;
     public InputField chatInputField;
     public Text chatLogText;
     public ScrollRect chatScrollRect;
@@ -25,8 +26,7 @@ public class ChatManager : MonoBehaviourPunCallbacks
                 // チャット入力欄をリセット
                 chatInputField.text = "";
                 chatLogText.text = string.Join("\n", chatMessages.ToArray());
-                Canvas.ForceUpdateCanvases();
-                // ワンフレーム待つ必要あり？
+                Canvas.ForceUpdateCanvases(); // ワンフレーム待つ必要あり？
                 chatScrollRect.verticalNormalizedPosition = 0;
             }
             // チャット入力欄にフォーカスを移す
@@ -63,6 +63,6 @@ public class ChatManager : MonoBehaviourPunCallbacks
         chatScrollRect.verticalNormalizedPosition = 0;
 
         // 正誤判定
-        DrawingManager.instance.CheckAnswer(message);
+        themeGenerator.CheckAnswer(message);
     }
 }
