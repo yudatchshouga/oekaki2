@@ -48,7 +48,7 @@ public class GoogleSheetLoader : MonoBehaviour
                 QuizQuestion question = new QuizQuestion
                 {
                     question = data[0],
-                    answer = new List<string> { data[1], data[2], data[3] }
+                    answerList = new List<string> { data[1], data[2], data[3] }
                 };
                 questions.Add(question);
             }
@@ -60,5 +60,5 @@ public class GoogleSheetLoader : MonoBehaviour
 public class QuizQuestion
 {
     public string question; // お題
-    public List<string> answer; // 答えのリスト
+    public List<string> answerList; // 答えのリスト
 }

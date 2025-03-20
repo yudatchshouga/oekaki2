@@ -34,9 +34,9 @@ public class GoogleSheetLoaderEditor : Editor
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(question.question, GUILayout.Width(200));
-                for (int i = 0; i < question.answer.Count; i++)
+                for (int i = 0; i < question.answerList.Count; i++)
                 {
-                    EditorGUILayout.LabelField(question.answer[i], GUILayout.Width(100));
+                    EditorGUILayout.LabelField(question.answerList[i], GUILayout.Width(100));
                 }
                 EditorGUILayout.EndHorizontal();
             }

@@ -1,15 +1,27 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 
 public class ThemeGenerator : MonoBehaviour
 {
+    GoogleSheetLoader googleSheetLoader;
+    List<QuizQuestion> themeList;
     [SerializeField] Text themeText;
-    private string theme = "ヨクバリス";
+    QuizQuestion currentTheme;
 
     void Start()
     {
         StartCoroutine(SetTheme());
+        googleSheetLoader = FindAnyObjectByType<GoogleSheetLoader>();
+        themeList = googleSheetLoader.questions;
+    }
+
+    QuizQuestion GetRandomTheme()
+    {
+        int randomIndex = Random.Range(0, themeList.Count);
+        return themeList[randomIndex];
     }
 
     private IEnumerator SetTheme()
@@ -18,10 +30,11 @@ public class ThemeGenerator : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         // roleが設定された後の処理
-        SetText();
+        currentTheme = GetRandomTheme();
+        SetText(currentTheme.question);
     }
 
-    private void SetText()
+    private void SetText(string theme)
     {
         if (DrawingManager.instance.role == Role.Questioner)
         {
@@ -33,21 +46,26 @@ public class ThemeGenerator : MonoBehaviour
         }
     }
 
-    public void CheckAnswer(string answer)
+    public bool CheckAnswer(string answer)
     {
-        Debug.Log("CheckAnswer");
-        Debug.Log("answer" + answer);
-
-        if (DrawingManager.instance.role == Role.Questioner)
+        if (DrawingManager.instance.role == Role.Answerer)
         {
-            if (answer == this.theme)
+            // 答えが一致するかどうかを判定
+            foreach (string correctAnswer in currentTheme.answerList)
             {
-                Debug.Log("正解");
+                if (NormalizeString(answer) == NormalizeString(correctAnswer))
+                {
+                    return true;
+                }
             }
-            else
-            {
-                Debug.Log("不正解");
-            }
+            return false;
         }
+        return false;
+    }
+
+    private string NormalizeString(string input)
+    {
+        // 前後の空白をトリムし、小文字変換し、全角を半角に変換
+        return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
     }
 }

@@ -22,19 +22,14 @@ public class ChatManager : MonoBehaviourPunCallbacks
             string answer = chatInputField.text;
             if (!string.IsNullOrEmpty(answer))
             {
-                chatMessages.Add(answer);
+                // RPCで送信
+                photonView.RPC("SendChatMessage", RpcTarget.All, answer);
                 // チャット入力欄をリセット
                 chatInputField.text = "";
-                chatLogText.text = string.Join("\n", chatMessages.ToArray());
-                Canvas.ForceUpdateCanvases(); // ワンフレーム待つ必要あり？
-                chatScrollRect.verticalNormalizedPosition = 0;
             }
             // チャット入力欄にフォーカスを移す
             chatInputField.Select();
             chatInputField.ActivateInputField();
-
-            // RPCで送信
-            photonView.RPC("SendChatMessage", RpcTarget.Others, answer);
         }
     }
 
@@ -61,8 +56,14 @@ public class ChatManager : MonoBehaviourPunCallbacks
         Canvas.ForceUpdateCanvases();
         // ワンフレーム待つ必要あり？
         chatScrollRect.verticalNormalizedPosition = 0;
-
         // 正誤判定
-        themeGenerator.CheckAnswer(message);
+        if (themeGenerator.CheckAnswer(message))
+        {
+            Debug.Log("正解!");
+        }
+        else
+        {
+            Debug.Log("不正解");
+        }
     }
 }
