@@ -90,7 +90,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             // ゲーム開始時に出題者を決定
-            Debug.Log("出題者を決定します");
             SelectQuestionner();
         }
     }

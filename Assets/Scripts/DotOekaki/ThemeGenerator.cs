@@ -22,8 +22,12 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
 
     QuizQuestion GetRandomTheme()
     {
-        int randomIndex = Random.Range(0, themeList.Count);
-        return themeList[randomIndex];
+        // 重複を許さずにランダムなお題を取得する
+        List<QuizQuestion> themeListCopy = new List<QuizQuestion>(themeList);
+        int randomIndex = Random.Range(0, themeListCopy.Count);
+        QuizQuestion theme = themeListCopy[randomIndex];
+        themeListCopy.RemoveAt(randomIndex);
+        return theme;
     }
 
     private IEnumerator SetTheme()
@@ -32,11 +36,10 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(1.0f);
 
         // roleが設定された後の処理
-        currentTheme = GetRandomTheme();
-        SetText(currentTheme.question);
+        GenerateQuestion();
     }
 
-    public void nextQuestion()
+    public void GenerateQuestion()
     {
         currentTheme = GetRandomTheme();
         SetText(currentTheme.question);
@@ -56,7 +59,6 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
 
     public void CheckAnswer(string answer)
     {
-        correctLabel.text = "不正解";
         // 答えが一致するかどうかを判定
         foreach (string correctAnswer in currentTheme.answerList)
         {
@@ -70,8 +72,17 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
     [PunRPC]
     private void receiveCorrectAnswer()
     {
+        StartCoroutine(ShowCorrectLabel());
+    }
+
+    private IEnumerator ShowCorrectLabel()
+    {
         correctLabel.text = "正解！";
+        correctLabel.gameObject.SetActive(true);
         // 正解のエフェクトを出す
+        yield return new WaitForSeconds(2.0f);
+        correctLabel.gameObject.SetActive(false);
+        GenerateQuestion();
     }
 
     private string NormalizeString(string input)
