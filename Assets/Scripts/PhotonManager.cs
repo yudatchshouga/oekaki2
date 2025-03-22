@@ -107,14 +107,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     private void SetQuestionner(int actorNumber)
     {
         SceneController.instance.LoadScene("DotOekaki");
-        if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
-        {
-            PlayerPrefs.SetString("role", Role.Questioner.ToString());
-        }
-        else
-        {
-            PlayerPrefs.SetString("role", Role.Answerer.ToString());
-        }
+        int myActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        string role = actorNumber == myActorNumber ? Role.Questioner.ToString() : Role.Answerer.ToString();
+
+        PlayerPrefs.SetInt("questionner", actorNumber);
+        PlayerPrefs.SetString("role", role);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)

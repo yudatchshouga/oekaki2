@@ -3,13 +3,15 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Photon.Pun;
 
-public class ThemeGenerator : MonoBehaviour
+public class ThemeGenerator : MonoBehaviourPunCallbacks
 {
     GoogleSheetLoader googleSheetLoader;
     List<QuizQuestion> themeList;
     [SerializeField] Text themeText;
     QuizQuestion currentTheme;
+    [SerializeField] Text correctLabel;
 
     void Start()
     {
@@ -34,6 +36,12 @@ public class ThemeGenerator : MonoBehaviour
         SetText(currentTheme.question);
     }
 
+    public void nextQuestion()
+    {
+        currentTheme = GetRandomTheme();
+        SetText(currentTheme.question);
+    }
+
     private void SetText(string theme)
     {
         if (DrawingManager.instance.role == Role.Questioner)
@@ -46,21 +54,24 @@ public class ThemeGenerator : MonoBehaviour
         }
     }
 
-    public bool CheckAnswer(string answer)
+    public void CheckAnswer(string answer)
     {
-        if (DrawingManager.instance.role == Role.Answerer)
+        correctLabel.text = "不正解";
+        // 答えが一致するかどうかを判定
+        foreach (string correctAnswer in currentTheme.answerList)
         {
-            // 答えが一致するかどうかを判定
-            foreach (string correctAnswer in currentTheme.answerList)
+            if (NormalizeString(answer) == NormalizeString(correctAnswer))
             {
-                if (NormalizeString(answer) == NormalizeString(correctAnswer))
-                {
-                    return true;
-                }
+                photonView.RPC("receiveCorrectAnswer", RpcTarget.All);
             }
-            return false;
         }
-        return false;
+    }
+
+    [PunRPC]
+    private void receiveCorrectAnswer()
+    {
+        correctLabel.text = "正解！";
+        // 正解のエフェクトを出す
     }
 
     private string NormalizeString(string input)
