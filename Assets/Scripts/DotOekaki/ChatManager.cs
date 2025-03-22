@@ -72,13 +72,6 @@ public class ChatManager : MonoBehaviourPunCallbacks
         }
 
         // 正誤判定
-        if (themeGenerator.CheckAnswer(message))
-        {
-            Debug.Log("正解!");
-        }
-        else
-        {
-            Debug.Log("不正解");
-        }
+        themeGenerator.CheckAnswer(message);
     }
 }
