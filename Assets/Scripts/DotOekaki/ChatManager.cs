@@ -22,8 +22,11 @@ public class ChatManager : MonoBehaviourPunCallbacks
             string answer = chatInputField.text;
             if (!string.IsNullOrEmpty(answer))
             {
+                // 自分の番号取得
+                int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+
                 // RPCで送信
-                photonView.RPC("SendChatMessage", RpcTarget.All, answer);
+                photonView.RPC("SendChatMessage", RpcTarget.All, answer, actorNumber);
                 // チャット入力欄をリセット
                 chatInputField.text = "";
             }
@@ -49,13 +52,25 @@ public class ChatManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void SendChatMessage(string message)
+    public void SendChatMessage(string message, int actorNumber)
     {
+        Debug.Log("SendChatMessage");
+        Debug.Log("message" + message);
+        Debug.Log("actorNumber" + actorNumber);
         chatMessages.Add(message);
         chatLogText.text = string.Join("\n", chatMessages.ToArray());
         Canvas.ForceUpdateCanvases();
         // ワンフレーム待つ必要あり？
         chatScrollRect.verticalNormalizedPosition = 0;
+
+        int questionerActorNumber = PlayerPrefs.GetInt("questionner");
+        if (actorNumber == questionerActorNumber)
+        {
+            // 出題者の場合
+            Debug.Log("出題者のメッセージ");
+            return;
+        }
+
         // 正誤判定
         if (themeGenerator.CheckAnswer(message))
         {

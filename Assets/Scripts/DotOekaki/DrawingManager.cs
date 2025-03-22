@@ -45,6 +45,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
     Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
 
+    public int questionerActorNumber;
 
     private void Awake()
     {
@@ -82,7 +83,9 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             photonView.RPC("SetDrawFieldSize", RpcTarget.All);
 
             role = PlayerPrefs.GetString("role").toRole();
+            questionerActorNumber = PlayerPrefs.GetInt("questionner", 1);
             Debug.Log(role);
+            Debug.Log("questionerActorNumber:"+ questionerActorNumber);
             if (role == Role.Questioner)
             {
                 isDrawable = true;
