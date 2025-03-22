@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Windows;
 
 public class GoogleSheetLoader : MonoBehaviour
 {
@@ -48,11 +49,16 @@ public class GoogleSheetLoader : MonoBehaviour
                 QuizQuestion question = new QuizQuestion
                 {
                     question = data[0],
-                    answerList = new List<string> { data[1], data[2], data[3] }
+                    answerList = new List<string> { ClearString(data[1]), ClearString(data[2]), ClearString(data[3]) }
                 };
                 questions.Add(question);
             }
         }
+    }
+
+    private string ClearString(string str)
+    {
+        return str.Trim().Replace("\"", "");
     }
 }
 
