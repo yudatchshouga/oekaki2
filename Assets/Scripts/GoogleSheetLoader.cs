@@ -48,7 +48,7 @@ public class GoogleSheetLoader : MonoBehaviour
             {
                 QuizQuestion question = new QuizQuestion
                 {
-                    question = data[0],
+                    question = ClearString(data[0]),
                     answerList = new List<string> { ClearString(data[1]), ClearString(data[2]), ClearString(data[3]) }
                 };
                 questions.Add(question);
