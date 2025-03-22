@@ -34,19 +34,19 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     {
         Vector2Int localPoint = GetMouseCanvasPosition();
 
-        if (Input.GetMouseButton(0))
+        if (IsInsideCanvas(localPoint))
         {
-            if (IsInsideCanvas(localPoint))
+            if (Input.GetMouseButton(0))
             {
                 int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
                 photonView.RPC("DrawAtPoint", RpcTarget.All, actorNumber, localPoint.x, localPoint.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, penSize);
             }
-        }
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-            photonView.RPC("ResetLastPoint", RpcTarget.All, actorNumber);
+            if (Input.GetMouseButtonUp(0))
+            {
+                int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+                photonView.RPC("ResetLastPoint", RpcTarget.All, actorNumber);
+            }
         }
     }
 
