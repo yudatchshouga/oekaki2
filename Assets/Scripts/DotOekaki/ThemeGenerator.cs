@@ -48,12 +48,17 @@ public class ThemeGenerator : MonoBehaviour
 
     public bool CheckAnswer(string answer)
     {
-        if (DrawingManager.instance.role == Role.Answerer)
+        if (DrawingManager.instance.role == Role.Questioner)
         {
             // 答えが一致するかどうかを判定
             foreach (string correctAnswer in currentTheme.answerList)
             {
-                if (NormalizeString(answer) == NormalizeString(correctAnswer))
+                Debug.Log(NormalizeString(answer) + " : " + NormalizeString(correctAnswer));
+
+                // correctAnswerの""を削除
+                string correctAnswer2 = correctAnswer.Replace("\"", "");
+
+                if (NormalizeString(answer) == NormalizeString(correctAnswer2))
                 {
                     return true;
                 }
