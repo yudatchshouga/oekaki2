@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DotButtonController : MonoBehaviour
+public class DotUIManager : MonoBehaviour
 {
     [SerializeField] GameObject dotUI;
+    [SerializeField] GameObject blindPanel;
     [SerializeField] Button undoButton;
     [SerializeField] Button redoButton;
     [SerializeField] Button clearButton;
@@ -24,85 +25,32 @@ public class DotButtonController : MonoBehaviour
 
     private void Update()
     {
-        if (DrawingManager.instance.isDrawable)
-        {
-            dotUI.SetActive(true);
-        }
-        else
-        {
-            dotUI.SetActive(false);
-        }
+        SetActive(dotUI, DrawingManager.instance.isDrawable);
+        SetActive(blindPanel, DrawingManager.instance.isBlind);
+        SetActive(penButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen);
+        SetActive(fillButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill);
+        SetActive(lineButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line);
+        SetActive(circleButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Circle);
+        SetActive(rectangleButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Rectangle);
 
-        if (DrawingManager.instance.undoStackCount > 1)
-        {
-            undoButton.interactable = true;
-        }
-        else
-        {
-            undoButton.interactable = false;
-        }
+        SetInteractable(undoButton, DrawingManager.instance.undoStackCount > 1);
+        SetInteractable(redoButton, DrawingManager.instance.redoStackCount > 0);
+        SetInteractable(clearButton, DrawingManager.instance.HasDrawing());
+    }
 
-        if (DrawingManager.instance.redoStackCount > 0)
+    private void SetActive(GameObject obj, bool isActive)
+    {
+        if (obj.activeSelf != isActive)
         {
-            redoButton.interactable = true;
+            obj.SetActive(isActive);
         }
-        else
-        {
-            redoButton.interactable = false;
-        }
+    }
 
-        if (DrawingManager.instance.HasDrawing())
+    private void SetInteractable(Button button, bool isInteractable)
+    {
+        if (button.interactable != isInteractable)
         {
-            clearButton.interactable = true;
-        }
-        else
-        {
-            clearButton.interactable = false;
-        }
-
-        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen)
-        {
-            penButtonCover.SetActive(true);
-        }
-        else
-        {
-            penButtonCover.SetActive(false);
-        }
-
-        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill)
-        {
-            fillButtonCover.SetActive(true);
-        }
-        else
-        {
-            fillButtonCover.SetActive(false);
-        }
-
-        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line)
-        {
-            lineButtonCover.SetActive(true);
-        }
-        else
-        {
-            lineButtonCover.SetActive(false);
-        }
-
-        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Circle)
-        {
-            circleButtonCover.SetActive(true);
-        }
-        else
-        {
-            circleButtonCover.SetActive(false);
-        }
-
-        if (DrawingManager.instance.currentMode == DrawingManager.ToolMode.Rectrangle)
-        {
-            rectangleButtonCover.SetActive(true);
-        }
-        else
-        {
-            rectangleButtonCover.SetActive(false);
+            button.interactable = isInteractable;
         }
     }
 
@@ -134,7 +82,7 @@ public class DotButtonController : MonoBehaviour
                 DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Circle);
                 break;
             case 4:
-                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectrangle);
+                DrawingManager.instance.ChangeMode(DrawingManager.ToolMode.Rectangle);
                 break;
         }
     }

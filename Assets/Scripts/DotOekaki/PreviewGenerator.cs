@@ -43,7 +43,7 @@ public class PreviewGenerator : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectrangle)
+            if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectangle)
             {
                 if (!IsInsideCanvas(localPoint))
                 {
@@ -73,7 +73,7 @@ public class PreviewGenerator : MonoBehaviour
 
         if (Input.GetMouseButton(0))
         {
-            if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectrangle)
+            if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectangle)
             {
                 if (isDrawing)
                 { 
@@ -108,7 +108,7 @@ public class PreviewGenerator : MonoBehaviour
                     isDrawing = false;
                 }
             }
-            else if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectrangle)
+            else if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectangle)
             {
                 if (isDrawing)
                 {
@@ -136,7 +136,7 @@ public class PreviewGenerator : MonoBehaviour
         {
             DrawCircle(start, end);
         }
-        else if (currentPreviewMode == ToolMode.Rectrangle)
+        else if (currentPreviewMode == ToolMode.Rectangle)
         {
             DrawRectangle(start, end);
         }

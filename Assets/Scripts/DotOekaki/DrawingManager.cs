@@ -26,6 +26,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
     public bool isDrawable; // 描画可能かどうか
+    public bool isBlind; // 目隠しモードかどうか
     DrawingUtils drawer;
     public enum ToolMode
     {
@@ -33,10 +34,9 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         Fill,
         Line,
         Circle,
-        Rectrangle,
+        Rectangle,
     }
     public ToolMode currentMode;
-    public Role role;
 
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
@@ -45,6 +45,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
     Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
 
+    public Role role;
     public int questionerActorNumber;
 
     private void Awake()
@@ -246,12 +247,12 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         }
 
         // 円、長方形ツール
-        else if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+        else if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectangle)
         {
             if (Input.GetMouseButtonDown(0))
             {
                 // 始点の設定
-                if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+                if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectangle)
                 {
                     if (!IsInsideCanvas(localPoint))
                     {
@@ -267,7 +268,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             }
             if (Input.GetMouseButtonUp(0))
             {
-                if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectrangle)
+                if (currentMode == ToolMode.Circle || currentMode == ToolMode.Rectangle)
                 {
                     if (isDrawing)
                     {
@@ -371,7 +372,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         {
             drawer.DrawCircle(start, end);
         }
-        else if (currentMode == ToolMode.Rectrangle)
+        else if (currentMode == ToolMode.Rectangle)
         {
             drawer.DrawRectangle(start, end);
         }
@@ -398,7 +399,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         {
             tempDrawer.DrawCircle(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
         }
-        else if (currentMode == ToolMode.Rectrangle)
+        else if (currentMode == ToolMode.Rectangle)
         {
             tempDrawer.DrawRectangle(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
         }
