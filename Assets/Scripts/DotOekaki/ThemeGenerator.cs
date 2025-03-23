@@ -7,11 +7,24 @@ using Photon.Pun;
 
 public class ThemeGenerator : MonoBehaviourPunCallbacks
 {
+    public static ThemeGenerator instance;
     GoogleSheetLoader googleSheetLoader;
     List<QuizQuestion> themeList;
     [SerializeField] Text themeText;
     QuizQuestion currentTheme;
     [SerializeField] Text correctLabel;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -20,7 +33,7 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
         themeList = googleSheetLoader.questions;
     }
 
-    QuizQuestion GetRandomTheme()
+    public QuizQuestion GetRandomTheme()
     {
         // 重複を許さずにランダムなお題を取得する
         List<QuizQuestion> themeListCopy = new List<QuizQuestion>(themeList);
@@ -36,25 +49,17 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(1.0f);
 
         // roleが設定された後の処理
-        GenerateQuestion();
+        //GenerateQuestion();
     }
 
-    public void GenerateQuestion()
+    public void GenerateQuestionaaa()
     {
+        // お題決定
         currentTheme = GetRandomTheme();
-        SetText(currentTheme.question);
-    }
+        // 出題者決定
+        // UI反映
 
-    private void SetText(string theme)
-    {
-        if (DrawingManager.instance.role == Role.Questioner)
-        {
-            themeText.text = "お題：" + theme;
-        }
-        else if(DrawingManager.instance.role == Role.Answerer)
-        {
-            themeText.text = "お題はなんでしょう？";
-        }
+        DotUIManager.instance.SetThemeText(currentTheme.question);
     }
 
     public void CheckAnswer(string answer)
@@ -82,7 +87,7 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
         // 正解のエフェクトを出す
         yield return new WaitForSeconds(2.0f);
         correctLabel.gameObject.SetActive(false);
-        GenerateQuestion();
+        //GenerateQuestion();
     }
 
     private string NormalizeString(string input)

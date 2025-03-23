@@ -55,16 +55,14 @@ public class ChatManager : MonoBehaviourPunCallbacks
     public void SendChatMessage(string message, int actorNumber)
     {
         Debug.Log("SendChatMessage");
-        Debug.Log("message" + message);
-        Debug.Log("actorNumber" + actorNumber);
         chatMessages.Add(message);
         chatLogText.text = string.Join("\n", chatMessages.ToArray());
         Canvas.ForceUpdateCanvases();
         // ワンフレーム待つ必要あり？
         chatScrollRect.verticalNormalizedPosition = 0;
 
-        int questionerActorNumber = PlayerPrefs.GetInt("questionner");
-        if (actorNumber == questionerActorNumber)
+        //Role role = GameManager.instance.GetRole();
+        if (actorNumber == GameManager.instance.questionerNumber)
         {
             // 出題者の場合
             Debug.Log("出題者のメッセージ");
@@ -72,6 +70,9 @@ public class ChatManager : MonoBehaviourPunCallbacks
         }
 
         // 正誤判定
-        themeGenerator.CheckAnswer(message);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            GameManager.instance.CheckAnswer(message);
+        }
     }
 }

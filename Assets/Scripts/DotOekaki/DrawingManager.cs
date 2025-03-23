@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class DrawingManager : MonoBehaviourPunCallbacks
 {
@@ -21,9 +22,10 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Vector2Int? startPoint = null; // 直線モードの始点
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
-    public bool isDrawable; // 描画可能かどうか
+    //public bool isDrawable; // 描画可能かどうか
     public bool isBlind; // 目隠しモードかどうか
     DrawingUtils drawer;
+
     public enum ToolMode
     {
         Pen,
@@ -40,9 +42,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
     Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
     Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
-
-    public Role role;
-    public int questionerActorNumber;
 
     private void Awake()
     {
@@ -73,26 +72,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
+        // 出題者・お題の設定
+        GameManager.instance.SetUpMaster();
+
         // オンラインモードとオフラインモードで処理を分ける
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
             photonView.RPC("SetDrawFieldSize", RpcTarget.All);
-
-            role = PlayerPrefs.GetString("role").toRole();
-            questionerActorNumber = PlayerPrefs.GetInt("questionner", 1);
-            Debug.Log(role);
-            Debug.Log("questionerActorNumber:"+ questionerActorNumber);
-            if (role == Role.Questioner)
-            {
-                isDrawable = true;
-                roleText.text = "あなたは描き手です";
-            }
-            else
-            {
-                isDrawable = false;
-                roleText.text = "あなたは回答者です";
-            }
+            //isDrawable = GameManager.instance.isDrawable();
         }
         else
         {
@@ -127,6 +115,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
+        bool isDrawable = GameManager.instance.isDrawable();
         if (!isDrawable)
         {
             return;
