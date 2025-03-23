@@ -55,8 +55,6 @@ public class ChatManager : MonoBehaviourPunCallbacks
     public void SendChatMessage(string message, int actorNumber)
     {
         Debug.Log("SendChatMessage");
-        Debug.Log("message" + message);
-        Debug.Log("actorNumber" + actorNumber);
         chatMessages.Add(message);
         chatLogText.text = string.Join("\n", chatMessages.ToArray());
         Canvas.ForceUpdateCanvases();
@@ -72,6 +70,7 @@ public class ChatManager : MonoBehaviourPunCallbacks
         }
 
         // 正誤判定
-        themeGenerator.CheckAnswer(message);
+        //themeGenerator.CheckAnswer(message);
+        GameManager.instance.CheckAnswer(message);
     }
 }

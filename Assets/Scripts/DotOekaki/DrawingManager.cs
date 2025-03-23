@@ -25,7 +25,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     public bool isDrawable; // 描画可能かどうか
     public bool isBlind; // 目隠しモードかどうか
     DrawingUtils drawer;
-    public bool randamMode = false;
+
     public enum ToolMode
     {
         Pen,
@@ -42,9 +42,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
     Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
     Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
-
-    public Role role;
-    public int questionerActorNumber;
 
     private void Awake()
     {
@@ -76,47 +73,22 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
         // 出題者決定
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Player[] players = PhotonNetwork.PlayerList;
-            // actorNumber は1始まり
-            int selectedActorNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
-            photonView.RPC("SetQuestionner", RpcTarget.All, selectedActorNumber);
-        }
+        GameManager.instance.SelectQuestioner();
+        // お題決定
+        GameManager.instance.SelectQuestion();
 
         // オンラインモードとオフラインモードで処理を分ける
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
             photonView.RPC("SetDrawFieldSize", RpcTarget.All);
-
-            role = PlayerPrefs.GetString("role").toRole();
-            questionerActorNumber = PlayerPrefs.GetInt("questionner", 1);
-            Debug.Log(role);
-            Debug.Log("questionerActorNumber:"+ questionerActorNumber);
-            if (role == Role.Questioner)
-            {
-                isDrawable = true;
-                roleText.text = "あなたは描き手です";
-            }
-            else
-            {
-                isDrawable = false;
-                roleText.text = "あなたは回答者です";
-            }
+            isDrawable = GameManager.instance.isDrawable();
         }
         else
         {
             Debug.Log("オフラインモードで実行");
             SetDrawFieldSize();
         }
-    }
-
-    [PunRPC]
-    private void SetQuestionner(int actorNumber)
-    {
-        int myActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-        role = actorNumber == myActorNumber ? Role.Questioner : Role.Answerer;
     }
 
     // 描画領域のサイズを設定
