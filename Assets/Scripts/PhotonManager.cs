@@ -9,6 +9,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     [SerializeField] GameObject startButton;
     [SerializeField] Text playerCountText;
+    [SerializeField] InputField passwordInputField;
     Player questionner;
     int maxPlayers = 4;
 
@@ -144,5 +145,15 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.Log($"Photon の接続に失敗: {cause}");
+    }
+
+    // パスワードルームに参加する（ルームが存在しなければ作成してから参加する）
+    public void OnPasswordRoomButtonClicked()
+    {
+        var roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 4;
+        roomOptions.IsVisible = false;
+
+        PhotonNetwork.JoinOrCreateRoom(passwordInputField.text, roomOptions, TypedLobby.Default);
     }
 }
