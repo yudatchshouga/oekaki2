@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager instance;
     public int questionerNumber;
-    public bool randamMode = true;
+    [SerializeField] bool randamMode;
     public QuizQuestion currentTheme;
     [SerializeField] public Text correctLabel;
 
@@ -25,23 +25,34 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void SelectQuestioner()
+    public void SetUpMaster()
     {
-        Debug.Log("SelectQuestioner");
         if (PhotonNetwork.IsMasterClient)
         {
-            Player[] players = PhotonNetwork.PlayerList;
-            // actorNumber は1始まり
-            int selectedActorNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
-            photonView.RPC("SetQuestionner", RpcTarget.All, selectedActorNumber);
+            // お題決定
+            currentTheme = ThemeGenerator.instance.GetRandomTheme();
+            // 出題者決定
+            int selectedQuestionerNumber = randamMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
+            photonView.RPC("SetUpAll", RpcTarget.All, selectedQuestionerNumber, currentTheme.question);
         }
     }
+
     [PunRPC]
-    public void SetQuestionner(int actorNumber)
+    public void SetUpAll(int selectedQuestionerNumber, string question)
     {
-        Debug.Log("SetQuestionner");
-        questionerNumber = actorNumber;
+        questionerNumber = selectedQuestionerNumber;
         DotUIManager.instance.SetRoleText(GetRole());
+        DotUIManager.instance.SetThemeText(question);
+    }
+
+    [PunRPC]
+    public void SetNextGame(int selectedQuestionerNumber, string question)
+    {
+        //ShowCorrectLabel();
+        StartCoroutine(ShowCorrectLabel());
+        questionerNumber = selectedQuestionerNumber;
+        DotUIManager.instance.SetRoleText(GetRole());
+        DotUIManager.instance.SetThemeText(question);
     }
 
     public Role GetRole()
@@ -55,17 +66,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         return GetRole() == Role.Questioner;
     }
 
-    public void SelectQuestion()
-    {
-        Debug.Log("SelectQuestion");
-        // お題決定
-        currentTheme = ThemeGenerator.instance.GetRandomTheme();
-        // 出題者決定
-        SelectQuestioner();
-        // UI反映
-        DotUIManager.instance.SetThemeText(currentTheme.question);
-    }
-
+    // masterのみが呼び出す
     public void CheckAnswer(string answer)
     {
         Debug.Log("CheckAnswer");
@@ -74,7 +75,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (NormalizeString(answer) == NormalizeString(correctAnswer))
             {
-                photonView.RPC("receiveCorrectAnswer", RpcTarget.All);
+                Debug.Log("正解！");
+                // お題決定
+                currentTheme = ThemeGenerator.instance.GetRandomTheme();
+                // 出題者決定
+                Player[] players = PhotonNetwork.PlayerList;
+                int selectedQuestionerNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
+                photonView.RPC("SetNextGame", RpcTarget.All, selectedQuestionerNumber, currentTheme.question);
             }
         }
     }
@@ -85,12 +92,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
     }
 
-    [PunRPC]
-    private void receiveCorrectAnswer()
-    {
-        Debug.Log("receiveCorrectAnswer"); 
-        StartCoroutine(ShowCorrectLabel());
-    }
 
     private IEnumerator ShowCorrectLabel()
     {
@@ -100,6 +101,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         // 正解のエフェクトを出す
         yield return new WaitForSeconds(2.0f);
         correctLabel.gameObject.SetActive(false);
-        SelectQuestion();
+        //if (PhotonNetwork.IsMasterClient)
+        //{
+        //    SelectQuestion();
+        //}
     }
 }

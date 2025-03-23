@@ -2769,7 +2769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   questionerNumber: 0
-  randamMode: 0
+  randamMode: 1
   currentTheme:
     question: 
     answerList: []

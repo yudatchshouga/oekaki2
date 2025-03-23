@@ -40,7 +40,7 @@ public class DotUIManager : MonoBehaviour
 
     private void Update()
     {
-        SetActive(dotUI, DrawingManager.instance.isDrawable);
+        SetActive(dotUI, GameManager.instance.isDrawable());
         SetActive(blindPanel, DrawingManager.instance.isBlind);
         SetActive(penButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen);
         SetActive(fillButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill);
