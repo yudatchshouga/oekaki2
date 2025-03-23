@@ -2743,8 +2743,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   correctLabel: {fileID: 1521640233}
   randamMode: 1
-  role: 0
-  questionerNumber: 0
 --- !u!4 &911527003
 Transform:
   m_ObjectHideFlags: 0

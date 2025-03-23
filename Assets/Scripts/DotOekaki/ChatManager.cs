@@ -1,16 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 
 public class ChatManager : MonoBehaviourPunCallbacks
 {
-    public InputField chatInputField;
-    public Text chatLogText;
-    public ScrollRect chatScrollRect;
+    [SerializeField] InputField chatInputField;
+    [SerializeField] Text chatLogText;
+    [SerializeField] ScrollRect chatScrollRect;
 
-    private List<string> chatMessages = new List<string>();
+    List<string> chatMessages = new List<string>();
 
     void Update()
     {
@@ -20,13 +19,15 @@ public class ChatManager : MonoBehaviourPunCallbacks
             string answer = chatInputField.text;
             if (!string.IsNullOrEmpty(answer))
             {
-                // 自分の番号取得
-                int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-
-                // RPCで送信
+                int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber; // 自分の番号取得
                 photonView.RPC("SendChatMessage", RpcTarget.All, answer);
-                // チャット入力欄をリセット
-                chatInputField.text = "";
+                chatInputField.text = ""; // チャット入力欄をリセット
+
+                // 出題者の場合は回答を提出
+                if (GameManager.instance.role == Role.Answerer)
+                {
+                    GameManager.instance.SubmitAnswer(answer);
+                }
             }
             // チャット入力欄にフォーカスを移す
             chatInputField.Select();
@@ -36,15 +37,6 @@ public class ChatManager : MonoBehaviourPunCallbacks
 
     [PunRPC]
     private void SendChatMessage(string message)
-    {
-        Debug.Log("SendChatMessage");
-        UpdateChatField(message);
-
-        // 正誤判定
-        GameManager.instance.CheckAnswer(message);
-    }
-
-    private void UpdateChatField(string message)
     {
         chatMessages.Add(message);
         chatLogText.text = string.Join("\n", chatMessages.ToArray());

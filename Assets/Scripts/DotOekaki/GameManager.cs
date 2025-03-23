@@ -15,9 +15,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     Player[] players;
     [SerializeField] Text correctLabel;
     [SerializeField] bool randamMode;
-    public Role role;
 
-    public int questionerNumber;
+    int questionerNumber;
+    public Role role;
 
     private void Awake()
     {
@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         questionerNumber = selectedQuestionerNumber;
         role = PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber ? Role.Questioner : Role.Answerer;
         currentTheme = themeGenerator.GetRandomTheme();
-        Invoke("UpdateUI", 0.5f);
+        Invoke("UpdateText", 0.5f);
     }
 
     [PunRPC]
@@ -71,24 +71,29 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     // 出題者のみが正誤判定を行う
-    public void CheckAnswer(string answer)
+    [PunRPC]
+    private void CheckAnswer(string answer)
     {
-        if (role != Role.Questioner)
+        if (role == Role.Questioner)
         {
-            return;
-        }
-
-        Debug.Log("CheckAnswer");
-        foreach (string correctAnswer in currentTheme.answerList)
-        {
-            if (NormalizeString(answer) == NormalizeString(correctAnswer))
+            Debug.Log("CheckAnswer");
+            foreach (string correctAnswer in currentTheme.answerList)
             {
-                // お題と出題者の再設定
-                int selectedQuestionerNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
-                photonView.RPC("SetNextGame", RpcTarget.All, selectedQuestionerNumber);
-                return;
+                if (NormalizeString(answer) == NormalizeString(correctAnswer))
+                {
+                    DrawingManager.instance.ResetDrawField();
+                    // お題と出題者の再設定
+                    int selectedQuestionerNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
+                    photonView.RPC("SetNextGame", RpcTarget.All, selectedQuestionerNumber);
+                    return;
+                }
             }
         }
+    }
+
+    public void SubmitAnswer(string answer)
+    { 
+        photonView.RPC("CheckAnswer", RpcTarget.Others, answer);
     }
 
     private IEnumerator ShowCorrectLabel()
@@ -98,10 +103,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         // 正解のエフェクトを出す
         yield return new WaitForSeconds(2.0f);
         correctLabel.gameObject.SetActive(false);
-        UpdateUI();
+        UpdateText();
     }
 
-    private void UpdateUI()
+    private void UpdateText()
     {
         dotUIManager.SetRoleText(role);
         dotUIManager.SetThemeText(role, currentTheme.question);

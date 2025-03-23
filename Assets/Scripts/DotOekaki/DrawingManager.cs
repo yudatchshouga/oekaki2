@@ -11,7 +11,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Texture2D texture;
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
-    [SerializeField] Text roleText;
     public int CanvasWidth; // キャンバスの横幅
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
@@ -78,25 +77,24 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
-        // オンラインモードとオフラインモードで処理を分ける
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
-            photonView.RPC("SetDrawFieldSize", RpcTarget.All);
+            photonView.RPC("SetDrawFieldSize", RpcTarget.All, CanvasWidth, CanvasHeight);
         }
         else
         {
             Debug.Log("オフラインモードで実行");
-            SetDrawFieldSize();
+            SetDrawFieldSize(CanvasWidth, CanvasHeight);
         }
     }
 
     // 描画領域のサイズを設定
     [PunRPC]
-    private void SetDrawFieldSize()
+    private void SetDrawFieldSize(int width, int height)
     {
         RectTransform rectTransform = drawField.GetComponent<RectTransform>();
-        float aspectRatio = (float)CanvasWidth / CanvasHeight;
+        float aspectRatio = (float)width / height;
 
         if (aspectRatio > 1)
         {
@@ -479,6 +477,20 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             ClearCanvas();
             SaveUndo();
         }
+    }
+
+    public void ResetDrawField()
+    { 
+        photonView.RPC("ResetSetting", RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void ResetSetting()
+    { 
+        undoStack.Clear();
+        redoStack.Clear();
+        ClearCanvas();
+        undoStack.Push(texture.GetPixels());
     }
 
     [PunRPC]

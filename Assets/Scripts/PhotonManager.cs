@@ -77,6 +77,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
     }
 
+    // 新しいプレイヤーが参加したときのコールバック
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("新しいプレイヤーが参加しました。");
