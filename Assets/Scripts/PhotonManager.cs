@@ -13,8 +13,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     Player questionner;
     int maxPlayers = 4;
 
-    public bool randamMode = false;
-
     private void Awake()
     {
         if (instance == null)
@@ -84,20 +82,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("新しいプレイヤーが参加しました。");
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
         playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
-    }
-
-    public void OnClickOekakiQuiz()
-    {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            photonView.RPC("StartOekakiQuiz", RpcTarget.All);
-        }
-    }
-
-    [PunRPC]
-    private void StartOekakiQuiz()
-    {
-        SceneController.instance.LoadScene("DotOekaki");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)

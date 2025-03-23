@@ -22,7 +22,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Vector2Int? startPoint = null; // 直線モードの始点
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
-    //public bool isDrawable; // 描画可能かどうか
     public bool isBlind; // 目隠しモードかどうか
     DrawingUtils drawer;
 
@@ -45,7 +44,14 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Start()
@@ -72,15 +78,11 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
-        // 出題者・お題の設定
-        GameManager.instance.SetUpMaster();
-
         // オンラインモードとオフラインモードで処理を分ける
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
             photonView.RPC("SetDrawFieldSize", RpcTarget.All);
-            //isDrawable = GameManager.instance.isDrawable();
         }
         else
         {
@@ -115,8 +117,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
-        bool isDrawable = GameManager.instance.isDrawable();
-        if (!isDrawable)
+        if (!GameManager.instance.IsDrawable())
         {
             return;
         }

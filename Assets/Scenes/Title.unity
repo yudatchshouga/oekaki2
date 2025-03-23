@@ -5193,7 +5193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startButton: {fileID: 2033852788}
   playerCountText: {fileID: 1976861306}
-  randamMode: 0
+  passwordInputField: {fileID: 1509796633}
 --- !u!4 &729401692
 Transform:
   m_ObjectHideFlags: 0
@@ -5228,7 +5228,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 3
+  sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!1 &749991460
@@ -10224,7 +10224,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 1
+  sceneViewId: 3
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!1 &1548018243
@@ -14976,6 +14976,6 @@ SceneRoots:
   - {fileID: 250252377}
   - {fileID: 655975338}
   - {fileID: 119171948}
-  - {fileID: 729401692}
-  - {fileID: 596508057}
   - {fileID: 1547737343}
+  - {fileID: 596508057}
+  - {fileID: 729401692}

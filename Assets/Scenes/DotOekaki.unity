@@ -445,7 +445,6 @@ GameObject:
   m_Component:
   - component: {fileID: 171822497}
   - component: {fileID: 171822496}
-  - component: {fileID: 171822498}
   m_Layer: 0
   m_Name: ThemeGenerator
   m_TagString: Untagged
@@ -465,8 +464,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1265a25a838e32d4499cfb6738a4f75f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  themeText: {fileID: 1447085794}
-  correctLabel: {fileID: 1521640233}
 --- !u!4 &171822497
 Transform:
   m_ObjectHideFlags: 0
@@ -482,28 +479,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &171822498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171822495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 4
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &184477587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1429,7 +1404,6 @@ MonoBehaviour:
   CanvasHeight: 50
   drawColor: {r: 0, g: 0, b: 0, a: 1}
   brushSize: 1
-  isDrawable: 1
   isBlind: 0
   currentMode: 0
 --- !u!4 &346807321
@@ -1466,7 +1440,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 1
+  sceneViewId: 5
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!1 &351343307
@@ -1916,7 +1890,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae36ce66a09a2d840a8667baa5d761f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  themeGenerator: {fileID: 171822496}
   chatInputField: {fileID: 1572982194}
   chatLogText: {fileID: 1253968640}
   chatScrollRect: {fileID: 245064938}
@@ -1939,7 +1912,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 2
+  sceneViewId: 6
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!1 &442818969
@@ -2768,12 +2741,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83da43bcfdcf2504fa484946190dd1fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionerNumber: 0
-  randamMode: 1
-  currentTheme:
-    question: 
-    answerList: []
   correctLabel: {fileID: 1521640233}
+  randamMode: 1
+  role: 0
+  questionerNumber: 0
 --- !u!4 &911527003
 Transform:
   m_ObjectHideFlags: 0
@@ -2783,7 +2754,7 @@ Transform:
   m_GameObject: {fileID: 911527001}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1121.3962, y: -873.60266, z: -19.15465}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2808,7 +2779,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 5
+  sceneViewId: 4
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!1 &1015859372
@@ -4568,7 +4539,7 @@ Transform:
   m_GameObject: {fileID: 1250044288}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1097.0352, y: 310.15546, z: -10.281704}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

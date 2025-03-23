@@ -6,7 +6,6 @@ using Photon.Pun;
 
 public class ChatManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] ThemeGenerator themeGenerator;
     public InputField chatInputField;
     public Text chatLogText;
     public ScrollRect chatScrollRect;
@@ -18,7 +17,6 @@ public class ChatManager : MonoBehaviourPunCallbacks
         // エンターキーまたはテンキーのエンターキーが押されたらメッセージを送信
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            //SubmitChatMessage();
             string answer = chatInputField.text;
             if (!string.IsNullOrEmpty(answer))
             {
@@ -26,7 +24,7 @@ public class ChatManager : MonoBehaviourPunCallbacks
                 int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
 
                 // RPCで送信
-                photonView.RPC("SendChatMessage", RpcTarget.All, answer, actorNumber);
+                photonView.RPC("SendChatMessage", RpcTarget.All, answer);
                 // チャット入力欄をリセット
                 chatInputField.text = "";
             }
@@ -36,43 +34,21 @@ public class ChatManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void SubmitChatMessage()
-    {
-        string answer = chatInputField.text;
-        if (!string.IsNullOrEmpty(answer))
-        {
-            chatMessages.Add(answer);
-            // チャット入力欄をリセット
-            chatInputField.text = "";
-            chatLogText.text = string.Join("\n", chatMessages.ToArray());
-            Canvas.ForceUpdateCanvases();
-            // ワンフレーム待つ必要あり？
-            chatScrollRect.verticalNormalizedPosition = 0;
-        }
-    }
-
     [PunRPC]
-    public void SendChatMessage(string message, int actorNumber)
+    private void SendChatMessage(string message)
     {
         Debug.Log("SendChatMessage");
-        chatMessages.Add(message);
-        chatLogText.text = string.Join("\n", chatMessages.ToArray());
-        Canvas.ForceUpdateCanvases();
-        // ワンフレーム待つ必要あり？
-        chatScrollRect.verticalNormalizedPosition = 0;
-
-        //Role role = GameManager.instance.GetRole();
-        if (actorNumber == GameManager.instance.questionerNumber)
-        {
-            // 出題者の場合
-            Debug.Log("出題者のメッセージ");
-            return;
-        }
+        UpdateChatField(message);
 
         // 正誤判定
-        if (PhotonNetwork.IsMasterClient)
-        {
-            GameManager.instance.CheckAnswer(message);
-        }
+        GameManager.instance.CheckAnswer(message);
+    }
+
+    private void UpdateChatField(string message)
+    {
+        chatMessages.Add(message);
+        chatLogText.text = string.Join("\n", chatMessages.ToArray());
+        Canvas.ForceUpdateCanvases(); // ワンフレーム待つ必要あり？
+        chatScrollRect.verticalNormalizedPosition = 0;
     }
 }

@@ -29,13 +29,19 @@ public class SizeManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom)
         {
             photonView.RPC("SetWidthAndHeight", RpcTarget.All, widthInputField.inputPixelSize, heightInputField.inputPixelSize);
-            PhotonManager.instance.OnClickOekakiQuiz();
+            photonView.RPC("StartOekakiQuiz", RpcTarget.All);
         }
         else
         {
             SetWidthAndHeight(widthInputField.inputPixelSize, heightInputField.inputPixelSize);
-            SceneController.instance.LoadScene("DotOekaki");
+            StartOekakiQuiz();
         }
+    }
+
+    [PunRPC]
+    private void StartOekakiQuiz()
+    {
+        SceneController.instance.LoadScene("DotOekaki");
     }
 
     [PunRPC]
@@ -43,6 +49,5 @@ public class SizeManager : MonoBehaviourPunCallbacks
     {
         PlayerPrefs.SetInt("Width", width);
         PlayerPrefs.SetInt("Height", height);
-        PlayerPrefs.Save();
     }
 }

@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 public class DotUIManager : MonoBehaviour
 {
-    public static DotUIManager instance;
     [SerializeField] GameObject dotUI;
     [SerializeField] GameObject blindPanel;
     [SerializeField] Button undoButton;
@@ -18,18 +17,6 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Text roleText;
     [SerializeField] Text themeText;
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
     private void Start()
     {
         backButton.onClick.AddListener(() =>
@@ -40,7 +27,7 @@ public class DotUIManager : MonoBehaviour
 
     private void Update()
     {
-        SetActive(dotUI, GameManager.instance.isDrawable());
+        SetActive(dotUI, GameManager.instance.IsDrawable());
         SetActive(blindPanel, DrawingManager.instance.isBlind);
         SetActive(penButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen);
         SetActive(fillButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill);
@@ -71,21 +58,12 @@ public class DotUIManager : MonoBehaviour
 
     public void SetRoleText(Role role)
     {
-        string text = role == Role.Questioner ? "あなたは描き手です" : "あなたは回答者です";
-        roleText.text = text;
+        roleText.text = role == Role.Questioner ? "あなたは描き手です" : "あなたは回答者です";
     }
 
-    public void SetThemeText(string answer)
+    public void SetThemeText(Role role, string theme)
     {
-        Role role = GameManager.instance.GetRole();
-        if (role == Role.Questioner)
-        {
-            themeText.text = "お題：" + answer;
-        }
-        else if (role == Role.Answerer)
-        {
-            themeText.text = "お題はなんでしょう？";
-        }
+        themeText.text = role == Role.Questioner ? "お題：" + theme : "お題は何でしょう？";
     }
 
     public void OnClickUndoButton()
