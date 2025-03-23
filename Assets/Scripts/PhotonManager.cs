@@ -89,28 +89,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            // ゲーム開始時に出題者を決定
-            SelectQuestionner();
+            photonView.RPC("StartOekakiQuiz", RpcTarget.All);
         }
     }
 
-    private void SelectQuestionner()
-    {
-        Player[] players = PhotonNetwork.PlayerList;
-        // actorNumber は1始まり
-        int selectedActorNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
-        photonView.RPC("SetQuestionner", RpcTarget.All, selectedActorNumber);
-    }
-
     [PunRPC]
-    private void SetQuestionner(int actorNumber)
+    private void StartOekakiQuiz()
     {
         SceneController.instance.LoadScene("DotOekaki");
-        int myActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-        string role = actorNumber == myActorNumber ? Role.Questioner.ToString() : Role.Answerer.ToString();
-
-        PlayerPrefs.SetInt("questionner", actorNumber);
-        PlayerPrefs.SetString("role", role);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)

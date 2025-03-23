@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class DrawingManager : MonoBehaviourPunCallbacks
 {
@@ -24,6 +25,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     public bool isDrawable; // 描画可能かどうか
     public bool isBlind; // 目隠しモードかどうか
     DrawingUtils drawer;
+    public bool randamMode = false;
     public enum ToolMode
     {
         Pen,
@@ -73,6 +75,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
         drawer = new DrawingUtils(texture, drawColor, brushSize);
 
+        // 出題者決定
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Player[] players = PhotonNetwork.PlayerList;
+            // actorNumber は1始まり
+            int selectedActorNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
+            photonView.RPC("SetQuestionner", RpcTarget.All, selectedActorNumber);
+        }
+
         // オンラインモードとオフラインモードで処理を分ける
         if (PhotonNetwork.InRoom)
         {
@@ -99,6 +110,13 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             Debug.Log("オフラインモードで実行");
             SetDrawFieldSize();
         }
+    }
+
+    [PunRPC]
+    private void SetQuestionner(int actorNumber)
+    {
+        int myActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        role = actorNumber == myActorNumber ? Role.Questioner : Role.Answerer;
     }
 
     // 描画領域のサイズを設定
