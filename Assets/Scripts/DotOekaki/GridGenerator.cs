@@ -10,15 +10,18 @@ public class GridGenerator : MonoBehaviour
     [SerializeField] int gridSize;
     [SerializeField] int gridThickness; // グリッド線の太さ
     Color clearColor;
-    [SerializeField] Color gridColor;
+    Color gridColor;
+
+    int gridSizeWidth;
+    int gridSizeHeight;
 
     private void Start()
     {
         clearColor = new Color(0, 0, 0, 0);
         gridColor = new Color(51f / 255f, 51f / 255f, 51f / 255f, 1);
 
-        int gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
-        int gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
+        gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
+        gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
 
         gridTexture = new Texture2D(gridSizeWidth, gridSizeHeight, TextureFormat.RGBA32, false);
         gridTexture.filterMode = FilterMode.Point;
@@ -33,7 +36,7 @@ public class GridGenerator : MonoBehaviour
         gridPanel.texture = gridTexture;
     }
 
-    private void CreateGrid(int width, int height)
+    public void CreateGrid(int width, int height)
     {
         for (int x = 0; x < width; x++)
         {
