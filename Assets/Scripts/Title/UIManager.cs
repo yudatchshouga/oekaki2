@@ -9,14 +9,18 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] Toggle guestToggle;
     [SerializeField] Toggle mekakusiToggle;
     [SerializeField] Toggle randomToggle;
+    [SerializeField] InputField playerNameInputField;
     [SerializeField] InputField passwordInputField;
+    [SerializeField] InputField questionCountInputField;
     [SerializeField] InputField limitTimeInputField;
-    [SerializeField] GameObject errorText;
     [SerializeField] Button gameStartButton;
     [SerializeField] Button applyButton;
     [SerializeField] Dropdown resolutionDropdown;
 
-    private bool isError;
+    private bool isErrorQuestionCount;
+    private bool isErrorLimitTime;
+    private bool isErrorQuestionner;
+    [SerializeField] int questionCount;
     [SerializeField] int limitTime;
 
     private Resolution[] resolutions = {
@@ -39,23 +43,48 @@ public class UIManager : MonoBehaviourPunCallbacks
         mekakusiToggle.isOn = PlayerPrefs.GetInt("Mekakusi", 0) == 1;
         randomToggle.isOn = PlayerPrefs.GetInt("Random", 0) == 1;
 
-        limitTimeInputField.onValueChanged.AddListener(OnInputValueChanged);
-        limitTimeInputField.onEndEdit.AddListener(ValidateInput);
+        questionCountInputField.onValueChanged.AddListener(OnQuestionCountInputValueChanged);
+        questionCountInputField.onEndEdit.AddListener(ValidateQuestionCountInput);
+        questionCountInputField.text = questionCount.ToString();
+
+        limitTimeInputField.onValueChanged.AddListener(OnLimitTextInputValueChanged);
+        limitTimeInputField.onEndEdit.AddListener(ValidateLimitTextInput);
         limitTimeInputField.text = limitTime.ToString();
     }
 
     private void Update()
     {
-        if (isError)
+        if (!isErrorQuestionCount && !isErrorLimitTime && !isErrorQuestionner)
         {
-            gameStartButton.interactable = false;
-            errorText.SetActive(true);
+            gameStartButton.interactable = true;
         }
         else
         {
-            gameStartButton.interactable = true;
-            errorText.SetActive(false);
+            gameStartButton.interactable = false;
         }
+    }
+
+    // 決定ボタン押下時にプレイヤー名を保存
+    public void OnClickOptionApplyButton()
+    {
+        string playerName = string.IsNullOrEmpty(playerNameInputField.text) ? "名無しさん" : playerNameInputField.text;
+        PlayerPrefs.SetString("PlayerName", playerName);
+        PlayerPrefs.Save();
+    }
+
+    // 画面遷移時にプレイヤー名を取得・表示
+    public void DisplayPlayerName()
+    {
+        Debug.Log("保存された値: " + PlayerPrefs.GetString("PlayerName"));
+        playerNameInputField.text = PlayerPrefs.GetString("PlayerName");
+    }
+
+    // デバッグ用
+    public void OnClickClearButton()
+    {
+        playerNameInputField.text = "";
+        PlayerPrefs.SetString("PlayerName", "");
+        PlayerPrefs.Save();
     }
 
     public void OnClickGameStartButton()
@@ -66,7 +95,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
         else
         {
-            SceneController.instance.LoadScene("DotOekaki");
+            SceneController.instance.LoadScene("OekakiQuiz");
         }
     }
 
@@ -75,8 +104,9 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         PlayerPrefs.SetInt("Mekakusi", mekakusiToggle.isOn ? 1 : 0);
         PlayerPrefs.SetInt("Random", randomToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("QuestionCount", questionCount);
         PlayerPrefs.SetInt("LimitTime", limitTime);
-        SceneController.instance.LoadScene("DotOekaki");
+        SceneController.instance.LoadScene("OekakiQuiz");
     }
 
     private void SetResolution()
@@ -87,7 +117,16 @@ public class UIManager : MonoBehaviourPunCallbacks
         PlayerPrefs.Save();
     }
 
-    private void ValidateInput(string input)
+
+    private void ValidateQuestionCountInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            questionCountInputField.text = "0";
+        }
+    }
+    private void ValidateLimitTextInput(string input)
     {
         // 数字以外の入力を無効化
         if (!Regex.IsMatch(input, @"^\d+$"))
@@ -96,24 +135,44 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    private void OnInputValueChanged(string input)
+    private void OnQuestionCountInputValueChanged(string input)
     {
         if (int.TryParse(input, out int value))
         {
+            questionCount = int.Parse(questionCountInputField.text);
             // 入力値が制限内かどうかをチェック
-            if (value >= 1 && value <= 999)
+            if (value >= 1 && value <= 10)
             {
-                limitTime = int.Parse(limitTimeInputField.text);
-                isError = false;
+                isErrorQuestionCount = false;
             }
             else
             {
-                isError = true;
+                isErrorQuestionCount = true;
             }
         }
         else
         {
-            isError = true;
+            isErrorQuestionCount = true;
+        }
+    }
+    private void OnLimitTextInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            limitTime = int.Parse(limitTimeInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 1 && value <= 999)
+            {
+                isErrorLimitTime = false;
+            }
+            else
+            {
+                isErrorLimitTime = true;
+            }
+        }
+        else
+        {
+            isErrorLimitTime = true;
         }
     }
 }

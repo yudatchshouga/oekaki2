@@ -57,6 +57,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         CanvasWidth = CanvasHeight = 50; // キャンバスの初期サイズ
+        int mekakusi = PlayerPrefs.GetInt("Mekakusi", 0);
+        isBlind = mekakusi == 1;
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();

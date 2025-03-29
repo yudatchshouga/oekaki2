@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] Text timerText;
     [SerializeField] bool randamMode;
 
+    private int questionCount;
+
     public float timeLimit;
     private float timeRemaining;
     private bool isTimerActive;
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
+            questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
             timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
             players = PhotonNetwork.PlayerList;
             timeRemaining = timeLimit;
@@ -74,6 +77,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
+                if (questionCount <= 0)
+                {
+                    Debug.Log("ゲーム終了");
+                }
+
                 if (isTimerActive && timeRemaining > 0)
                 {
                     timeRemaining -= Time.deltaTime;
@@ -100,6 +108,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void SetQuestioner(int selectedQuestionerNumber)
     {
+        questionCount--;
         DrawingManager.instance.ResetDrawField();
         questionerNumber = selectedQuestionerNumber;
         if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
