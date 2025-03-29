@@ -24,7 +24,7 @@ public class ChatManager : MonoBehaviourPunCallbacks
                 chatInputField.text = ""; // チャット入力欄をリセット
 
                 // 出題者の場合は回答を提出
-                if (GameManager.instance.role == Role.Answerer)
+                if (PhotonNetwork.LocalPlayer.ActorNumber != GameManager.instance.QuestionerNumber)
                 {
                     GameManager.instance.SubmitAnswer(answer);
                 }

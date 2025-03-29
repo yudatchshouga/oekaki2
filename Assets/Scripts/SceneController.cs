@@ -1,14 +1,10 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class SceneController : MonoBehaviour
 {
     public static SceneController instance;
-
-    [SerializeField] PixelSizeInputField widthInputField;
-    [SerializeField] PixelSizeInputField heightInputField;
 
     private void Awake()
     {

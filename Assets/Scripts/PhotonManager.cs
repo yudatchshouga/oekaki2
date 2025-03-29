@@ -85,6 +85,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
     }
 
+    // プレイヤーが退出したときのコールバック
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("プレイヤーが退出しました。");

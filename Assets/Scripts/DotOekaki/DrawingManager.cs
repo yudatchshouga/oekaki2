@@ -22,6 +22,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
     public bool isBlind; // 目隠しモードかどうか
+    public bool isDrawable = false; // 描画可能かどうか
     DrawingUtils drawer;
 
     public enum ToolMode
@@ -55,38 +56,33 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        CanvasWidth = PlayerPrefs.GetInt("Width", 50);
-        CanvasHeight = PlayerPrefs.GetInt("Height", 50);
-
-        // Texture2Dを作成
-        texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
-        texture.filterMode = FilterMode.Point; // ドット絵くっきりモード
+        CanvasWidth = CanvasHeight = 50; // キャンバスの初期サイズ
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();
         redoStack = new Stack<Color[]>();
 
-        // テクスチャを初期化
-        ClearCanvas();
-
-        undoStack.Push(texture.GetPixels());
-        drawingPanel.texture = texture;
+        // Texture2Dを作成
+        CreateTexture(CanvasWidth, CanvasHeight);
 
         // ゲーム開始時はペンモード
         currentMode = ToolMode.Pen;
 
-        drawer = new DrawingUtils(texture, drawColor, brushSize);
+        SetDrawFieldSize(CanvasWidth, CanvasHeight);
+    }
 
-        if (PhotonNetwork.InRoom)
-        {
-            Debug.Log("オンラインモードで実行");
-            photonView.RPC("SetDrawFieldSize", RpcTarget.All, CanvasWidth, CanvasHeight);
-        }
-        else
-        {
-            Debug.Log("オフラインモードで実行");
-            SetDrawFieldSize(CanvasWidth, CanvasHeight);
-        }
+    // テクスチャを作成
+    [PunRPC]
+    private void CreateTexture(int width, int height)
+    {
+        texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        texture.filterMode = FilterMode.Point; // ドット絵くっきりモード
+        ClearCanvas(); // テクスチャを初期化
+        drawingPanel.texture = texture;
+        undoStack.Clear();
+        redoStack.Clear();
+        undoStack.Push(texture.GetPixels());
+        drawer = new DrawingUtils(texture, drawColor, brushSize);
     }
 
     // 描画領域のサイズを設定
@@ -106,6 +102,20 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         }
     }
 
+    public void ResetDrawFieldSize(int width, int height)
+    { 
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("CreateTexture", RpcTarget.All, width, height);
+            photonView.RPC("SetDrawFieldSize", RpcTarget.All, width, height);
+        }
+        else
+        {
+            CreateTexture(width, height);
+            SetDrawFieldSize(width, height);
+        }
+    }
+
     private void Update()
     {
         Vector2 localPoint;
@@ -115,7 +125,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * texture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * texture.height);
 
-        if (!GameManager.instance.IsDrawable())
+        if (!isDrawable)
         {
             return;
         }

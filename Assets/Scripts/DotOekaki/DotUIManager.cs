@@ -8,6 +8,7 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Button undoButton;
     [SerializeField] Button redoButton;
     [SerializeField] Button clearButton;
+    [SerializeField] Button sizeApplyButton;
     [SerializeField] Button backButton;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
@@ -16,6 +17,8 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] GameObject rectangleButtonCover;
     [SerializeField] Text roleText;
     [SerializeField] Text themeText;
+    [SerializeField] SizeInputField widthInputField;
+    [SerializeField] SizeInputField heightInputField;
 
     private void Start()
     {
@@ -27,7 +30,7 @@ public class DotUIManager : MonoBehaviour
 
     private void Update()
     {
-        SetActive(dotUI, GameManager.instance.IsDrawable());
+        SetActive(dotUI, DrawingManager.instance.isDrawable);
         SetActive(blindPanel, DrawingManager.instance.isBlind);
         SetActive(penButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen);
         SetActive(fillButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill);
@@ -38,6 +41,15 @@ public class DotUIManager : MonoBehaviour
         SetInteractable(undoButton, DrawingManager.instance.undoStackCount > 1);
         SetInteractable(redoButton, DrawingManager.instance.redoStackCount > 0);
         SetInteractable(clearButton, DrawingManager.instance.HasDrawing());
+
+        if (heightInputField.IsError || widthInputField.IsError)
+        {
+            SetInteractable(sizeApplyButton, false);
+        }
+        else
+        {
+            SetInteractable(sizeApplyButton, true);
+        }
     }
 
     private void SetActive(GameObject obj, bool isActive)
@@ -66,6 +78,11 @@ public class DotUIManager : MonoBehaviour
         themeText.text = role == Role.Questioner ? "お題：" + theme : "お題は何でしょう？";
     }
 
+    public void OnClickSizeApplyButton()
+    {
+        DrawingManager.instance.ResetDrawFieldSize(widthInputField.inputPixelSize, heightInputField.inputPixelSize);
+    }
+
     public void OnClickUndoButton()
     {
         DrawingManager.instance.UndoButton();
@@ -74,6 +91,11 @@ public class DotUIManager : MonoBehaviour
     public void OnClickRedoButton()
     {
         DrawingManager.instance.RedoButton();
+    }
+
+    public void ToggleIsDrawable()
+    { 
+        DrawingManager.instance.isDrawable = !DrawingManager.instance.isDrawable;
     }
 
     // ツールボタン

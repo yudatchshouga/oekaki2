@@ -2,11 +2,9 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PixelSizeInputField : MonoBehaviour
+public class SizeInputField : MonoBehaviour
 {
     [SerializeField] InputField inputField;
-    public int minValue;
-    public int maxValue;
     public int inputPixelSize;
     [SerializeField] bool isError;
     public bool IsError => isError;
@@ -33,7 +31,7 @@ public class PixelSizeInputField : MonoBehaviour
         if (int.TryParse(input, out int value))
         {
             // 入力値が制限内かどうかをチェック
-            if (value >= minValue && value <= maxValue)
+            if (value >= 3 && value <= 100)
             {
                 inputPixelSize = int.Parse(inputField.text);
                 isError = false;

@@ -13,14 +13,14 @@ public class LineManager : MonoBehaviourPunCallbacks
     private LineRenderer currentLineRenderer;
     private List<Vector3> points;
 
-    // •`‚¢‚½ü‚Ì—š—ğ‚ğ•Û‚·‚éƒŠƒXƒg
+    // æã„ãŸç·šã®å±¥æ­´ã‚’ä¿æŒã™ã‚‹ãƒªã‚¹ãƒˆ
     private List<GameObject> lineHistory;
-    // Redo —p‚É•Û‚·‚éƒŠƒXƒg
+    // Redo ç”¨ã«ä¿æŒã™ã‚‹ãƒªã‚¹ãƒˆ
     private List<GameObject> redoHistory;
 
     public int index = 0;
 
-    // •`‰æ‡‚ğƒCƒ“ƒNƒŠƒƒ“ƒg‚·‚é‚½‚ß‚ÌƒJƒEƒ“ƒ^[
+    // æç”»é †ã‚’ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã™ã‚‹ãŸã‚ã®ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼
     private int sortingOrderCounter = 0;
 
     public ClickChecker clickChecker;
@@ -39,7 +39,7 @@ public class LineManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        // ƒ}ƒEƒX‚Ì¶ƒNƒŠƒbƒN
+        // ãƒã‚¦ã‚¹ã®å·¦ã‚¯ãƒªãƒƒã‚¯æ™‚
         if (Input.GetMouseButtonDown(0))
         {
             isClickedFrame = clickChecker.IsClickedFrame();
@@ -51,7 +51,7 @@ public class LineManager : MonoBehaviourPunCallbacks
             }
         }
 
-        // ƒ}ƒEƒX‚Ì¶ƒNƒŠƒbƒN‚ğ‰Ÿ‚µ‚Ä‚¢‚éŠÔ
+        // ãƒã‚¦ã‚¹ã®å·¦ã‚¯ãƒªãƒƒã‚¯ã‚’æŠ¼ã—ã¦ã„ã‚‹é–“
         if (Input.GetMouseButton(0) && !isClickedFrame)
         {
             Vector3 mousePosition = cam.ScreenToWorldPoint(Input.mousePosition);
@@ -65,12 +65,12 @@ public class LineManager : MonoBehaviourPunCallbacks
             }
         }
 
-        // ƒ}ƒEƒX‚Ì¶ƒNƒŠƒbƒN‚ğ—£‚µ‚½
+        // ãƒã‚¦ã‚¹ã®å·¦ã‚¯ãƒªãƒƒã‚¯ã‚’é›¢ã—ãŸæ™‚
         if (Input.GetMouseButtonUp(0) && !isClickedFrame)
         {
             isClickedFrame = false;
             currentLineRenderer = null;
-            //“¯Šú
+            //åŒæœŸ
             photonView.RPC("SyncLineData", RpcTarget.Others, 
                 points.ToArray(), index, lineWidth, lineId);
         }
@@ -89,7 +89,7 @@ public class LineManager : MonoBehaviourPunCallbacks
         lineId = System.Guid.NewGuid().ToString();
         lineObject.name = lineId;
 
-        //ƒ}ƒeƒŠƒAƒ‹‚Ìİ’è
+        //ãƒãƒ†ãƒªã‚¢ãƒ«ã®è¨­å®š
         currentLineRenderer.material = new Material(Shader.Find("Sprites/Default"));
 
         switch (index)
@@ -137,17 +137,17 @@ public class LineManager : MonoBehaviourPunCallbacks
         }
         points.Clear();
 
-        // •`‚¢‚½ü‚ğ—š—ğ‚É’Ç‰Á
+        // æã„ãŸç·šã‚’å±¥æ­´ã«è¿½åŠ 
         lineHistory.Add(lineObject);
-        // Redo —p‚Ì—š—ğ‚ğƒNƒŠƒA
+        // Redo ç”¨ã®å±¥æ­´ã‚’ã‚¯ãƒªã‚¢
         redoHistory.Clear();
 
-        // Sorting Order ‚Ì‚İ‚Å‡˜‚ğ§Œä
+        // Sorting Order ã®ã¿ã§é †åºã‚’åˆ¶å¾¡
         sortingOrderCounter++;
         currentLineRenderer.sortingOrder = sortingOrderCounter;
     }
 
-    // === óM‘¤: `RPC` ‚ÅÀ•W‚ğó‚¯æ‚é ===
+    // === å—ä¿¡å´: `RPC` ã§åº§æ¨™ã‚’å—ã‘å–ã‚‹ ===
     [PunRPC]
     void SyncLineData(Vector3[] points, int colorIndex, float lineWidth, string lineId)
     {
@@ -175,7 +175,7 @@ public class LineManager : MonoBehaviourPunCallbacks
         lineRenderer.SetPositions(points);
     }
 
-    // ƒXƒ‰ƒCƒ_[‚Ì’l‚ª•ÏX‚³‚ê‚½‚ÉŒÄ‚Î‚ê‚é
+    // ã‚¹ãƒ©ã‚¤ãƒ€ãƒ¼ã®å€¤ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹
     void OnPenWidthChanged(float value)
     {
         if (currentLineRenderer != null)
@@ -185,7 +185,7 @@ public class LineManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ==== ˆê‚Â–ß‚éiUndoj ====
+    // ==== ä¸€ã¤æˆ»ã‚‹ï¼ˆUndoï¼‰ ====
     public void UndoLastLine()
     {
         //Debug.Log("UndoLastLine");
@@ -193,14 +193,14 @@ public class LineManager : MonoBehaviourPunCallbacks
         {
             //Debug.Log("lineHistory.Count > 0");
             Debug.Log(lineHistory.Count);
-            // —š—ğ‚ÌÅŒã‚Ìü‚ğæ“¾
+            // å±¥æ­´ã®æœ€å¾Œã®ç·šã‚’å–å¾—
             GameObject lastLine = lineHistory[lineHistory.Count - 1];
 
-            // ”ñ•\¦‚É‚µ‚Ä Redo —p‚É•Û
+            // éè¡¨ç¤ºã«ã—ã¦ Redo ç”¨ã«ä¿æŒ
             lastLine.SetActive(false);
             redoHistory.Add(lastLine);
 
-            // —š—ğ‚©‚çíœ
+            // å±¥æ­´ã‹ã‚‰å‰Šé™¤
             lineHistory.RemoveAt(lineHistory.Count - 1);
 
             string lineId = lastLine.name;
@@ -220,19 +220,19 @@ public class LineManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ==== ˆê‚Âi‚ß‚éiRedoj ====
+    // ==== ä¸€ã¤é€²ã‚ã‚‹ï¼ˆRedoï¼‰ ====
     public void RedoLastLine()
     {
         if (redoHistory.Count > 0)
         {
-            // Redo ƒŠƒXƒg‚ÌÅŒã‚ÌƒIƒuƒWƒFƒNƒg‚ğæ“¾
+            // Redo ãƒªã‚¹ãƒˆã®æœ€å¾Œã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
             GameObject lastRedoLine = redoHistory[redoHistory.Count - 1];
 
-            // Ä•\¦‚µ‚Ä LineHistory ‚É–ß‚·
+            // å†è¡¨ç¤ºã—ã¦ LineHistory ã«æˆ»ã™
             lastRedoLine.SetActive(true);
             lineHistory.Add(lastRedoLine);
 
-            // Redo ƒŠƒXƒg‚©‚çíœ
+            // Redo ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
             redoHistory.RemoveAt(redoHistory.Count - 1);
 
             string lineId = lastRedoLine.name;
@@ -246,25 +246,25 @@ public class LineManager : MonoBehaviourPunCallbacks
         Debug.Log(lineId);
         //GameObject lineObject = GameObject.Find(lineId)
 
-        // ƒV[ƒ“ã‚É•\¦‚³‚ê‚Ä‚¢‚é‚·‚×‚Ä‚ÌLineRendererƒIƒuƒWƒFƒNƒg‚ğæ“¾
-        LineRenderer[] lines = FindObjectsOfType<LineRenderer>(true);
+        // ã‚·ãƒ¼ãƒ³ä¸Šã«è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹ã™ã¹ã¦ã®LineRendererã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
+        //LineRenderer[] lines = FindObjectsOfType<LineRenderer>(true);
 
-        GameObject lineObject = null;
-        foreach (LineRenderer line in lines)
-        {
-            if (line.gameObject.name == lineId)
-            {
-                lineObject = line.gameObject;
-                break;
-            }
-        }
+        //GameObject lineObject = null;
+        //foreach (LineRenderer line in lines)
+        //{
+        //    if (line.gameObject.name == lineId)
+        //    {
+        //        lineObject = line.gameObject;
+        //        break;
+        //    }
+        //}
 
 
-        if (lineObject != null)
-        {
-            Debug.Log("lineObject != null");
-            Debug.Log(lineId);
-            lineObject.SetActive(true);
-        }
+        //if (lineObject != null)
+        //{
+        //    Debug.Log("lineObject != null");
+        //    Debug.Log(lineId);
+        //    lineObject.SetActive(true);
+        //}
     }
 }
