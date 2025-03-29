@@ -10,6 +10,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject startButton;
     [SerializeField] Text playerCountText;
     [SerializeField] InputField passwordInputField;
+    [SerializeField] Text joinedPlayerText;
     Player questionner;
     int maxPlayers = 4;
 
@@ -62,7 +63,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     // === ルームに参加したときのコールバック ===
     public override void OnJoinedRoom()
     {
-        Debug.Log("ルームに参加しました。");
+        string playerName = PlayerPrefs.GetString("PlayerName", "名無しさん");
+        PhotonNetwork.LocalPlayer.NickName = playerName;
+        photonView.RPC("ReceiveJoinMessage", RpcTarget.All, playerName);
+
         // ルーム内のプレイヤー数を取得
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
         playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
@@ -77,6 +81,24 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    void ReceiveJoinMessage(string playerName)
+    {
+        Debug.Log($"{playerName} がルームに参加しました。");
+        joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
+    }
+
+    private string[] GetPlayerNameList()
+    {
+        Player[] players = PhotonNetwork.PlayerList;
+        string[] playerNameList = new string[players.Length];
+        for (int i = 0; i < players.Length; i++)
+        {
+            playerNameList[i] = players[i].NickName;
+        }
+        return playerNameList;
+    }
+
     // 新しいプレイヤーが参加したときのコールバック
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
@@ -89,13 +111,25 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("プレイヤーが退出しました。");
+        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+        playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
+        joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
     }
 
     // ルームから退出する
     public void OnLeaveRoom()
     {
         Debug.Log("ルームから退出します。");
+
         PhotonNetwork.LeaveRoom();
+        string playerName = PlayerPrefs.GetString("PlayerName", "名無しさん");
+        photonView.RPC("ReceiveLeaveMessage", RpcTarget.All, playerName);
+    }
+
+    [PunRPC]
+    void ReceiveLeaveMessage(string playerName)
+    {
+        Debug.Log($"{playerName} がルームから退出しました。");
     }
 
     // ルームから退出する(タイトルシーンに戻る)
