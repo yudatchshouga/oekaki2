@@ -8,9 +8,7 @@ public class GridGenerator : MonoBehaviour
     [SerializeField] RawImage gridPanel;
     [SerializeField] Toggle gridToggle;
     [SerializeField] int gridSize;
-    [SerializeField] int gridThickness; // グリッド線の太さ
     Color clearColor;
-    Color gridCenterColor;
     Color gridColor;
 
     int gridSizeWidth;
@@ -19,8 +17,7 @@ public class GridGenerator : MonoBehaviour
     private void Start()
     {
         clearColor = new Color(0, 0, 0, 0);
-        gridCenterColor = new Color(51f / 255f, 51f / 255f, 51f / 255f, 1);
-        gridColor = new Color(101f / 255f, 101f / 255f, 101f / 255f, 1);
+        gridColor = new Color(51f / 255f, 51f / 255f, 51f / 255f, 1);
 
 
         gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
@@ -31,9 +28,6 @@ public class GridGenerator : MonoBehaviour
 
     private void CreateTexture(int width, int height)
     {
-        gridSizeWidth = width;
-        gridSizeHeight = height;
-
         gridTexture = new Texture2D(gridSizeWidth, gridSizeHeight, TextureFormat.RGBA32, false);
         gridTexture.filterMode = FilterMode.Point;
 
@@ -55,7 +49,7 @@ public class GridGenerator : MonoBehaviour
             {
                 if (x % gridSize == 0 || x % gridSize == gridSize - 1 || x == 1 || x == width - 2 || y % gridSize == 0 || y % gridSize == gridSize - 1 || y == 1 || y == height - 2)
                 {
-                    gridTexture.SetPixel(x, y, gridCenterColor);
+                    gridTexture.SetPixel(x, y, gridColor);
                 }
             }
         }
@@ -68,7 +62,7 @@ public class GridGenerator : MonoBehaviour
                 {
                     if (x % gridSize == 1 || y % gridSize == 1 || x == 2 || y == 2 || x == width - 3 || y == height - 3)
                     {
-                        gridTexture.SetPixel(x, y, gridCenterColor);
+                        gridTexture.SetPixel(x, y, gridColor);
                     }
                 }
             }
@@ -82,7 +76,7 @@ public class GridGenerator : MonoBehaviour
                 {
                     if (x % gridSize == gridSize - 2 || y % gridSize == gridSize - 2 || x == 3 || y == 3 || x == width - 4 || y == width - 4)
                     {
-                        gridTexture.SetPixel(x, y, gridCenterColor);
+                        gridTexture.SetPixel(x, y, gridColor);
                     }
                 }
             }
@@ -96,7 +90,7 @@ public class GridGenerator : MonoBehaviour
                 {
                     if (x % gridSize == 2 || y % gridSize == 2 || x == 4 || y == 4 || x == width - 5 || y == height - 5)
                     {
-                        gridTexture.SetPixel(x, y, gridCenterColor);
+                        gridTexture.SetPixel(x, y, gridColor);
                     }
                 }
             }
@@ -110,7 +104,7 @@ public class GridGenerator : MonoBehaviour
                 {
                     if (x % gridSize == gridSize - 3 || y % gridSize == gridSize - 3 || x == 5 || y == 5 || x == width - 6 || y == height - 6)
                     {
-                        gridTexture.SetPixel(x, y, gridCenterColor);
+                        gridTexture.SetPixel(x, y, gridColor);
                     }
                 }
             }
