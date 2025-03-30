@@ -75,7 +75,9 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void CreateTexture(int width, int height)
     {
-        texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        CanvasWidth = width;
+        CanvasHeight = height;
+        texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point; // ドット絵くっきりモード
         ClearCanvas(); // テクスチャを初期化
         drawingPanel.texture = texture;

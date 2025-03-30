@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class DotUIManager : MonoBehaviour
 {
+    [SerializeField] GridGenerator gridGenerator;
+
     [SerializeField] GameObject dotUI;
     [SerializeField] GameObject blindPanel;
     [SerializeField] Button undoButton;
@@ -81,6 +83,14 @@ public class DotUIManager : MonoBehaviour
     public void OnClickSizeApplyButton()
     {
         DrawingManager.instance.ResetDrawFieldSize(widthInputField.inputPixelSize, heightInputField.inputPixelSize);
+        if (DrawingManager.instance.CanvasWidth > 50 || DrawingManager.instance.CanvasHeight > 50)
+        {
+            gridGenerator.ChangeInteractableGridToggle(false);
+        }
+        else
+        {
+            gridGenerator.ChangeInteractableGridToggle(true);
+        }
     }
 
     public void OnClickUndoButton()
