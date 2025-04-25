@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using static DrawingManager;
+using static DrawingManagerOff;
 
-public class PreviewGenerator : MonoBehaviour
+public class PreviewGeneratorOff : MonoBehaviour
 {
     Texture2D previewTexture;
     [SerializeField] RawImage previewPanel;
@@ -16,8 +16,8 @@ public class PreviewGenerator : MonoBehaviour
 
     private void Start()
     {
-        int previewWidth = DrawingManager.instance.CanvasWidth;
-        int previewHeight = DrawingManager.instance.CanvasHeight;
+        int previewWidth = DrawingManagerOff.instance.CanvasWidth;
+        int previewHeight = DrawingManagerOff.instance.CanvasHeight;
 
         previewTexture = new Texture2D(previewWidth, previewHeight, TextureFormat.RGBA32, false);
         previewTexture.filterMode = FilterMode.Point;
@@ -34,9 +34,9 @@ public class PreviewGenerator : MonoBehaviour
         int x = Mathf.FloorToInt((localPoint.x - rect.x) / rect.width * previewTexture.width);
         int y = Mathf.FloorToInt((localPoint.y - rect.y) / rect.height * previewTexture.height);
 
-        previewColor = DrawingManager.instance.drawColor;
-        previewBrushSize = DrawingManager.instance.brushSize;
-        currentPreviewMode = DrawingManager.instance.currentMode;
+        previewColor = DrawingManagerOff.instance.drawColor;
+        previewBrushSize = DrawingManagerOff.instance.brushSize;
+        currentPreviewMode = DrawingManagerOff.instance.currentMode;
         drawer = new DrawingUtils(previewTexture, previewColor, previewBrushSize);
 
         if (Input.GetMouseButtonDown(0))
@@ -74,7 +74,7 @@ public class PreviewGenerator : MonoBehaviour
             if (currentPreviewMode == ToolMode.Circle || currentPreviewMode == ToolMode.Rectangle)
             {
                 if (isDrawing)
-                { 
+                {
                     Vector2Int endPixel = new Vector2Int(x, y);
                     DrawShape(startPixel, endPixel);
                 }

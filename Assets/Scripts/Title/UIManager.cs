@@ -64,6 +64,35 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
+    public void OnClickOfflineStartButton()
+    {
+        SceneController.instance.LoadScene("Offline");
+    }
+
+    public void OnClickOekakiQuizStartButton()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("StartOekakiQuiz", RpcTarget.All);
+        }
+        else
+        {
+            SceneController.instance.LoadScene("OekakiQuiz");
+        }
+    }
+
+    [PunRPC]
+    private void StartOekakiQuiz()
+    {
+        PlayerPrefs.SetInt("Mekakusi", mekakusiToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("Random", randomToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("QuestionCount", questionCount);
+        PlayerPrefs.SetInt("LimitTime", limitTime);
+        SceneController.instance.LoadScene("OekakiQuiz");
+    }
+
+    // --------------- オプション ---------------
+
     // 決定ボタン押下時にプレイヤー名を保存
     public void OnClickOptionApplyButton()
     {
@@ -87,28 +116,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         PlayerPrefs.Save();
     }
 
-    public void OnClickGameStartButton()
-    {
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("StartOekakiQuiz", RpcTarget.All);
-        }
-        else
-        {
-            SceneController.instance.LoadScene("OekakiQuiz");
-        }
-    }
-
-    [PunRPC]
-    private void StartOekakiQuiz()
-    {
-        PlayerPrefs.SetInt("Mekakusi", mekakusiToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("Random", randomToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("QuestionCount", questionCount);
-        PlayerPrefs.SetInt("LimitTime", limitTime);
-        SceneController.instance.LoadScene("OekakiQuiz");
-    }
-
     private void SetResolution()
     {
         Resolution resolution = resolutions[resolutionDropdown.value];
@@ -117,6 +124,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         PlayerPrefs.Save();
     }
 
+    // --------------- InputField設定 ---------------
 
     private void ValidateQuestionCountInput(string input)
     {

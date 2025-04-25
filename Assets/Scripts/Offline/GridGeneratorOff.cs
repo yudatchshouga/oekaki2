@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GridGenerator : MonoBehaviour
+public class GridGeneratorOff : MonoBehaviour
 {
     Texture2D gridTexture;
     [SerializeField] RawImage gridPanel;
@@ -19,8 +19,8 @@ public class GridGenerator : MonoBehaviour
         gridColor = new Color(51f / 255f, 51f / 255f, 51f / 255f, 1);
 
 
-        gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
-        gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
+        gridSizeWidth = DrawingManagerOff.instance.CanvasWidth * gridSize;
+        gridSizeHeight = DrawingManagerOff.instance.CanvasHeight * gridSize;
 
         CreateTexture(gridSizeWidth, gridSizeHeight);
     }
@@ -53,7 +53,7 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
-        if (DrawingManager.instance.CanvasWidth > 10 || DrawingManager.instance.CanvasHeight > 10)
+        if (DrawingManagerOff.instance.CanvasWidth > 10 || DrawingManagerOff.instance.CanvasHeight > 10)
         {
             for (int x = 0; x < width; x++)
             {
@@ -67,7 +67,7 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
-        if (DrawingManager.instance.CanvasWidth > 20 || DrawingManager.instance.CanvasHeight > 20)
+        if (DrawingManagerOff.instance.CanvasWidth > 20 || DrawingManagerOff.instance.CanvasHeight > 20)
         {
             for (int x = 0; x < width; x++)
             {
@@ -81,7 +81,7 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
-        if (DrawingManager.instance.CanvasWidth > 30 || DrawingManager.instance.CanvasHeight > 30)
+        if (DrawingManagerOff.instance.CanvasWidth > 30 || DrawingManagerOff.instance.CanvasHeight > 30)
         {
             for (int x = 0; x < width; x++)
             {
@@ -95,7 +95,7 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
-        if (DrawingManager.instance.CanvasWidth > 40 || DrawingManager.instance.CanvasHeight > 40)
+        if (DrawingManagerOff.instance.CanvasWidth > 40 || DrawingManagerOff.instance.CanvasHeight > 40)
         {
             for (int x = 0; x < width; x++)
             {
@@ -117,8 +117,8 @@ public class GridGenerator : MonoBehaviour
         {
             gridPanel.enabled = true;
 
-            gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
-            gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
+            gridSizeWidth = DrawingManagerOff.instance.CanvasWidth * gridSize;
+            gridSizeHeight = DrawingManagerOff.instance.CanvasHeight * gridSize;
 
             CreateTexture(gridSizeWidth, gridSizeHeight);
             CreateGrid(gridTexture.width, gridTexture.height);
