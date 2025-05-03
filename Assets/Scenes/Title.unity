@@ -8368,6 +8368,7 @@ MonoBehaviour:
   playerCountText: {fileID: 1976861306}
   passwordInputField: {fileID: 1509796633}
   joinedPlayerText: {fileID: 2011634754}
+  maxPlayers: 4
 --- !u!224 &729401692
 RectTransform:
   m_ObjectHideFlags: 0
@@ -22034,7 +22035,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u30B2\u30FC\u30E0\u30B9\u30BF\u30FC\u30C8\uFF01"
+  m_Text: "\u4E00\u4EBA\u3067\u304A\u7D75\u304B\u304D\uFF01"
 --- !u!222 &1867242826
 CanvasRenderer:
   m_ObjectHideFlags: 0

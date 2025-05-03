@@ -50,6 +50,9 @@ public class UIManager : MonoBehaviourPunCallbacks
         limitTimeInputField.onValueChanged.AddListener(OnLimitTextInputValueChanged);
         limitTimeInputField.onEndEdit.AddListener(ValidateLimitTextInput);
         limitTimeInputField.text = limitTime.ToString();
+
+        int count = FindObjectsByType<PhotonManager>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+        Debug.Log("PhotonManagerの数: " + count);
     }
 
     private void Update()

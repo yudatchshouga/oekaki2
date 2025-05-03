@@ -20,6 +20,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
+        else if (instance != this)
+        {
+            // Destroy(gameObject);
+        }
     }
 
     void Start()
