@@ -11,8 +11,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField] Text playerCountText;
     [SerializeField] InputField passwordInputField;
     [SerializeField] Text joinedPlayerText;
-    Player questionner;
-    int maxPlayers = 4;
+    [SerializeField] int maxPlayers;
 
     private void Awake()
     {
@@ -21,9 +20,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (instance != this)
         {
-            Destroy(gameObject);
+            // Destroy(gameObject);
         }
     }
 

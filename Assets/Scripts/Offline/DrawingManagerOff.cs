@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Photon.Pun;
-using Photon.Realtime;
 
-public class DrawingManager : MonoBehaviourPunCallbacks
+public class DrawingManagerOff : MonoBehaviour
 {
-    public static DrawingManager instance;
+    public static DrawingManagerOff instance;
 
     Texture2D texture;
     [SerializeField] GameObject drawField;
@@ -15,10 +13,10 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     public int CanvasHeight; // キャンバスの縦幅
     public Color drawColor; // ペンの色
     public int brushSize; // ブラシの大きさ
-    Vector2Int? lastPoint = null; // 前回の描画位置
+    Vector2Int? lastPoint; // 前回の描画位置
     Stack<Color[]> undoStack; // 元に戻すためのスタック
     Stack<Color[]> redoStack; // やり直しのためのスタック
-    Vector2Int? startPoint = null; // 直線モードの始点
+    Vector2Int? startPoint; // 直線モードの始点
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
     public bool isBlind; // 目隠しモードかどうか
@@ -37,10 +35,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     public int undoStackCount { get { return undoStack.Count; } }
     public int redoStackCount { get { return redoStack.Count; } }
-
-    Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
-    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // プレイヤーごとの色設定
-    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // プレイヤーごとのペンサイズ設定
 
     private void Awake()
     {
@@ -72,7 +66,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     }
 
     // テクスチャを作成
-    [PunRPC]
     private void CreateTexture(int width, int height)
     {
         CanvasWidth = width;
@@ -88,7 +81,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     }
 
     // 描画領域のサイズを設定
-    [PunRPC]
     private void SetDrawFieldSize(int width, int height)
     {
         RectTransform rectTransform = drawField.GetComponent<RectTransform>();
@@ -105,17 +97,10 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     }
 
     public void ResetDrawFieldSize(int width, int height)
-    { 
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("CreateTexture", RpcTarget.All, width, height);
-            photonView.RPC("SetDrawFieldSize", RpcTarget.All, width, height);
-        }
-        else
-        {
-            CreateTexture(width, height);
-            SetDrawFieldSize(width, height);
-        }
+    {
+        CreateTexture(width, height);
+        SetDrawFieldSize(width, height);
+        ResetSetting();
     }
 
     private void Update()
@@ -147,18 +132,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             {
                 if (isDrawing)
                 {
-                    if (PhotonNetwork.InRoom)
-                    {
-                        if (IsInsideCanvas(localPoint))
-                        {
-                            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-                            photonView.RPC("DrawAtPointRPC", RpcTarget.All, actorNumber, x, y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
-                        }
-                    }
-                    else
-                    {
-                        DrawAtPoint(localPoint);
-                    }
+                    DrawAtPoint(localPoint);
                 }
             }
 
@@ -167,16 +141,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                 lastPoint = null;
                 if (isDrawing)
                 {
-                    if (PhotonNetwork.InRoom)
-                    {
-                        int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-                        photonView.RPC("ResetLastPoint", RpcTarget.All, actorNumber);
-                        photonView.RPC("SaveUndo", RpcTarget.All);
-                    }
-                    else
-                    {
-                        SaveUndo();
-                    }
+                    SaveUndo();
                     isDrawing = false;
                 }
             }
@@ -193,15 +158,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                     {
                         return;
                     }
-                    if (PhotonNetwork.InRoom)
-                    {
-                        int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-                        photonView.RPC("FloodFillRPC", RpcTarget.All, actorNumber, localPoint, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
-                    }
-                    else
-                    {
-                        FloodFill(localPoint);
-                    }
+                    FloodFill(localPoint);
                 }
             }
         }
@@ -225,17 +182,8 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                     }
                     else
                     {
-                        if (PhotonNetwork.InRoom)
-                        {
-                            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-                            photonView.RPC("DrawShapeRPC", RpcTarget.All, actorNumber, startPoint.Value.x, startPoint.Value.y, pixelPos.x, pixelPos.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
-                            photonView.RPC("SaveUndo", RpcTarget.All);
-                        }
-                        else
-                        {
-                            DrawShape(startPoint.Value, pixelPos);
-                            SaveUndo();
-                        }
+                        DrawShape(startPoint.Value, pixelPos);
+                        SaveUndo();
                         startPoint = null;
                     }
                 }
@@ -274,63 +222,12 @@ public class DrawingManager : MonoBehaviourPunCallbacks
                             return;
                         }
                         Vector2Int endPixel = new Vector2Int(x, y);
-                        if (PhotonNetwork.InRoom)
-                        {
-                            int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-                            photonView.RPC("DrawShapeRPC", RpcTarget.All, actorNumber, startPixel.x, startPixel.y, endPixel.x, endPixel.y, drawColor.r, drawColor.g, drawColor.b, drawColor.a, brushSize);
-                            photonView.RPC("SaveUndo", RpcTarget.All);
-                        }
-                        else
-                        {
-                            DrawShape(startPixel, endPixel);
-                            SaveUndo();
-                        }
+                        DrawShape(startPixel, endPixel);
+                        SaveUndo();
                         isDrawing = false;
                     }
                 }
             }
-        }
-    }
-
-    [PunRPC]
-    private void DrawAtPointRPC(int actorNumber, int x, int y, float r, float g, float b, float a, int size)
-    {
-        Vector2Int point = new Vector2Int(x, y);
-        Color color = new Color(r, g, b, a);
-
-        // プレイヤーの設定を更新
-        playerColors[actorNumber] = color;
-        playerPenSizes[actorNumber] = size;
-
-        if (!lastPoints.ContainsKey(actorNumber))
-        {
-            lastPoints[actorNumber] = null;
-        }
-
-        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
-        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
-
-        if (IsInsideCanvas(new Vector2(x, y)))
-        {
-            if (lastPoints[actorNumber].HasValue)
-            {
-                tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2回目以降の描画
-            }
-            else
-            {
-                tempDrawer.DrawPoint(point); // 最初の描画
-            }
-            lastPoints[actorNumber] = point;
-        }
-        texture.Apply();
-    }
-
-    [PunRPC]
-    private void ResetLastPoint(int actorNumber)
-    {
-        if (lastPoints.ContainsKey(actorNumber))
-        {
-            lastPoints[actorNumber] = null;
         }
     }
 
@@ -375,33 +272,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         texture.Apply();
     }
 
-    [PunRPC]
-    private void DrawShapeRPC(int actorNumber, int startX, int startY, int endX, int endY, float r, float g, float b, float a, int size)
-    {
-        Color color = new Color(r, g, b, a);
-
-        // プレイヤーの設定を更新
-        playerColors[actorNumber] = color;
-        playerPenSizes[actorNumber] = size;
-
-        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
-        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
-
-        if (currentMode == ToolMode.Line)
-        {
-            tempDrawer.DrawLine(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
-        }
-        else if (currentMode == ToolMode.Circle)
-        {
-            tempDrawer.DrawCircle(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
-        }
-        else if (currentMode == ToolMode.Rectangle)
-        {
-            tempDrawer.DrawRectangle(new Vector2Int(startX, startY), new Vector2Int(endX, endY));
-        }
-        texture.Apply();
-    }
-
     private void FloodFill(Vector2 localPoint)
     {
         drawer.FloodFill(drawingPanel, localPoint);
@@ -409,24 +279,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         SaveUndo();
     }
 
-    [PunRPC]
-    private void FloodFillRPC(int actorNumber, Vector2 localPoint, float r, float g, float b, float a, int size)
-    {
-        Color color = new Color(r, g, b, a);
-
-        // プレイヤーの設定を更新
-        playerColors[actorNumber] = color;
-        playerPenSizes[actorNumber] = size;
-
-        // 一時的にそのプレイヤー設定でDrawingUtilsを使う
-        DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
-
-        tempDrawer.FloodFill(drawingPanel, localPoint);
-        texture.Apply();
-        SaveUndo();
-    }
-
-    [PunRPC]
     private void SaveUndo()
     {
         undoStack.Push(texture.GetPixels()); // 現在の状態を保存
@@ -435,30 +287,15 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     public void UndoButton()
     {
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("Undo", RpcTarget.All);
-        }
-        else
-        {
-            Undo();
-        }
+        Undo();
     }
-    public void RedoButton() 
+    public void RedoButton()
     {
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("Redo", RpcTarget.All);
-        }
-        else
-        {
-            Redo();
-        }
+        Redo();
     }
 
-    [PunRPC]
     private void Undo()
-    { 
+    {
         if (undoStackCount > 1)
         {
             redoStack.Push(undoStack.Pop());
@@ -466,7 +303,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             texture.Apply();
         }
     }
-    [PunRPC]
     private void Redo()
     {
         if (redoStackCount > 0)
@@ -479,33 +315,18 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     public void AllClear()
     {
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("ClearCanvas", RpcTarget.All);
-            photonView.RPC("SaveUndo", RpcTarget.All);
-        }
-        else
-        {
-            ClearCanvas();
-            SaveUndo();
-        }
+        ClearCanvas();
+        SaveUndo();
     }
 
-    public void ResetDrawField()
-    { 
-        photonView.RPC("ResetSetting", RpcTarget.All);
-    }
-
-    [PunRPC]
     private void ResetSetting()
-    { 
+    {
         undoStack.Clear();
         redoStack.Clear();
         ClearCanvas();
         undoStack.Push(texture.GetPixels());
     }
 
-    [PunRPC]
     private void ClearCanvas()
     {
         Color[] clearColors = new Color[texture.width * texture.height];
@@ -539,22 +360,9 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     }
 
     public void ChangeMode(ToolMode mode)
-    { 
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("ChangeModeRPC", RpcTarget.All, mode);
-        }
-        else
-        {
-            currentMode = mode;
-        }
-        isDrawing = false;
-    }
-
-    [PunRPC]
-    private void ChangeModeRPC(ToolMode mode)
     {
         currentMode = mode;
+        isDrawing = false;
     }
 
     public void ChangeColor(Color color)
