@@ -40,9 +40,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         resolutionDropdown.value = savedIndex;
         SetResolution();
 
-        mekakusiToggle.isOn = PlayerPrefs.GetInt("Mekakusi", 0) == 1;
-        randomToggle.isOn = PlayerPrefs.GetInt("Random", 0) == 1;
-
         questionCountInputField.onValueChanged.AddListener(OnQuestionCountInputValueChanged);
         questionCountInputField.onEndEdit.AddListener(ValidateQuestionCountInput);
         questionCountInputField.text = questionCount.ToString();

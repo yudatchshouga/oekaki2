@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     [SerializeField] Text correctLabel;
     [SerializeField] Text timerText;
-    [SerializeField] bool randamMode;
+    [SerializeField] bool randomMode;
 
     private int questionCount;
 
@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
+            randomMode = PlayerPrefs.GetInt("Random", 1) == 1;
             questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
             timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
             players = PhotonNetwork.PlayerList;
@@ -57,7 +58,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             // ホストがお題と出題者を決定する
             if (PhotonNetwork.IsMasterClient)
             {
-                int selectedQuestionerNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
+                int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
                 photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
             }
 
@@ -101,7 +102,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void TimeUp()
     {
         photonView.RPC("ShowIncorrect", RpcTarget.All);
-        int selectedQuestionerNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
+        int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
         photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
     }
 
@@ -131,7 +132,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             photonView.RPC("ShowCorrect", RpcTarget.All);
             // お題と出題者の再設定
-            int selectedQuestionerNumber = randamMode ? Random.Range(0, players.Length) + 1 : 1;
+            int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
             photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
         }
     }

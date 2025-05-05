@@ -21,9 +21,15 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Text themeText;
     [SerializeField] SizeInputField widthInputField;
     [SerializeField] SizeInputField heightInputField;
+    [SerializeField] Image currentColor;
+    [SerializeField] Toggle mekakushiToggle;
+
+    [SerializeField] bool isBlind;
 
     private void Start()
     {
+        isBlind = PlayerPrefs.GetInt("Mekakushi", 0) == 1;
+
         backButton.onClick.AddListener(() =>
         {
             PhotonManager.instance.OnLeaveRoomAndDestroy();
@@ -33,7 +39,7 @@ public class DotUIManager : MonoBehaviour
     private void Update()
     {
         SetActive(dotUI, DrawingManager.instance.isDrawable);
-        SetActive(blindPanel, DrawingManager.instance.isBlind);
+        SetActive(blindPanel, isBlind);
         SetActive(penButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Pen);
         SetActive(fillButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Fill);
         SetActive(lineButtonCover, DrawingManager.instance.currentMode == DrawingManager.ToolMode.Line);
@@ -43,6 +49,10 @@ public class DotUIManager : MonoBehaviour
         SetInteractable(undoButton, DrawingManager.instance.undoStackCount > 1);
         SetInteractable(redoButton, DrawingManager.instance.redoStackCount > 0);
         SetInteractable(clearButton, DrawingManager.instance.HasDrawing());
+
+        currentColor.color = DrawingManager.instance.drawColor;
+
+        isBlind = mekakushiToggle.isOn;
 
         if (heightInputField.IsError || widthInputField.IsError)
         {

@@ -21,7 +21,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     Vector2Int? startPoint = null; // 直線モードの始点
     Vector2Int startPixel; // 円モード、長方形モードの始点
     bool isDrawing = false; // 描画中かどうか
-    public bool isBlind; // 目隠しモードかどうか
     public bool isDrawable = false; // 描画可能かどうか
     DrawingUtils drawer;
 
@@ -567,10 +566,5 @@ public class DrawingManager : MonoBehaviourPunCallbacks
     {
         brushSize = (int)slider.value;
         drawer = new DrawingUtils(texture, drawColor, brushSize);
-    }
-
-    public void ChangeBlind(bool isActive)
-    {
-        isBlind = isActive;
     }
 }
