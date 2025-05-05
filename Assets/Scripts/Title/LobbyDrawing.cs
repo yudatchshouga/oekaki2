@@ -12,8 +12,8 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     int CanvasWidth;
     int CanvasHeight;
     Dictionary<int, Vector2Int?> lastPoints = new Dictionary<int, Vector2Int?>();
-    Dictionary<int, Color> playerColors = new Dictionary<int, Color>(); // 繝励Ξ繧､繝､繝ｼ縺斐→縺ｮ濶ｲ險ｭ螳・
-    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>(); // 繝励Ξ繧､繝､繝ｼ縺斐→縺ｮ繝壹Φ繧ｵ繧､繧ｺ險ｭ螳・
+    Dictionary<int, Color> playerColors = new Dictionary<int, Color>();
+    Dictionary<int, int> playerPenSizes = new Dictionary<int, int>();
     DrawingUtils drawer;
 
     private void Start()
@@ -23,7 +23,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point;
         rawImage.texture = texture;
-        drawColor = Color.black;
+        drawColor = Color.white;
         penSize = 1;
         drawer = new DrawingUtils(texture, drawColor, penSize);
 
@@ -56,7 +56,6 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         Vector2Int point = new Vector2Int(x, y);
         Color color = new Color(r, g, b, a);
 
-        // 繝励Ξ繧､繝､繝ｼ縺ｮ險ｭ螳壹ｒ譖ｴ譁ｰ
         playerColors[actorNumber] = color;
         playerPenSizes[actorNumber] = size;
 
@@ -65,16 +64,15 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
             lastPoints[actorNumber] = null;
         }
 
-        // 荳譎ら噪縺ｫ縺昴・繝励Ξ繧､繝､繝ｼ險ｭ螳壹〒DrawingUtils繧剃ｽｿ縺・
         DrawingUtils tempDrawer = new DrawingUtils(texture, color, size);
 
         if (lastPoints[actorNumber].HasValue)
         {
-            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point); // 2蝗樒岼莉･髯阪・謠冗判
+            tempDrawer.DrawLine(lastPoints[actorNumber].Value, point);
         }
         else
         {
-            tempDrawer.DrawPoint(point); // 譛蛻昴・謠冗判
+            tempDrawer.DrawPoint(point);
         }
         texture.Apply();
         lastPoints[actorNumber] = point;
@@ -94,7 +92,7 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         Color[] colors = new Color[CanvasWidth * CanvasHeight];
         for (int i = 0; i < colors.Length; i++)
         {
-            colors[i] = Color.white;
+            colors[i] = Color.black;
         }
         texture.SetPixels(colors);
         texture.Apply();
@@ -117,7 +115,6 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         return new Vector2Int(x, y);
     }
 
-    // 繝代Ξ繝・ヨ縺ｮ繝懊ち繝ｳ繧偵け繝ｪ繝・け縺励◆縺ｨ縺阪↓drawColor繧貞､画峩縺吶ｋ
     public void OnClickColorButton(int index)
     {
         switch (index)
@@ -156,7 +153,6 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
         drawer = new DrawingUtils(texture, drawColor, penSize);
     }
 
-    // 繧ｹ繝ｩ繧､繝繝ｼ縺ｮ蛟､繧恥enSize縺ｫ蜿肴丐縺吶ｋ
     public void OnValueChangedPenSize(Slider slider)
     {
         penSize = (int)slider.value;
