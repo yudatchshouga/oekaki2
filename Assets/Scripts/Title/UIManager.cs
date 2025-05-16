@@ -14,7 +14,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] InputField questionCountInputField;
     [SerializeField] InputField limitTimeInputField;
     [SerializeField] Dropdown playerCountDropdown;
-    [SerializeField] Text errorText;
+    [SerializeField] Text createErrorText;
+    [SerializeField] Text joinErrorText;
     [SerializeField] Button roomCreateButton;
     [SerializeField] Button roomJoinButton;
     [SerializeField] Button quizGameStartButton;
@@ -84,6 +85,26 @@ public class UIManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(createPasswordInputField.text, roomOptions, TypedLobby.Default);
     }
 
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        if (returnCode == ErrorCode.InvalidOperation)
+        {
+            Debug.LogError("ルームの作成に失敗しました: " + message);
+            ShowCreateErrorMessage("ルームの作成に失敗しました。パスワードが既に使用されています。");
+        }
+        else
+        {
+            Debug.LogError("ルームの作成に失敗しました: " + message);
+            ShowCreateErrorMessage("ルームの作成に失敗しました。");
+        }
+    }
+
+    private void ShowCreateErrorMessage(string message)
+    {
+        createErrorText.gameObject.SetActive(true);
+        createErrorText.text = message;
+    }
+
     public void OnJoinRoomButtonClick()
     {
         PhotonNetwork.JoinRoom(joinPasswordInputField.text);
@@ -94,35 +115,36 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (returnCode == ErrorCode.GameDoesNotExist)
         {
             Debug.LogError("ルームが存在しません");
-            ShowErrorMessage("ルームが存在しません。ルーム名を確認してください。");
+            ShowJoinErrorMessage("ルームが存在しません。ルーム名を確認してください。");
         }
         else if (returnCode == ErrorCode.GameFull)
         {
             Debug.LogError("ルームが満員です。");
-            ShowErrorMessage("ルームが満員です。再度パスワードを入力してください。");
+            ShowJoinErrorMessage("ルームが満員です。再度パスワードを入力してください。");
         }
         else if (returnCode == ErrorCode.GameClosed)
         {
             Debug.LogError("ルームはすでに終了しています");
-            ShowErrorMessage("ルームはすでに終了しています。");
+            ShowJoinErrorMessage("ルームはすでに終了しています。");
         }
         else
         {
             Debug.LogError($"ルームへの参加に失敗しました: {message}");
-            ShowErrorMessage($"ルームへの参加に失敗しました: {message}");
+            ShowJoinErrorMessage($"ルームへの参加に失敗しました: {message}");
         }
     }
 
-    private void ShowErrorMessage(string message)
+    private void ShowJoinErrorMessage(string message)
     {
-        errorText.gameObject.SetActive(true);
-        errorText.text = message;
+        joinErrorText.gameObject.SetActive(true);
+        joinErrorText.text = message;
     }
 
     // エラーメッセージを非表示にし、インプットフィールドを初期化
     public void OnClickErrorMessageCloseButton()
     {
-        errorText.gameObject.SetActive(false);
+        createErrorText.gameObject.SetActive(false);
+        joinErrorText.gameObject.SetActive(false);
         createPasswordInputField.text = "";
         joinPasswordInputField.text = "";
     }
