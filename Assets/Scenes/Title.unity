@@ -5224,7 +5224,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lobbyDrawing: {fileID: 1547737342}
   currentPanel: 0
-  uiManager: {fileID: 596508056}
 --- !u!1 &479128958
 GameObject:
   m_ObjectHideFlags: 0

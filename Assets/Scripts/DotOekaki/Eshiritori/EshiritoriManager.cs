@@ -10,17 +10,10 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     public static EshiritoriManager instance;
 
     private int questionerNumber;
-    public int QuestionerNumber => questionerNumber;
-
-    ThemeGenerator themeGenerator;
-    //DotUIManager dotUIManager;
     EshiritoriDotUIManager dotUIManager;
-    QuizQuestion currentTheme;
     Player[] players;
 
-    //[SerializeField] Text correctLabel;
     [SerializeField] Text timerText;
-    [SerializeField] bool randomMode;
 
     private int questionCount;
 
@@ -43,35 +36,27 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        themeGenerator = FindAnyObjectByType<ThemeGenerator>();
+        // 設定
         dotUIManager = FindAnyObjectByType<EshiritoriDotUIManager>();
-        if (PhotonNetwork.InRoom)
-        {
-            Debug.Log("オンラインモードで実行");
-            randomMode = PlayerPrefs.GetInt("Random", 1) == 1;
-            questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
-            //timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
-            timeLimit = 5;
-            players = PhotonNetwork.PlayerList;
-            timeRemaining = timeLimit;
-            isTimerActive = false;
-            isTimeUp = false;
+        Debug.Log("オンラインモードで実行");
+        questionCount = 100;
+        timeLimit = 5;
+        players = PhotonNetwork.PlayerList;
+        timeRemaining = timeLimit;
+        isTimerActive = false;
+        isTimeUp = false;
 
-            // ホストがお題と出題者を決定する
-            if (PhotonNetwork.IsMasterClient)
-            {
-                int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
-                photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
-            }
-
-            Invoke("StartTimer", 1.0f);
-            Invoke("UpdateText", 1.0f);
-        }
-        else
+        // ホストが出題者を決定
+        if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("オフラインモードで実行");
-            timerText.gameObject.SetActive(false);
+            photonView.RPC("SetQuestioner", RpcTarget.All, 1);
         }
+
+        Invoke("StartTimer", 1.0f);
+        // 出題者の役割を表示
+        Role role = GetRole();
+        Debug.Log($"あなたの役割: {role}");
+        dotUIManager.SetRoleText(role);
     }
 
     private void Update()
@@ -97,98 +82,51 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
                     TimeUp();
                 }
             }
-            timerText.text = $"残り\n{timeRemaining.ToString("F0")}秒";
+            timerText.text = $"残り: {timeRemaining.ToString("F0")}秒";
         }
     }
 
     private void TimeUp()
     {
-        Debug.Log("名前入力モード");
-        photonView.RPC("ShowIncorrect", RpcTarget.All);
-        int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
+        Debug.Log("時間切れ!!!");
+
+        isTimerActive = false;
+        timeRemaining = timeLimit;
+        StartTimer();
+        isTimeUp = false;
+        // 出題者を変更
+        int selectedQuestionerNumber = GetNextQuestioner();
         photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
     }
-
     [PunRPC]
     private void SetQuestioner(int selectedQuestionerNumber)
     {
         Debug.Log("出題者を設定");
         questionCount--;
-        DrawingManager.instance.ResetDrawField();
+        EshiritoriDrawingManager.instance.ResetDrawField();
         questionerNumber = selectedQuestionerNumber;
+        // テキスト更新
+        Role role = GetRole();
+        Debug.Log($"あなたの役割: {role}");
+        dotUIManager.SetRoleText(role);
+        Debug.Log($"出題者: {questionerNumber}");
         if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
         {
-            currentTheme = themeGenerator.GetRandomTheme();
-            photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
-            DrawingManager.instance.isDrawable = true;
+            EshiritoriDrawingManager.instance.isDrawable = true;
         }
         else
         {
-            DrawingManager.instance.isDrawable = false;
+            EshiritoriDrawingManager.instance.isDrawable = false;
         }
     }
 
-    // 出題者のみが正誤判定を行う
-    [PunRPC]
-    private void CheckAnswer(string answer)
+    private int GetNextQuestioner()
     {
-        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber && IsCorrectAnswer(answer))
+        if (questionerNumber == players.Length)
         {
-            photonView.RPC("ShowCorrect", RpcTarget.All);
-            // お題と出題者の再設定
-            int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
-            photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+            return 1;
         }
-    }
-
-    private bool IsCorrectAnswer(string answer)
-    {
-        foreach (string correctAnswer in currentTheme.answerList)
-        {
-            if (NormalizeString(answer) == NormalizeString(correctAnswer))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void SubmitAnswer(string answer)
-    {
-        photonView.RPC("CheckAnswer", RpcTarget.Others, answer);
-    }
-
-    [PunRPC]
-    private void ShowCorrect()
-    {
-        isTimerActive = false;
-        timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage("正解！", 3.0f));
-    }
-
-    [PunRPC]
-    private void ShowIncorrect()
-    {
-        isTimerActive = false;
-        timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage($"残念...不正解！\n正解は\n「{currentTheme.question}」\nだったよ！", 3.0f));
-    }
-
-    private IEnumerator DisplayMessage(string message, float duration)
-    {
-        //correctLabel.text = message;
-        //correctLabel.gameObject.SetActive(true);
-        yield return new WaitForSeconds(duration);
-        //correctLabel.gameObject.SetActive(false);
-        UpdateText();
-        StartTimer();
-        isTimeUp = false;
-    }
-
-    private void UpdateText()
-    {
-        dotUIManager.SetRoleText(GetRole());
-        dotUIManager.SetThemeText(GetRole(), currentTheme.question);
+        return questionerNumber + 1;
     }
 
     private Role GetRole()
@@ -210,11 +148,6 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void UpdateCurrentTheme(string question)
     {
-        if (currentTheme == null)
-        {
-            currentTheme = new QuizQuestion();
-        }
-        currentTheme.question = question;
     }
 
     private string NormalizeString(string input)
