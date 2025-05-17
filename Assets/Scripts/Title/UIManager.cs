@@ -85,6 +85,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(createPasswordInputField.text, roomOptions, TypedLobby.Default);
     }
 
+    // ルーム作成成功時のコールバック
+    public override void OnCreatedRoom()
+    {
+        PanelController.instance.OnClickButton(4);
+    }
+
+    // ルーム作成失敗時のコールバック
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         if (returnCode == ErrorCode.InvalidOperation)
@@ -110,6 +117,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(joinPasswordInputField.text);
     }
 
+    // ルーム参加成功時のコールバック
+    public override void OnJoinedRoom()
+    {
+        PanelController.instance.OnClickButton(4);
+    }
+
+    // ルーム参加失敗時のコールバック
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         if (returnCode == ErrorCode.GameDoesNotExist)

@@ -2,6 +2,16 @@ using UnityEngine;
 
 public class PanelController : MonoBehaviour
 {
+    public static PanelController instance;
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
     [SerializeField] LobbyDrawing lobbyDrawing;
     [SerializeField] Panels currentPanel;
 
@@ -21,7 +31,7 @@ public class PanelController : MonoBehaviour
     }
 
 
-    public void Start()
+    private void Start()
     {
         switch (currentPanel)
         {
