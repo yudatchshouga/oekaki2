@@ -7,7 +7,7 @@ public class EshiritoriDrawingManager : MonoBehaviourPunCallbacks
 {
     public static EshiritoriDrawingManager instance;
 
-    Texture2D texture;
+    public Texture2D texture;
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
     public int CanvasWidth; // キャンバスの横幅

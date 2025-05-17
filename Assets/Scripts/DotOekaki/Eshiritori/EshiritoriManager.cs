@@ -4,6 +4,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using static System.Net.Mime.MediaTypeNames;
 
 public class EshiritoriManager : MonoBehaviourPunCallbacks
 {
@@ -12,8 +13,8 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     private int questionerNumber = 0;
     EshiritoriDotUIManager dotUIManager;
 
-    [SerializeField] Text timerText;
     [SerializeField] TimerController timerController;
+    [SerializeField] ImagePanelController imagePanelController;
 
     private int questionCount;
 
@@ -76,10 +77,21 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
                 }
                 if (timerController.GetRemainingTime() <= 0)
                 {
+                    Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
+                    imagePanelController.CreateNewImage(texture);
+                    imagePanelController.SetText("aaaaaa");
                     photonView.RPC("TurnStart", RpcTarget.All);
                 }
             }
         }
+    }
+
+    private Texture2D CopyTexture(Texture2D texture)
+    {
+        Texture2D copy = new Texture2D(texture.width, texture.height, texture.format, false);
+        copy.SetPixels(texture.GetPixels());
+        copy.Apply();
+        return copy;
     }
 
     private int GetNextQuestioner()
