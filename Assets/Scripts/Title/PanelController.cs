@@ -2,6 +2,16 @@ using UnityEngine;
 
 public class PanelController : MonoBehaviour
 {
+    public static PanelController instance;
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
     [SerializeField] LobbyDrawing lobbyDrawing;
     [SerializeField] Panels currentPanel;
 
@@ -9,9 +19,8 @@ public class PanelController : MonoBehaviour
     {
         Title,
         Option,
-        OfflineSetting,
+        Offline,
         OnlineMenu,
-        PasswordMatching,
         Lobby,
         GameSelect,
         QuizSetting,
@@ -22,7 +31,7 @@ public class PanelController : MonoBehaviour
     }
 
 
-    public void Start()
+    private void Start()
     {
         switch (currentPanel)
         {
@@ -32,14 +41,11 @@ public class PanelController : MonoBehaviour
             case Panels.Option:
                 transform.localPosition = new Vector3(0, -1500, 0);
                 break;
-            case Panels.OfflineSetting:
+            case Panels.Offline:
                 transform.localPosition = new Vector3(-2500, 0, 0);
                 break;
             case Panels.OnlineMenu:
                 transform.localPosition = new Vector3(0, 1500, 0);
-                break;
-            case Panels.PasswordMatching:
-                transform.localPosition = new Vector3(-2500, 1500, 0);
                 break;
             case Panels.Lobby:
                 transform.localPosition = new Vector3(0, 3000, 0);
@@ -76,14 +82,11 @@ public class PanelController : MonoBehaviour
             case Panels.Option:
                 transform.localPosition = new Vector3(0, -1500, 0);
                 break;
-            case Panels.OfflineSetting:
+            case Panels.Offline:
                 transform.localPosition = new Vector3(-2500, 0, 0);
                 break;
             case Panels.OnlineMenu:
                 transform.localPosition = new Vector3(0, 1500, 0);
-                break;
-            case Panels.PasswordMatching:
-                transform.localPosition = new Vector3(-2500, 1500, 0);
                 break;
             case Panels.Lobby:
                 transform.localPosition = new Vector3(0, 3000, 0);

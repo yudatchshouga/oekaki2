@@ -9,20 +9,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     [SerializeField] GameObject startButton;
     [SerializeField] Text playerCountText;
-    [SerializeField] InputField passwordInputField;
+    [SerializeField] Text roomNameText;
     [SerializeField] Text joinedPlayerText;
-    [SerializeField] int maxPlayers;
 
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (instance != this)
-        {
-            // Destroy(gameObject);
         }
     }
 
@@ -52,7 +46,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         var roomOptions = new RoomOptions
         {
-            MaxPlayers = maxPlayers, // 最大プレイヤー数4人
+            MaxPlayers = 4, // 最大プレイヤー数4人
             IsOpen = true, // ルームを一般公開する
             IsVisible = true, // ルームがロビーで表示される
         };
@@ -66,9 +60,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.NickName = playerName;
         photonView.RPC("ReceiveJoinMessage", RpcTarget.All, playerName);
 
-        // ルーム内のプレイヤー数を取得
-        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
-        playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
+        // ルーム情報を表示
+        playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
+        roomNameText.text = $"ルーム名：{PhotonNetwork.CurrentRoom.Name}";
+
         // ホストのみゲームルールを選んで開始することができる
         if (PhotonNetwork.IsMasterClient)
         {
@@ -102,17 +97,23 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("新しいプレイヤーが参加しました。");
-        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
-        playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
+        playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
+
+        if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
+        {
+            startButton.GetComponent<Button>().interactable = true;
+        }
+        else
+        {
+            startButton.GetComponent<Button>().interactable = false;
+        }
     }
 
     // プレイヤーが退出したときのコールバック
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("プレイヤーが退出しました。");
-        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
-        playerCountText.text = $"現在のプレイヤー数: {playerCount} / {maxPlayers}";
-        joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
+        playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
     }
 
     // ルームから退出する
@@ -150,15 +151,5 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.Log($"Photon の接続に失敗: {cause}");
-    }
-
-    // パスワードルームに参加する（ルームが存在しなければ作成してから参加する）
-    public void OnPasswordRoomButtonClicked()
-    {
-        var roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 4;
-        roomOptions.IsVisible = false;
-
-        PhotonNetwork.JoinOrCreateRoom(passwordInputField.text, roomOptions, TypedLobby.Default);
     }
 }
