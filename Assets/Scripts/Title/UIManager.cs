@@ -191,6 +191,23 @@ public class UIManager : MonoBehaviourPunCallbacks
         SceneController.instance.LoadScene("OekakiQuiz");
     }
 
+    public void OnClickShiritoriStartButton()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("StartShiritori", RpcTarget.All);
+        }
+        else
+        {
+            SceneController.instance.LoadScene("Shiritori");
+        }
+    }
+
+    [PunRPC]
+    private void StartShiritori()
+    {
+        SceneController.instance.LoadScene("Shiritori");
+    }
 
     // --------------- Dropdown ---------------
     public void OnPlayerCountDropdownValueChanged(int value)

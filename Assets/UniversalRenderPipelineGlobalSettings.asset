@@ -89,7 +89,7 @@ MonoBehaviour:
       m_Values: 
   references:
     version: 2
-    RefIds:
+    RefIds
     - rid: 1272610333327884368
       type: {class: UniversalRenderPipelineEditorShaders, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
