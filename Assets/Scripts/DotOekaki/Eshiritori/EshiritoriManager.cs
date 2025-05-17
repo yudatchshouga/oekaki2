@@ -9,18 +9,13 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
 {
     public static EshiritoriManager instance;
 
-    private int questionerNumber;
+    private int questionerNumber = 0;
     EshiritoriDotUIManager dotUIManager;
-    Player[] players;
 
     [SerializeField] Text timerText;
+    [SerializeField] TimerController timerController;
 
     private int questionCount;
-
-    public float timeLimit;
-    private float timeRemaining;
-    private bool isTimerActive;
-    private bool isTimeUp;
 
     private void Awake()
     {
@@ -38,25 +33,35 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     {
         // 設定
         dotUIManager = FindAnyObjectByType<EshiritoriDotUIManager>();
-        Debug.Log("オンラインモードで実行");
         questionCount = 100;
-        timeLimit = 5;
-        players = PhotonNetwork.PlayerList;
-        timeRemaining = timeLimit;
-        isTimerActive = false;
-        isTimeUp = false;
 
-        // ホストが出題者を決定
         if (PhotonNetwork.IsMasterClient)
         {
-            photonView.RPC("SetQuestioner", RpcTarget.All, 1);
+            photonView.RPC("TurnStart", RpcTarget.All);
         }
+    }
 
-        Invoke("StartTimer", 1.0f);
+    [PunRPC]
+    private void TurnStart()
+    {
+        Debug.Log("ターン開始");
+        // タイマーをリセット
+        timerController.ResetTimer();
+        // 出題者決定
+        questionerNumber = GetNextQuestioner();
         // 出題者の役割を表示
         Role role = GetRole();
         Debug.Log($"あなたの役割: {role}");
         dotUIManager.SetRoleText(role);
+        EshiritoriDrawingManager.instance.ResetDrawField();
+        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber)
+        {
+            EshiritoriDrawingManager.instance.isDrawable = true;
+        }
+        else
+        {
+            EshiritoriDrawingManager.instance.isDrawable = false;
+        }
     }
 
     private void Update()
@@ -69,60 +74,21 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
                 {
                     Debug.Log("ゲーム終了");
                 }
-
-                if (isTimerActive && timeRemaining > 0)
+                if (timerController.GetRemainingTime() <= 0)
                 {
-                    timeRemaining -= Time.deltaTime;
-                    photonView.RPC("SyncTimer", RpcTarget.Others, timeRemaining);
-                }
-                else if (timeRemaining <= 0 && isTimerActive && !isTimeUp)
-                {
-                    isTimerActive = false;
-                    isTimeUp = true;
-                    TimeUp();
+                    photonView.RPC("TurnStart", RpcTarget.All);
                 }
             }
-            timerText.text = $"残り: {timeRemaining.ToString("F0")}秒";
-        }
-    }
-
-    private void TimeUp()
-    {
-        Debug.Log("時間切れ!!!");
-
-        isTimerActive = false;
-        timeRemaining = timeLimit;
-        StartTimer();
-        isTimeUp = false;
-        // 出題者を変更
-        int selectedQuestionerNumber = GetNextQuestioner();
-        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
-    }
-    [PunRPC]
-    private void SetQuestioner(int selectedQuestionerNumber)
-    {
-        Debug.Log("出題者を設定");
-        questionCount--;
-        EshiritoriDrawingManager.instance.ResetDrawField();
-        questionerNumber = selectedQuestionerNumber;
-        // テキスト更新
-        Role role = GetRole();
-        Debug.Log($"あなたの役割: {role}");
-        dotUIManager.SetRoleText(role);
-        Debug.Log($"出題者: {questionerNumber}");
-        if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
-        {
-            EshiritoriDrawingManager.instance.isDrawable = true;
-        }
-        else
-        {
-            EshiritoriDrawingManager.instance.isDrawable = false;
         }
     }
 
     private int GetNextQuestioner()
     {
-        if (questionerNumber == players.Length)
+        if (questionerNumber == 0)
+        {
+            return 1;
+        }
+        if (questionerNumber == PhotonNetwork.PlayerList.Length)
         {
             return 1;
         }
@@ -132,27 +98,5 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     private Role GetRole()
     {
         return PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber ? Role.Questioner : Role.Answerer;
-    }
-
-    private void StartTimer()
-    {
-        isTimerActive = true;
-    }
-
-    [PunRPC]
-    private void SyncTimer(float time)
-    {
-        timeRemaining = time;
-    }
-
-    [PunRPC]
-    private void UpdateCurrentTheme(string question)
-    {
-    }
-
-    private string NormalizeString(string input)
-    {
-        // 前後の空白をトリムし、小文字変換し、全角を半角に変換
-        return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
     }
 }
