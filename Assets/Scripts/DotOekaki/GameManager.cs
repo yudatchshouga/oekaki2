@@ -15,18 +15,22 @@ public class GameManager : MonoBehaviourPunCallbacks
     ThemeGenerator themeGenerator;
     DotUIManager dotUIManager;
     QuizQuestion currentTheme;
-    Player[] players;
+
+    [SerializeField] GameObject panels;
 
     [SerializeField] Text correctLabel;
     [SerializeField] Text timerText;
+    [SerializeField] Text countText;
     [SerializeField] bool randomMode;
 
     private int questionCount;
 
-    public float timeLimit;
+    public int timeLimit;
     private float timeRemaining;
     private bool isTimerActive;
     private bool isTimeUp;
+
+    private bool isFinished = false;
 
     private void Awake()
     {
@@ -47,20 +51,22 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
-            randomMode = PlayerPrefs.GetInt("Random", 1) == 1;
-            questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
-            timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
-            players = PhotonNetwork.PlayerList;
+
+            // ホストがお題と出題者を決定し、設定を同期する
+            if (PhotonNetwork.IsMasterClient)
+            {
+                randomMode = PlayerPrefs.GetInt("Random", 1) == 1;
+                questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
+                timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
+                photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+
+                int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
+                photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+            }
+
             timeRemaining = timeLimit;
             isTimerActive = false;
             isTimeUp = false;
-
-            // ホストがお題と出題者を決定する
-            if (PhotonNetwork.IsMasterClient)
-            {
-                int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
-                photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
-            }
 
             Invoke("StartTimer", 1.0f);
             Invoke("UpdateText", 1.0f);
@@ -78,12 +84,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                if (questionCount <= 0)
+                if (questionCount < 0 && !isFinished)
                 {
                     Debug.Log("ゲーム終了");
+                    photonView.RPC("Resultdisplay", RpcTarget.All);
+                    isFinished = true;
                 }
 
-                if (isTimerActive && timeRemaining > 0)
+                if (isTimerActive && timeRemaining > 0 && questionCount >= 0)
                 {
                     timeRemaining -= Time.deltaTime;
                     photonView.RPC("SyncTimer", RpcTarget.Others, timeRemaining);
@@ -95,15 +103,25 @@ public class GameManager : MonoBehaviourPunCallbacks
                     TimeUp();
                 }
             }
-            timerText.text = $"残り\n{timeRemaining.ToString("F0")}秒";
+            timerText.text = $"残り\n{timeRemaining.ToString("F0")} 秒";
+            countText.text = $"残り\n{questionCount} 問";
         }
     }
 
     private void TimeUp()
     {
         photonView.RPC("ShowIncorrect", RpcTarget.All);
-        int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
+        int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
         photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+    }
+
+    // randomModeとquestionCountとtimeLimitをホストと同期する
+    [PunRPC]
+    private void SyncOption(bool random, int count, int time)
+    {
+        randomMode = random;
+        questionCount = count;
+        timeLimit = time;
     }
 
     [PunRPC]
@@ -132,7 +150,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             photonView.RPC("ShowCorrect", RpcTarget.All);
             // お題と出題者の再設定
-            int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
+            int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
             photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
         }
     }
@@ -217,5 +235,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         // 前後の空白をトリムし、小文字変換し、全角を半角に変換
         return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
+    }
+
+
+    [PunRPC]
+    private void Resultdisplay()
+    { 
+        panels.transform.localPosition = new Vector2(-2000, 0);
     }
 }

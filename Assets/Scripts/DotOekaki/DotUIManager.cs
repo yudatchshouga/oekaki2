@@ -11,7 +11,8 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Button redoButton;
     [SerializeField] Button clearButton;
     [SerializeField] Button sizeApplyButton;
-    [SerializeField] Button backButton;
+    [SerializeField] Button backButton1;
+    [SerializeField] Button backButton2;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
     [SerializeField] GameObject lineButtonCover;
@@ -28,9 +29,11 @@ public class DotUIManager : MonoBehaviour
 
     private void Start()
     {
-        isBlind = PlayerPrefs.GetInt("Mekakushi", 0) == 1;
-
-        backButton.onClick.AddListener(() =>
+        backButton1.onClick.AddListener(() =>
+        {
+            PhotonManager.instance.OnLeaveRoomAndDestroy();
+        });
+        backButton2.onClick.AddListener(() =>
         {
             PhotonManager.instance.OnLeaveRoomAndDestroy();
         });

@@ -6,7 +6,6 @@ using Photon.Realtime;
 
 public class UIManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] Toggle mekakusiToggle;
     [SerializeField] Toggle randomToggle;
     [SerializeField] InputField playerNameInputField;
     [SerializeField] InputField createPasswordInputField;
@@ -57,9 +56,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         joinPasswordInputField.onValueChanged.AddListener(OnJoinPasswordInputFieldValueChanged);
 
         playerCountDropdown.onValueChanged.AddListener(OnPlayerCountDropdownValueChanged);
-
-        int count = FindObjectsByType<PhotonManager>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
-        Debug.Log("PhotonManagerの数: " + count);
     }
 
     private void Update()
@@ -171,8 +167,11 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     public void OnClickOekakiQuizStartButton()
     {
-        if (PhotonNetwork.InRoom)
+        if (PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient)
         {
+            PlayerPrefs.SetInt("Random", randomToggle.isOn ? 1 : 0);
+            PlayerPrefs.SetInt("QuestionCount", questionCount);
+            PlayerPrefs.SetInt("LimitTime", limitTime);
             photonView.RPC("StartOekakiQuiz", RpcTarget.All);
         }
         else
@@ -184,10 +183,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void StartOekakiQuiz()
     {
-        PlayerPrefs.SetInt("Mekakusi", mekakusiToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("Random", randomToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("QuestionCount", questionCount);
-        PlayerPrefs.SetInt("LimitTime", limitTime);
         SceneController.instance.LoadScene("OekakiQuiz");
     }
 
