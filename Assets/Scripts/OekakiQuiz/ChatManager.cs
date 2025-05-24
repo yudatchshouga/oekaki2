@@ -24,7 +24,7 @@ public class ChatManager : MonoBehaviourPunCallbacks
                 photonView.RPC("SendChatMessage", RpcTarget.All, answer, senderName);
                 chatInputField.text = ""; // チャット入力欄をリセット
 
-                // 出題者の場合は回答を提出
+                // 出題者以外の場合は回答を提出
                 if (PhotonNetwork.LocalPlayer.ActorNumber != GameManager.instance.QuestionerNumber)
                 {
                     GameManager.instance.SubmitAnswer(answer);

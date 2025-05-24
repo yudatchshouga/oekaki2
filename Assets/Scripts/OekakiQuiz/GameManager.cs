@@ -32,6 +32,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private bool isFinished = false;
 
+    [SerializeField] private Transform resultList; //結果表示用の親オブジェクト
+    [SerializeField] private GameObject resultPrefab; //結果表示用のプレハブ
+
     private void Awake()
     {
         if (instance == null)
@@ -237,10 +240,46 @@ public class GameManager : MonoBehaviourPunCallbacks
         return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
     }
 
+    // リザルト関連
+
+    public void SetCorrectAnswers(int correctAnswers)
+    {
+        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+        {
+            {"CorrectAnswers", correctAnswers }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
+    }
+
+    public int GetCorrectAnswers(Player player)
+    {
+        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("CorrectAnswers", out object value))
+        {
+            return (int)value;
+        }
+        return 0;
+    }
+
+    private void DisplayResults()
+    {
+        foreach (Player player in PhotonNetwork.PlayerList)
+        { 
+            GameObject entry = Instantiate(resultPrefab, resultList);
+            ResultPrefab resultPref = entry.GetComponent<ResultPrefab>();
+
+            string playerName = player.NickName;
+            int correctAnswers = GetCorrectAnswers(player);
+            int correctedAnswers = 0; // TODO: 正解された回数を取得する方法を実装する
+            int point = 0; // TODO: ポイントを取得する方法を実装する
+
+            resultPref.SetResult(playerName, correctAnswers, correctedAnswers, point);
+        }
+    }
 
     [PunRPC]
     private void Resultdisplay()
     { 
         panels.transform.localPosition = new Vector2(-2000, 0);
+        DisplayResults();
     }
 }
