@@ -6,7 +6,6 @@ using Photon.Realtime;
 
 public class UIManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] Toggle randomToggle;
     [SerializeField] InputField playerNameInputField;
     [SerializeField] InputField createPasswordInputField;
     [SerializeField] InputField joinPasswordInputField;
@@ -169,7 +168,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient)
         {
-            PlayerPrefs.SetInt("Random", randomToggle.isOn ? 1 : 0);
             PlayerPrefs.SetInt("QuestionCount", questionCount);
             PlayerPrefs.SetInt("LimitTime", limitTime);
             photonView.RPC("StartOekakiQuiz", RpcTarget.All);

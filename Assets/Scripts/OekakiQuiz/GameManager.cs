@@ -1,6 +1,7 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,6 +36,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] private Transform resultList; //結果表示用の親オブジェクト
     [SerializeField] private GameObject resultPrefab; //結果表示用のプレハブ
 
+    private Dictionary<int, int> correctPoints = new Dictionary<int, int>(); // プレイヤーの正解数を保持する辞書
+    private Dictionary<int, int> correctedPoints = new Dictionary<int, int>(); // プレイヤーの正解された回数を保持する辞書
+
     private void Awake()
     {
         if (instance == null)
@@ -58,7 +62,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             // ホストがお題と出題者を決定し、設定を同期する
             if (PhotonNetwork.IsMasterClient)
             {
-                randomMode = PlayerPrefs.GetInt("Random", 1) == 1;
                 questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
                 timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
                 photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
@@ -71,6 +74,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             isTimerActive = false;
             isTimeUp = false;
 
+            InitializePlayerPoints();
+
             Invoke("StartTimer", 1.0f);
             Invoke("UpdateText", 1.0f);
         }
@@ -81,6 +86,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    
+
     private void Update()
     {
         if (PhotonNetwork.InRoom)
@@ -90,6 +97,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 if (questionCount < 0 && !isFinished)
                 {
                     Debug.Log("ゲーム終了");
+                    SendResultsToOthers();
                     photonView.RPC("Resultdisplay", RpcTarget.All);
                     isFinished = true;
                 }
@@ -110,6 +118,36 @@ public class GameManager : MonoBehaviourPunCallbacks
             countText.text = $"残り\n{questionCount} 問";
         }
     }
+    public void RestartGame()
+    {
+        photonView.RPC("MoveGamePanel", RpcTarget.All);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
+            timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
+            photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+
+            int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
+            photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+        }
+
+        timeRemaining = timeLimit;
+        isTimerActive = false;
+        isTimeUp = false;
+
+        InitializePlayerPoints();
+
+        Invoke("StartTimer", 1.0f);
+        Invoke("UpdateText", 1.0f);
+    }
+
+    [PunRPC]
+    private void MoveGamePanel()
+    {
+        panels.transform.localPosition = new Vector2(0, 0);
+    }
+
 
     private void TimeUp()
     {
@@ -147,11 +185,16 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     // 出題者のみが正誤判定を行う
     [PunRPC]
-    private void CheckAnswer(string answer)
+    private void CheckAnswer(string answer, int actorNumber)
     {
         if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber && IsCorrectAnswer(answer))
         {
             photonView.RPC("ShowCorrect", RpcTarget.All);
+            photonView.RPC("AddCorrectPoints", RpcTarget.MasterClient, actorNumber); // 正解したプレイヤーの正解数を加算
+            photonView.RPC("AddCorrectedPoints", RpcTarget.MasterClient, questionerNumber); // 出題者の正解された回数を加算
+
+            // TODO:残り秒数などでポイント増やすか検討（実際にプレイした所感で決めたい）
+
             // お題と出題者の再設定
             int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
             photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
@@ -172,7 +215,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void SubmitAnswer(string answer)
     {
-        photonView.RPC("CheckAnswer", RpcTarget.Others, answer);
+        photonView.RPC("CheckAnswer", RpcTarget.Others, answer, PhotonNetwork.LocalPlayer.ActorNumber);
     }
 
     [PunRPC]
@@ -240,22 +283,53 @@ public class GameManager : MonoBehaviourPunCallbacks
         return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
     }
 
+
+
     // リザルト関連
 
-    public void SetCorrectAnswers(int correctAnswers)
+    private void InitializePlayerPoints()
     {
-        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
-            {"CorrectAnswers", correctAnswers }
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
+            correctPoints[player.ActorNumber] = 0;
+            correctedPoints[player.ActorNumber] = 0;
+        }
     }
 
-    public int GetCorrectAnswers(Player player)
-    {
-        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("CorrectAnswers", out object value))
+    [PunRPC]
+    private void AddCorrectPoints(int playerActorNumber)
+    { 
+        if(!correctPoints.ContainsKey(playerActorNumber))
         {
-            return (int)value;
+            correctPoints[playerActorNumber] = 0;
+        }
+        correctPoints[playerActorNumber] ++;
+    }
+
+    [PunRPC]
+    private void AddCorrectedPoints(int playerActorNumber)
+    {
+        if (!correctedPoints.ContainsKey(playerActorNumber))
+        {
+            correctedPoints[playerActorNumber] = 0;
+        }
+        correctedPoints[playerActorNumber]++;
+    }
+
+    private int GetCorrectPoints(int playerActorNumber)
+    {
+        if (correctPoints.TryGetValue(playerActorNumber, out int points))
+        {
+            return points;
+        }
+        return 0;
+    }
+
+    private int GetCorrectedPoints(int playerActorNumber)
+    {
+        if (correctedPoints.TryGetValue(playerActorNumber, out int points))
+        {
+            return points;
         }
         return 0;
     }
@@ -268,12 +342,42 @@ public class GameManager : MonoBehaviourPunCallbacks
             ResultPrefab resultPref = entry.GetComponent<ResultPrefab>();
 
             string playerName = player.NickName;
-            int correctAnswers = GetCorrectAnswers(player);
-            int correctedAnswers = 0; // TODO: 正解された回数を取得する方法を実装する
-            int point = 0; // TODO: ポイントを取得する方法を実装する
+            int correctPoints = GetCorrectPoints(player.ActorNumber);
+            int correctedPoints = GetCorrectedPoints(player.ActorNumber);
+            int point = (correctPoints + correctedPoints) * 10;
 
-            resultPref.SetResult(playerName, correctAnswers, correctedAnswers, point);
+            resultPref.SetResult(playerName, correctPoints, correctedPoints, point);
         }
+    }
+
+    [PunRPC]
+    private void SyncResults(int[] actorNumbers, int[] correctPointsArray, int[] correctedPointsArray)
+    {
+        for (int i = 0; i < actorNumbers.Length; i++)
+        {
+            correctedPoints[actorNumbers[i]] = correctedPointsArray[i];
+            correctPoints[actorNumbers[i]] = correctPointsArray[i];
+        }
+    }
+
+    private void SendResultsToOthers()
+    {
+        // 辞書を配列に変換
+        int[] actorNumbers = new int[correctPoints.Count];
+        int[] correctPointsArray = new int[correctPoints.Count];
+        int[] correctedPointsArray = new int[correctedPoints.Count];
+
+        int index = 0;
+        foreach (var kvp in correctPoints)
+        {
+            actorNumbers[index] = kvp.Key;
+            correctPointsArray[index] = kvp.Value;
+            correctedPointsArray[index] = correctedPoints[kvp.Key];
+            index++;
+        }
+
+        // RPCでデータを送信
+        photonView.RPC("SyncResults", RpcTarget.Others, actorNumbers, correctPointsArray, correctedPointsArray);
     }
 
     [PunRPC]

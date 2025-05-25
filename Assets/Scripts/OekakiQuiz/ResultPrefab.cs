@@ -10,7 +10,7 @@ public class ResultPrefab : MonoBehaviour
     public void SetResult(string playerName, int correctAnswers, int correctedAnswers, int point)
     {
         playerNameText.text = playerName;
-        scoreText.text = $"正解した回数：{correctAnswers}回\n正解された回数：{correctedAnswers}";
+        scoreText.text = $"正解した回数：{correctAnswers}回\n正解された回数：{correctedAnswers}回";
         pointText.text = $"{point} Pt!";
     }
 }
