@@ -11,7 +11,9 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Button redoButton;
     [SerializeField] Button clearButton;
     [SerializeField] Button sizeApplyButton;
-    [SerializeField] Button backButton;
+    [SerializeField] Button backButton1;
+    [SerializeField] Button backButton2;
+    [SerializeField] Button gameRestartButton;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
     [SerializeField] GameObject lineButtonCover;
@@ -21,6 +23,8 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Text themeText;
     [SerializeField] SizeInputField widthInputField;
     [SerializeField] SizeInputField heightInputField;
+    [SerializeField] QuestionCountInputField questionCountInputField;
+    [SerializeField] LimitTimeInputField limitTimeInputField;
     [SerializeField] Image currentColor;
     [SerializeField] Toggle mekakushiToggle;
 
@@ -28,9 +32,11 @@ public class DotUIManager : MonoBehaviour
 
     private void Start()
     {
-        isBlind = PlayerPrefs.GetInt("Mekakushi", 0) == 1;
-
-        backButton.onClick.AddListener(() =>
+        backButton1.onClick.AddListener(() =>
+        {
+            PhotonManager.instance.OnLeaveRoomAndDestroy();
+        });
+        backButton2.onClick.AddListener(() =>
         {
             PhotonManager.instance.OnLeaveRoomAndDestroy();
         });
@@ -61,6 +67,15 @@ public class DotUIManager : MonoBehaviour
         else
         {
             SetInteractable(sizeApplyButton, true);
+        }
+
+        if (questionCountInputField.IsError || limitTimeInputField.IsError)
+        {
+            SetInteractable(gameRestartButton, false);
+        }
+        else
+        {
+            SetInteractable(gameRestartButton, true);
         }
     }
 
