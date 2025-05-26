@@ -315,6 +315,7 @@ GameObject:
   - component: {fileID: 61776023}
   - component: {fileID: 61776022}
   - component: {fileID: 61776021}
+  - component: {fileID: 61776024}
   m_Layer: 5
   m_Name: QuestionCountInputField
   m_TagString: Untagged
@@ -386,7 +387,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 61776022}
   m_TextComponent: {fileID: 1590713691}
   m_Placeholder: {fileID: 388515633}
-  m_ContentType: 9
+  m_ContentType: 2
   m_InputType: 0
   m_AsteriskChar: 42
   m_KeyboardType: 4
@@ -449,6 +450,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 61776019}
   m_CullTransparentMesh: 1
+--- !u!114 &61776024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 61776019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c14c85f9d24e9c04ebf57d880a98a228, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputField: {fileID: 61776021}
+  isError: 0
 --- !u!1 &67946671
 GameObject:
   m_ObjectHideFlags: 0
@@ -592,7 +607,7 @@ GameObject:
   - component: {fileID: 69058011}
   - component: {fileID: 69058010}
   m_Layer: 5
-  m_Name: StartButton
+  m_Name: GameRestartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -662,10 +677,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: OnClickOekakiQuizStartButton
+      - m_Target: {fileID: 911527002}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: StartGame
         m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1385227623}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1631,10 +1658,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: PanelController, Assembly-CSharp
-        m_MethodName: OnClickButton
-        m_Mode: 3
+      - m_Target: {fileID: 1385227623}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2165,6 +2192,7 @@ MonoBehaviour:
   sizeApplyButton: {fileID: 1414157217}
   backButton1: {fileID: 1476808735}
   backButton2: {fileID: 543241528}
+  gameRestartButton: {fileID: 69058010}
   penButtonCover: {fileID: 1149939254}
   fillButtonCover: {fileID: 186649223}
   lineButtonCover: {fileID: 1028099825}
@@ -2174,6 +2202,8 @@ MonoBehaviour:
   themeText: {fileID: 1447085794}
   widthInputField: {fileID: 1507598268}
   heightInputField: {fileID: 702478851}
+  questionCountInputField: {fileID: 61776024}
+  limitTimeInputField: {fileID: 707517441}
   currentColor: {fileID: 400176258}
   mekakushiToggle: {fileID: 1422782867}
   isBlind: 0
@@ -4173,7 +4203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.99215686}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4454,6 +4484,7 @@ GameObject:
   - component: {fileID: 707517440}
   - component: {fileID: 707517439}
   - component: {fileID: 707517438}
+  - component: {fileID: 707517441}
   m_Layer: 5
   m_Name: LimitTimeInputField
   m_TagString: Untagged
@@ -4588,6 +4619,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 707517436}
   m_CullTransparentMesh: 1
+--- !u!114 &707517441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 707517436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d3ef6534cf59154ba51343b95de1a71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputField: {fileID: 707517438}
+  isError: 0
 --- !u!1 &708886058
 GameObject:
   m_ObjectHideFlags: 0
@@ -4702,7 +4747,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 50, y: 0}
+  m_AnchoredPosition: {x: 50, y: -30}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &710897159
@@ -5283,7 +5328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &846210809
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6107,9 +6152,14 @@ MonoBehaviour:
   timerText: {fileID: 1373899117}
   countText: {fileID: 1562352275}
   randomMode: 1
+  questionCount: 0
+  questionCountLeft: 0
   timeLimit: 180
+  isFinished: 0
   resultList: {fileID: 926407956}
   resultPrefab: {fileID: 2032043302863060305, guid: cb81896fbb614574083a3dc0f15b04a2, type: 3}
+  changeSettingButton: {fileID: 846210808}
+  reuseSettingButton: {fileID: 1324026637}
 --- !u!4 &911527003
 Transform:
   m_ObjectHideFlags: 0
@@ -9790,12 +9840,12 @@ GameObject:
   - component: {fileID: 1324026640}
   - component: {fileID: 1324026639}
   m_Layer: 5
-  m_Name: ReplayButton
+  m_Name: ReuseSettingButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1324026638
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10467,7 +10517,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5882353}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14970,7 +15020,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 50, y: 200}
+  m_AnchoredPosition: {x: 50, y: 180}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1917131038

@@ -13,6 +13,7 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Button sizeApplyButton;
     [SerializeField] Button backButton1;
     [SerializeField] Button backButton2;
+    [SerializeField] Button gameRestartButton;
     [SerializeField] GameObject penButtonCover;
     [SerializeField] GameObject fillButtonCover;
     [SerializeField] GameObject lineButtonCover;
@@ -22,6 +23,8 @@ public class DotUIManager : MonoBehaviour
     [SerializeField] Text themeText;
     [SerializeField] SizeInputField widthInputField;
     [SerializeField] SizeInputField heightInputField;
+    [SerializeField] QuestionCountInputField questionCountInputField;
+    [SerializeField] LimitTimeInputField limitTimeInputField;
     [SerializeField] Image currentColor;
     [SerializeField] Toggle mekakushiToggle;
 
@@ -64,6 +67,15 @@ public class DotUIManager : MonoBehaviour
         else
         {
             SetInteractable(sizeApplyButton, true);
+        }
+
+        if (questionCountInputField.IsError || limitTimeInputField.IsError)
+        {
+            SetInteractable(gameRestartButton, false);
+        }
+        else
+        {
+            SetInteractable(gameRestartButton, true);
         }
     }
 

@@ -24,17 +24,22 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] Text countText;
     [SerializeField] bool randomMode;
 
-    private int questionCount;
+    public int questionCount;
+    public int questionCountLeft;
 
     public int timeLimit;
     private float timeRemaining;
     private bool isTimerActive;
     private bool isTimeUp;
 
-    private bool isFinished = false;
+    [SerializeField] bool isFinished;
 
-    [SerializeField] private Transform resultList; //結果表示用の親オブジェクト
-    [SerializeField] private GameObject resultPrefab; //結果表示用のプレハブ
+    [SerializeField] Transform resultList; //結果表示用の親オブジェクト
+    [SerializeField] GameObject resultPrefab; //結果表示用のプレハブ
+    private List<GameObject> resultPrefabs = new List<GameObject>(); // 結果表示用のプレハブのリスト
+
+    [SerializeField] GameObject changeSettingButton; // 設定変更ボタン
+    [SerializeField] GameObject reuseSettingButton; // 設定再利用ボタン
 
     private Dictionary<int, int> correctPoints = new Dictionary<int, int>(); // プレイヤーの正解数を保持する辞書
     private Dictionary<int, int> correctedPoints = new Dictionary<int, int>(); // プレイヤーの正解された回数を保持する辞書
@@ -64,10 +69,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
                 timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
+
                 photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
 
                 int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
                 photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+
+                changeSettingButton.SetActive(true); // 設定変更ボタンを表示
+                reuseSettingButton.SetActive(true); // 設定再利用ボタンを表示
             }
 
             timeRemaining = timeLimit;
@@ -85,7 +94,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             timerText.gameObject.SetActive(false);
         }
     }
-
     
 
     private void Update()
@@ -94,7 +102,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                if (questionCount < 0 && !isFinished)
+                if (questionCountLeft < 0 && !isFinished)
                 {
                     Debug.Log("ゲーム終了");
                     SendResultsToOthers();
@@ -102,7 +110,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                     isFinished = true;
                 }
 
-                if (isTimerActive && timeRemaining > 0 && questionCount >= 0)
+                if (isTimerActive && timeRemaining > 0 && questionCountLeft >= 0)
                 {
                     timeRemaining -= Time.deltaTime;
                     photonView.RPC("SyncTimer", RpcTarget.Others, timeRemaining);
@@ -115,31 +123,50 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
             }
             timerText.text = $"残り\n{timeRemaining.ToString("F0")} 秒";
-            countText.text = $"残り\n{questionCount} 問";
+            countText.text = $"残り\n{questionCountLeft} 問";
         }
     }
+
+    public void StartGame()
+    {
+        questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
+        timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
+
+        photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+
+        int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
+        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+
+        photonView.RPC("SyncSettings", RpcTarget.All);
+
+        photonView.RPC("MoveGamePanel", RpcTarget.All);
+    }
+
     public void RestartGame()
     {
+        photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+
+        int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
+        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+
+        photonView.RPC("SyncSettings", RpcTarget.All);
+
         photonView.RPC("MoveGamePanel", RpcTarget.All);
+    }
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
-            timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
-            photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
-
-            int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
-            photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
-        }
-
+    [PunRPC]
+    private void SyncSettings()
+    {
         timeRemaining = timeLimit;
         isTimerActive = false;
         isTimeUp = false;
 
         InitializePlayerPoints();
+        DestroyResultPrefabs();
 
         Invoke("StartTimer", 1.0f);
         Invoke("UpdateText", 1.0f);
+        isFinished = false; // ゲーム開始時にリセット
     }
 
     [PunRPC]
@@ -161,14 +188,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void SyncOption(bool random, int count, int time)
     {
         randomMode = random;
-        questionCount = count;
+        questionCountLeft = count;
         timeLimit = time;
     }
 
     [PunRPC]
     private void SetQuestioner(int selectedQuestionerNumber)
     {
-        questionCount--;
+        questionCountLeft--;
         DrawingManager.instance.ResetDrawField();
         questionerNumber = selectedQuestionerNumber;
         if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
@@ -283,6 +310,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
     }
 
+    private void DestroyResultPrefabs()
+    {
+        foreach (GameObject prefab in resultPrefabs)
+        {
+            Destroy(prefab);
+        }
+        resultPrefabs.Clear();
+    }
+
 
 
     // リザルト関連
@@ -339,6 +375,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         foreach (Player player in PhotonNetwork.PlayerList)
         { 
             GameObject entry = Instantiate(resultPrefab, resultList);
+            resultPrefabs.Add(entry);
             ResultPrefab resultPref = entry.GetComponent<ResultPrefab>();
 
             string playerName = player.NickName;
