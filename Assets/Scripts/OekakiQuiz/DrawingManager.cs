@@ -8,7 +8,7 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 {
     public static DrawingManager instance;
 
-    Texture2D texture;
+    public Texture2D texture;
     [SerializeField] GameObject drawField;
     [SerializeField] RawImage drawingPanel;
     public int CanvasWidth; // キャンバスの横幅

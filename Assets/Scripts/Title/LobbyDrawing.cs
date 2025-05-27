@@ -16,6 +16,8 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     Dictionary<int, int> playerPenSizes = new Dictionary<int, int>();
     DrawingUtils drawer;
 
+    [SerializeField] bool isDrawable;
+
     private void Start()
     {
         CanvasWidth = 96;
@@ -34,7 +36,16 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
     {
         Vector2Int localPoint = GetMouseCanvasPosition();
 
-        if (IsInsideCanvas(localPoint))
+        if (PanelController.instance.currentPanel == PanelController.Panels.Lobby)
+        {
+            isDrawable = true;
+        }
+        else
+        {
+            isDrawable = false;
+        }
+
+        if (IsInsideCanvas(localPoint) && isDrawable)
         {
             if (Input.GetMouseButton(0))
             {

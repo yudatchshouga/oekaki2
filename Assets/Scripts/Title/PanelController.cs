@@ -12,10 +12,9 @@ public class PanelController : MonoBehaviour
         }
     }
 
-    [SerializeField] LobbyDrawing lobbyDrawing;
-    [SerializeField] Panels currentPanel;
+    public Panels currentPanel;
 
-    private enum Panels
+    public enum Panels
     {
         Title,
         Option,
@@ -110,6 +109,5 @@ public class PanelController : MonoBehaviour
                 transform.localPosition = new Vector3(-5000, 9000, 0);
                 break;
         }
-        lobbyDrawing.ClearCanvas();
     }
 }
