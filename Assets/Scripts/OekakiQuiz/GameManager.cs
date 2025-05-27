@@ -38,6 +38,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject resultPrefab; //結果表示用のプレハブ
     private List<GameObject> resultPrefabs = new List<GameObject>(); // 結果表示用のプレハブのリスト
 
+    [SerializeField] Transform pictureList; // 結果表示用の画像の親オブジェクト
+    [SerializeField] GameObject picturePrefab; // 結果表示用の画像プレハブ
+    private List<Texture2D> savedPictures = new List<Texture2D>(); // 保存された画像のリスト
+
     [SerializeField] GameObject changeSettingButton; // 設定変更ボタン
     [SerializeField] GameObject reuseSettingButton; // 設定再利用ボタン
 
@@ -178,6 +182,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void TimeUp()
     {
+        photonView.RPC("SavedPicture", RpcTarget.All);
         photonView.RPC("ShowIncorrect", RpcTarget.All);
         int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
         photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
@@ -197,6 +202,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         questionCountLeft--;
         DrawingManager.instance.ResetDrawField();
+        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Pen; // 描き手のモードに戻す
         questionerNumber = selectedQuestionerNumber;
         if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
         {
@@ -219,6 +225,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             photonView.RPC("ShowCorrect", RpcTarget.All);
             photonView.RPC("AddCorrectPoints", RpcTarget.MasterClient, actorNumber); // 正解したプレイヤーの正解数を加算
             photonView.RPC("AddCorrectedPoints", RpcTarget.MasterClient, questionerNumber); // 出題者の正解された回数を加算
+            photonView.RPC("SavedPicture", RpcTarget.All); // 正解時に画像を保存
 
             // TODO:残り秒数などでポイント増やすか検討（実際にプレイした所感で決めたい）
 
@@ -317,6 +324,12 @@ public class GameManager : MonoBehaviourPunCallbacks
             Destroy(prefab);
         }
         resultPrefabs.Clear();
+
+        foreach (Transform child in pictureList)
+        {
+            Destroy(child.gameObject);
+        }
+        savedPictures.Clear();
     }
 
 
@@ -418,9 +431,31 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
+    private void SavedPicture()
+    { 
+        Texture2D texture = new Texture2D(DrawingManager.instance.texture.width, DrawingManager.instance.texture.height, TextureFormat.RGBA32, false);
+        texture.filterMode = FilterMode.Point;
+        texture.SetPixels(DrawingManager.instance.texture.GetPixels());
+        texture.Apply();
+        savedPictures.Add(texture);
+    }
+
+    private void DisplaySavedPictures()
+    { 
+        foreach (Texture2D picture in savedPictures)
+        {
+            GameObject pictureEntry = Instantiate(picturePrefab, pictureList);
+            Transform rawImageTransform = pictureEntry.transform.Find("RawImage");
+            RawImage rawImage = rawImageTransform.GetComponent<RawImage>();
+            rawImage.texture = picture;
+        }
+    }
+
+    [PunRPC]
     private void Resultdisplay()
     { 
         panels.transform.localPosition = new Vector2(-2000, 0);
         DisplayResults();
+        DisplaySavedPictures();
     }
 }
