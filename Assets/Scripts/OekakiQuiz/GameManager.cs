@@ -108,9 +108,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 if (questionCountLeft < 0 && !isFinished)
                 {
-                    Debug.Log("ゲーム終了");
-                    SendResultsToOthers();
-                    photonView.RPC("Resultdisplay", RpcTarget.All);
+                    Invoke("GameFinished", 2.8f);
                     isFinished = true;
                 }
 
@@ -451,11 +449,45 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private void GameFinished()
+    {
+        Debug.Log("ゲーム終了");
+        SendResultsToOthers();
+        photonView.RPC("Resultdisplay", RpcTarget.All);
+    }
+
     [PunRPC]
     private void Resultdisplay()
     { 
         panels.transform.localPosition = new Vector2(-2000, 0);
         DisplayResults();
         DisplaySavedPictures();
+    }
+
+
+    // マルチプレイ処理
+
+
+    // 誰かがルームを抜けてしまったら、部屋を解散してタイトル画面にもどる
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Debug.Log($"{otherPlayer.NickName}がルームから退出しました。");
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            LeaveRoomAndReturnToTitle();
+        }
+    }
+
+    // ルームを離れてタイトル画面に戻る
+    private void LeaveRoomAndReturnToTitle()
+    {
+        // ルームを全プレイヤーで破棄してタイトル画面に戻す
+        PhotonNetwork.CurrentRoom.IsOpen = false; // ルームを閉じる
+        PhotonNetwork.CurrentRoom.IsVisible = false; // ルームを非表示にする
+        PhotonNetwork.LeaveRoom(); // ルームを離れる
+
+        // シーンを切り替える
+        PhotonNetwork.LoadLevel("Title");
     }
 }

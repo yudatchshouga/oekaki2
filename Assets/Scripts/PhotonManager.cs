@@ -113,7 +113,36 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("プレイヤーが退出しました。");
-        playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
+
+        string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        if (currentSceneName == "Title")
+        {
+            Debug.Log($"{otherPlayer.NickName}がルームから退出しました。");
+
+            playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
+        }
+        else if (currentSceneName == "OekakiQuiz")
+        {
+            Debug.Log($"{otherPlayer.NickName}がルームから退出しました。");
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // 誰かがルームを抜けてしまった場合、ルームを解散してタイトル画面に戻る
+                LeaveRoomAndReturnToTitle();
+            }
+        }
+    }
+
+    private void LeaveRoomAndReturnToTitle()
+    {
+        // ルームを全プレイヤーで破棄してタイトル画面に戻す
+        PhotonNetwork.CurrentRoom.IsOpen = false; // ルームを閉じる
+        PhotonNetwork.CurrentRoom.IsVisible = false; // ルームを非表示にする
+        PhotonNetwork.LeaveRoom(); // ルームを離れる
+
+        // シーンを切り替える
+        PhotonNetwork.LoadLevel("Title");
     }
 
     // ルームから退出する
