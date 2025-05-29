@@ -2,14 +2,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Photon.Pun;
+using System.Collections;
 
 public class ChatManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] InputField chatInputField;
-    [SerializeField] Text chatLogText;
     [SerializeField] ScrollRect chatScrollRect;
 
+    [SerializeField] GameObject textPrefab;
+    [SerializeField] Transform chatTransform;
+    float r;
+    float g;
+    float b;
+    float a;
+
     List<string> chatMessages = new List<string>();
+
+    private void Start()
+    {
+        r = PlayerPrefs.GetFloat("TextColorR", 1f);
+        g = PlayerPrefs.GetFloat("TextColorG", 1f);
+        b = PlayerPrefs.GetFloat("TextColorB", 1f);
+        a = PlayerPrefs.GetFloat("TextColorA", 1f);
+    }
 
     void Update()
     {
@@ -21,7 +36,7 @@ public class ChatManager : MonoBehaviourPunCallbacks
             {
                 int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber; // 自分の番号取得
                 string senderName = PhotonNetwork.LocalPlayer.NickName; // 自分の名前取得
-                photonView.RPC("SendChatMessage", RpcTarget.All, answer, senderName);
+                photonView.RPC("SendChatMessage", RpcTarget.All, answer, senderName, r, g, b, a);
                 chatInputField.text = ""; // チャット入力欄をリセット
 
                 // 出題者以外の場合は回答を提出
@@ -37,12 +52,21 @@ public class ChatManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void SendChatMessage(string message, string senderName)
+    private void SendChatMessage(string message, string senderName, float r, float g, float b, float a)
     {
-        string messageWithSender = senderName + ": " + message;
-        chatMessages.Add(messageWithSender);
-        chatLogText.text = string.Join("\n", chatMessages.ToArray());
-        Canvas.ForceUpdateCanvases(); // ワンフレーム待つ必要あり？
-        chatScrollRect.verticalNormalizedPosition = 0;
+        GameObject newTextObject = Instantiate(textPrefab, chatTransform);
+        Text newText = newTextObject.GetComponent<Text>();
+
+        newText.text = $"{senderName}: {message}";
+        newText.color = new Color(r, g, b, a); ; // テキストの色を設定
+
+        Canvas.ForceUpdateCanvases();
+        StartCoroutine(ScrollToBottom());
+    }
+
+    private IEnumerator ScrollToBottom()
+    {
+        yield return null; // 次のフレームまで待機
+        chatScrollRect.verticalNormalizedPosition = 0f; // スクロールを最下部に移動
     }
 }

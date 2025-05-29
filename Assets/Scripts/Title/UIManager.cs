@@ -12,6 +12,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] InputField questionCountInputField;
     [SerializeField] InputField limitTimeInputField;
     [SerializeField] Dropdown playerCountDropdown;
+    [SerializeField] Image textColorImage;
+    [SerializeField] Text textColorText;
     [SerializeField] Text createErrorText;
     [SerializeField] Text joinErrorText;
     [SerializeField] Button roomCreateButton;
@@ -284,7 +286,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     // 決定ボタン押下時にプレイヤー名を保存
     public void OnClickOptionApplyButton()
     {
-        string playerName = string.IsNullOrEmpty(playerNameInputField.text) ? "名無しさん" : playerNameInputField.text;
+        string playerName = string.IsNullOrEmpty(playerNameInputField.text) ? $"Player{Random.Range(1000, 9999)}" : playerNameInputField.text;
         PlayerPrefs.SetString("PlayerName", playerName);
         PlayerPrefs.Save();
     }
@@ -292,7 +294,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     // 画面遷移時にプレイヤー名を取得・表示
     public void DisplayPlayerName()
     {
-        Debug.Log("保存された値: " + PlayerPrefs.GetString("PlayerName"));
         playerNameInputField.text = PlayerPrefs.GetString("PlayerName");
     }
 
@@ -301,6 +302,70 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         playerNameInputField.text = "";
         PlayerPrefs.SetString("PlayerName", "");
+        PlayerPrefs.Save();
+    }
+
+    public void OnTextColorButtonClick(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                textColorText.color = Color.red;
+                textColorImage.color = Color.red;
+                break;
+            case 1:
+                textColorText.color = Color.blue;
+                textColorImage.color = Color.blue;
+                break;
+            case 2:
+                textColorText.color = Color.green;
+                textColorImage.color = Color.green;
+                break;
+            case 3:
+                textColorText.color = Color.yellow;
+                textColorImage.color = Color.yellow;
+                break;
+            case 4:
+                textColorText.color = Color.cyan;
+                textColorImage.color = Color.cyan;
+                break;
+            case 5:
+                textColorText.color = Color.magenta;
+                textColorImage.color = Color.magenta;
+                break;
+            case 6:
+                textColorText.color = new Color32(67, 0, 255, 255);
+                textColorImage.color = new Color32(67, 0, 255, 255);
+                break;
+            case 7:
+                textColorText.color = new Color32(254, 93, 38, 255);
+                textColorImage.color = new Color32(254, 93, 38, 255);
+                break;
+            case 8:
+                textColorText.color = new Color32(16, 46, 80, 255);
+                textColorImage.color = new Color32(16, 46, 80, 255);
+                break;
+            case 9:
+                textColorText.color = new Color32(242, 226, 177, 255);
+                textColorImage.color = new Color32(242, 226, 177, 255);
+                break;
+            case 10:
+                textColorText.color = new Color32(143, 135, 241, 255);
+                textColorImage.color = new Color32(143, 135, 241, 255);
+                break;
+            case 11:
+                textColorText.color = new Color32(148, 80, 52, 255);
+                textColorImage.color = new Color32(148, 80, 52, 255);
+                break;
+            default:
+                textColorText.color = Color.white;
+                textColorImage.color = Color.white;
+                break;
+        }
+        PlayerPrefs.SetFloat("TextColorR", textColorText.color.r);
+        PlayerPrefs.SetFloat("TextColorG", textColorText.color.g);
+        PlayerPrefs.SetFloat("TextColorB", textColorText.color.b);
+        PlayerPrefs.SetFloat("TextColorA", textColorText.color.a);
         PlayerPrefs.Save();
     }
 

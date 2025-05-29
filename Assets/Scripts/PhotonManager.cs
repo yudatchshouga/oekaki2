@@ -56,9 +56,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     // === ルームに参加したときのコールバック ===
     public override void OnJoinedRoom()
     {
-        string playerName = PlayerPrefs.GetString("PlayerName", "名無しさん");
+        string playerName = PlayerPrefs.GetString("PlayerName", $"Player{Random.Range(1000, 9999)}");
         PhotonNetwork.LocalPlayer.NickName = playerName;
-        photonView.RPC("ReceiveJoinMessage", RpcTarget.All, playerName);
+        joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
 
         // ルーム情報を表示
         playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
@@ -73,13 +73,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         { 
             startButton.SetActive(false);
         }
-    }
-
-    [PunRPC]
-    void ReceiveJoinMessage(string playerName)
-    {
-        Debug.Log($"{playerName} がルームに参加しました。");
-        joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
     }
 
     private string[] GetPlayerNameList()
@@ -97,6 +90,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("新しいプレイヤーが参加しました。");
+        joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
         playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
 
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
@@ -120,6 +114,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             Debug.Log($"{otherPlayer.NickName}がルームから退出しました。");
 
+            joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
             playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
         }
         else if (currentSceneName == "OekakiQuiz")
