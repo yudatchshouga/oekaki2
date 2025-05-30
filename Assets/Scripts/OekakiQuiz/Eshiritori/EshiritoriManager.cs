@@ -77,7 +77,9 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
                 }
                 if (timerController.GetRemainingTime() <= 0)
                 {
+                    Debug.Log("EshiritoriDrawingManager.instance == null: " + (EshiritoriDrawingManager.instance == null));
                     Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
+                    Debug.Log("texture == null: " + (texture == null));
                     imagePanelController.CreateNewImage(texture);
                     imagePanelController.SetText("aaaaaa");
                     photonView.RPC("TurnStart", RpcTarget.All);
