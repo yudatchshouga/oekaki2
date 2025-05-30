@@ -1119,6 +1119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 555640042}
+  eshiritoriManager: {fileID: 911527005}
 --- !u!1 &235063392
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
+using NUnit.Framework;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -65,6 +67,15 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    private void TurnEnd()
+    {
+        Debug.Log("ターン終了");
+        Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
+        imagePanelController.CreateNewImage(texture);
+        imagePanelController.SetText("aaaaaa");
+    }
+
     private void Update()
     {
         if (PhotonNetwork.InRoom)
@@ -77,11 +88,7 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
                 }
                 if (timerController.GetRemainingTime() <= 0)
                 {
-                    Debug.Log("EshiritoriDrawingManager.instance == null: " + (EshiritoriDrawingManager.instance == null));
-                    Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
-                    Debug.Log("texture == null: " + (texture == null));
-                    imagePanelController.CreateNewImage(texture);
-                    imagePanelController.SetText("aaaaaa");
+                    photonView.RPC("TurnEnd", RpcTarget.All);
                     photonView.RPC("TurnStart", RpcTarget.All);
                 }
             }
@@ -112,5 +119,16 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     private Role GetRole()
     {
         return PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber ? Role.Questioner : Role.Answerer;
+    }
+
+    public void SetAnswer(string answer) 
+    {
+        photonView.RPC("SendAnswer", RpcTarget.All, answer);
+    }
+
+    [PunRPC]
+    private void SendAnswer(string answer)
+    {
+        imagePanelController.SetText(answer);
     }
 }
