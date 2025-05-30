@@ -91,8 +91,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public void UpdatePlayerListUI()
     {
         playerCountText.text = $"現在のプレイヤー数: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
-        joinedPlayerText.gameObject.SetActive(false); // 一度非表示にする
-        joinedPlayerText.gameObject.SetActive(true);  // 再表示する
         joinedPlayerText.text = string.Join("\n", GetPlayerNameList());
     }
 
@@ -112,8 +110,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"{newPlayer.NickName}が参加しました。");
 
-        UpdatePlayerListUI();
-
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
         {
             startButton.GetComponent<Button>().interactable = true;
@@ -122,6 +118,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             startButton.GetComponent<Button>().interactable = false;
         }
+        Invoke("UpdatePlayerListUI", 0.1f); // 少し遅延を入れてUIを更新
     }
 
     // プレイヤーが退出したときのコールバック
