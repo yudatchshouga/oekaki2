@@ -89,8 +89,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 
             InitializePlayerPoints();
 
-            Invoke("StartTimer", 1.0f);
-            Invoke("UpdateText", 1.0f);
+            Invoke("StartTimer", 2.0f);
+            Invoke("UpdateText", 2.0f);
         }
         else
         {

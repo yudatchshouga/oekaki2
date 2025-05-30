@@ -171,7 +171,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient)
         {
-            PlayerPrefs.SetInt("Tsuyu", tsuyuToggle.isOn ? 1 : 0);
             PlayerPrefs.SetInt("QuestionCount", questionCount);
             PlayerPrefs.SetInt("LimitTime", limitTime);
             photonView.RPC("StartOekakiQuiz", RpcTarget.All);
@@ -185,6 +184,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void StartOekakiQuiz()
     {
+        PlayerPrefs.SetInt("Tsuyu", tsuyuToggle.isOn ? 1 : 0);
         SceneController.instance.LoadScene("OekakiQuiz");
     }
 

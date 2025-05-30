@@ -2,10 +2,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Windows;
-using Unity.VisualScripting.FullSerializer;
+using Photon.Pun;
 
-public class GoogleSheetLoader : MonoBehaviour
+public class GoogleSheetLoader : MonoBehaviourPunCallbacks
 {
     private string googleSheetUrlNormal = "https://docs.google.com/spreadsheets/d/1-ZkSlHxNQVkk2DJVHGwUO6oNraK1ibwEig9aRI-bN0I/gviz/tq?tqx=out:csv";
     private string googleSheetUrlTsuyu = "https://docs.google.com/spreadsheets/d/1YTl8Ptgm5hWMVqx0WIc0E44gfZALv93pGlSbgxtzMN4/gviz/tq?tqx=out:csv";
@@ -79,6 +78,37 @@ public class GoogleSheetLoader : MonoBehaviour
     private string ClearString(string str)
     {
         return str.Trim().Replace("\"", "");
+    }
+
+    // スプレッドシートのデータを取得した後に同期する
+    public void SyncQuestions(List<QuizQuestion> questionsToSync)
+    {
+        string serializedQuestions = SerializeQuestions(questionsToSync);
+
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+        {
+            { "SharedQuestions", serializedQuestions }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+    }
+
+    // クイズリストをシリアライズ
+    private string SerializeQuestions(List<QuizQuestion> questions)
+    {
+        return JsonUtility.ToJson(new QuizQuestionListWrapper { questions = questions });
+    }
+
+    // シリアライズしたクイズリストをデシリアライズ
+    public List<QuizQuestion> DeserializeQuestions(string serializedQuestions)
+    {
+        QuizQuestionListWrapper wrapper = JsonUtility.FromJson<QuizQuestionListWrapper>(serializedQuestions);
+        return wrapper.questions;
+    }
+
+    [System.Serializable]
+    private class QuizQuestionListWrapper
+    {
+        public List<QuizQuestion> questions;
     }
 }
 
