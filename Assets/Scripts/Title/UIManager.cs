@@ -295,6 +295,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     public void DisplayPlayerName()
     {
         playerNameInputField.text = PlayerPrefs.GetString("PlayerName");
+        float r = PlayerPrefs.GetFloat("TextColorR", 1f);
+        float g = PlayerPrefs.GetFloat("TextColorG", 1f);
+        float b = PlayerPrefs.GetFloat("TextColorB", 1f);
+        float a = PlayerPrefs.GetFloat("TextColorA", 1f);
+        textColorText.color = new Color(r, g, b, a);
+        textColorImage.color = new Color(r, g, b, a);
     }
 
     // デバッグ用
