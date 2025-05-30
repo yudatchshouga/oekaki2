@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] Button roomJoinButton;
     [SerializeField] Button quizGameStartButton;
     [SerializeField] Dropdown resolutionDropdown;
+    [SerializeField] Toggle tsuyuToggle;
 
     private bool isErrorQuestionCount;
     private bool isErrorLimitTime;
@@ -170,6 +171,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient)
         {
+            PlayerPrefs.SetInt("Tsuyu", tsuyuToggle.isOn ? 1 : 0);
             PlayerPrefs.SetInt("QuestionCount", questionCount);
             PlayerPrefs.SetInt("LimitTime", limitTime);
             photonView.RPC("StartOekakiQuiz", RpcTarget.All);

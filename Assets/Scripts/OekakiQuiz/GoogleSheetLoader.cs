@@ -3,26 +3,46 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Windows;
+using Unity.VisualScripting.FullSerializer;
 
 public class GoogleSheetLoader : MonoBehaviour
 {
-    private string googleSheetUrl = "https://docs.google.com/spreadsheets/d/1-ZkSlHxNQVkk2DJVHGwUO6oNraK1ibwEig9aRI-bN0I/gviz/tq?tqx=out:csv";
+    private string googleSheetUrlNormal = "https://docs.google.com/spreadsheets/d/1-ZkSlHxNQVkk2DJVHGwUO6oNraK1ibwEig9aRI-bN0I/gviz/tq?tqx=out:csv";
+    private string googleSheetUrlTsuyu = "https://docs.google.com/spreadsheets/d/1YTl8Ptgm5hWMVqx0WIc0E44gfZALv93pGlSbgxtzMN4/gviz/tq?tqx=out:csv";
     public List<QuizQuestion> questions = new List<QuizQuestion>();
+
+    [SerializeField] int tsuyuMode; // 0: 通常, 1: つゆモード
 
     private void Start()
     {
-        StartCoroutine(LoadQuizData());
+        tsuyuMode = PlayerPrefs.GetInt("Tsuyu", 0); // デフォルトは通常モード
+
+        if (tsuyuMode == 1)
+        {
+            StartCoroutine(LoadQuizData(googleSheetUrlTsuyu));
+        }
+        else
+        {
+            StartCoroutine(LoadQuizData(googleSheetUrlNormal));
+        }
     }
 
     [ContextMenu("Load Data From Google Sheet")]
     public void LoadDataFromGoogleSheet()
     {
-        StartCoroutine(LoadQuizData());
+        if (tsuyuMode == 1)
+        {
+            StartCoroutine(LoadQuizData(googleSheetUrlTsuyu));
+        }
+        else
+        {
+            StartCoroutine(LoadQuizData(googleSheetUrlNormal));
+        }
     }
 
-    private IEnumerator LoadQuizData()
+    private IEnumerator LoadQuizData(string url)
     {
-        UnityWebRequest request = UnityWebRequest.Get(googleSheetUrl);
+        UnityWebRequest request = UnityWebRequest.Get(url);
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
