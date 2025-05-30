@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        int savedIndex = PlayerPrefs.GetInt("ResolutionIndex", 5);
+        int savedIndex = PlayerPrefs.GetInt("ResolutionIndex", 2);
         resolutionDropdown.value = savedIndex;
         SetResolution();
 

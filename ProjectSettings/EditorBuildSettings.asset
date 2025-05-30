@@ -17,10 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Offline.unity
     guid: 84a85786947e6e649ab0b2bc45016dcf
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Dengon.unity
     guid: 95c7b7fde46e50d41a6e8fea21688ef5
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Shiritori.unity
     guid: 53413ac89fe1abd4daccaab1ceb0b9fe
   m_configObjects:
