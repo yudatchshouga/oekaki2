@@ -17,6 +17,7 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
 
     [SerializeField] TimerController timerController;
     [SerializeField] ImagePanelController imagePanelController;
+    [SerializeField] AnsweView answerView;
 
     private int questionCount;
 
@@ -37,6 +38,7 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         // 設定
         dotUIManager = FindAnyObjectByType<EshiritoriDotUIManager>();
         questionCount = 100;
+        answerView.OnSubmitAnswer = SetAnswer;
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -74,6 +76,8 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
         imagePanelController.CreateNewImage(texture);
         imagePanelController.SetText("aaaaaa");
+        // 回答パネル表示
+
     }
 
     private void Update()
@@ -130,5 +134,11 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     private void SendAnswer(string answer)
     {
         imagePanelController.SetText(answer);
+    }
+
+    public void OnClickTurnEnd()
+    {
+        photonView.RPC("TurnEnd", RpcTarget.All);
+        photonView.RPC("TurnStart", RpcTarget.All);
     }
 }

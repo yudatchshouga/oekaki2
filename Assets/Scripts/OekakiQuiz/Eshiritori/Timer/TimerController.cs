@@ -3,12 +3,12 @@ using UnityEngine;
 public class TimerController : MonoBehaviour
 {
     // 制限時間
-    float timeLimit = 5f;
+    float timeLimit = 60f;
     private float timer;
 
     void Start()
     {
-        timer = 5f;
+        timer = timeLimit;
     }
 
     void Update()
