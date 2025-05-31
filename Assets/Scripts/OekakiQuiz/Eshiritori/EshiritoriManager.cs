@@ -20,6 +20,7 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     [SerializeField] AnsweView answerView;
 
     private int questionCount;
+    private List<string> answers = new List<string>();
 
     private void Awake()
     {
@@ -147,16 +148,10 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void SendAnswer(string answer, int senderNumber)
     {
-        if (senderNumber == PhotonNetwork.LocalPlayer.ActorNumber)
-        {
-            imagePanelController.SetText(answer);
-        }
-        else
-        {
-            //伏字
-            answer = new string('●', answer.Length);
-            imagePanelController.SetText(answer);
-        }
+        answers.Add(answer);
+        bool isSender = senderNumber == PhotonNetwork.LocalPlayer.ActorNumber;
+        string displayAnswer = isSender ? answer : new string('●', answer.Length);
+        imagePanelController.SetText(displayAnswer);
     }
 
     public void OnClickTurnEnd()
