@@ -1,33 +1,26 @@
 using Photon.Pun;
-using Photon.Realtime;
-using System.Collections;
-using System.Text;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class EshiritoriManager : MonoBehaviourPunCallbacks
 {
     public static EshiritoriManager instance;
 
-    private int questionerNumber;
-    public int QuestionerNumber => questionerNumber;
-
-    ThemeGenerator themeGenerator;
-    //DotUIManager dotUIManager;
+    private int questionerNumber = 0;
     EshiritoriDotUIManager dotUIManager;
-    QuizQuestion currentTheme;
-    Player[] players;
 
-    //[SerializeField] Text correctLabel;
-    [SerializeField] Text timerText;
-    [SerializeField] bool randomMode;
+    [SerializeField] TimerController timerController;
+    [SerializeField] ImagePanelController imagePanelController;
+    [SerializeField] AnsweView answerView;
+
+    [SerializeField] GameObject finishButton;
 
     private int questionCount;
-
-    public float timeLimit;
-    private float timeRemaining;
-    private bool isTimerActive;
-    private bool isTimeUp;
+    private List<string> answers = new List<string>();
+    private int maxTurnNum = 4;
+    private int currentTurnNum = 0;
 
     private void Awake()
     {
@@ -43,34 +36,65 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        themeGenerator = FindAnyObjectByType<ThemeGenerator>();
+        // 設定
         dotUIManager = FindAnyObjectByType<EshiritoriDotUIManager>();
-        if (PhotonNetwork.InRoom)
+        questionCount = 100;
+        answerView.OnSubmitAnswer = SetAnswer;
+
+        if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("オンラインモードで実行");
-            randomMode = PlayerPrefs.GetInt("Random", 1) == 1;
-            questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
-            //timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
-            timeLimit = 5;
-            players = PhotonNetwork.PlayerList;
-            timeRemaining = timeLimit;
-            isTimerActive = false;
-            isTimeUp = false;
+            photonView.RPC("GameStart", RpcTarget.All);
+            photonView.RPC("TurnStart", RpcTarget.All);
+        }
+    }
 
-            // ホストがお題と出題者を決定する
-            if (PhotonNetwork.IsMasterClient)
-            {
-                int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
-                photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
-            }
+    [PunRPC]
+    private void GameStart()
+    {
+        Debug.Log("ゲーム開始");
+        imagePanelController.CreateHiragana("か", false);
+        for (int i = 0; i < maxTurnNum; i++)
+        {
+            Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
+            imagePanelController.CreateNewImage(texture);
+        }
+        imagePanelController.CreateHiragana("え",true);
+    }
 
-            Invoke("StartTimer", 1.0f);
-            Invoke("UpdateText", 1.0f);
+    [PunRPC]
+    private void TurnStart()
+    {
+        Debug.Log("ターン開始");
+        currentTurnNum++;
+        Debug.Log("ターン" + currentTurnNum + "開始");
+        // タイマーをリセット
+        timerController.ResetTimer();
+        // 出題者決定
+        questionerNumber = GetNextQuestioner();
+        // 出題者の役割を表示
+        Role role = GetRole();
+        Debug.Log($"あなたの役割: {role}");
+        dotUIManager.SetRoleText(role);
+        EshiritoriDrawingManager.instance.ResetDrawField();
+        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber)
+        {
+            EshiritoriDrawingManager.instance.isDrawable = true;
         }
         else
         {
-            Debug.Log("オフラインモードで実行");
-            timerText.gameObject.SetActive(false);
+            EshiritoriDrawingManager.instance.isDrawable = false;
+        }
+    }
+
+    [PunRPC]
+    private void TurnEnd(int questionerNumber)
+    {
+        Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
+        imagePanelController.SetTexture(texture, currentTurnNum);
+        // 回答パネル表示
+        if (IsQuestioner())
+        {
+            answerView.OpenAnswerPanel();
         }
     }
 
@@ -80,115 +104,55 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                if (questionCount <= 0)
+                if (answers.Count >= maxTurnNum)
                 {
-                    Debug.Log("ゲーム終了");
+                    //Debug.Log("ゲーム終了");
+                    finishButton.SetActive(true);
+                    return;
                 }
-
-                if (isTimerActive && timeRemaining > 0)
+                if (timerController.GetRemainingTime() <= 0)
                 {
-                    timeRemaining -= Time.deltaTime;
-                    photonView.RPC("SyncTimer", RpcTarget.Others, timeRemaining);
-                }
-                else if (timeRemaining <= 0 && isTimerActive && !isTimeUp)
-                {
-                    isTimerActive = false;
-                    isTimeUp = true;
-                    TimeUp();
+                    if (currentTurnNum >= maxTurnNum)
+                    {
+                        photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
+                        return;
+                    }
+                    photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
+                    photonView.RPC("TurnStart", RpcTarget.All);
                 }
             }
-            timerText.text = $"残り\n{timeRemaining.ToString("F0")}秒";
         }
     }
 
-    private void TimeUp()
+    private Texture2D CopyTexture(Texture2D texture)
     {
-        Debug.Log("名前入力モード");
-        photonView.RPC("ShowIncorrect", RpcTarget.All);
-        int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
-        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+        Texture2D copy = new Texture2D(texture.width, texture.height, texture.format, false);
+        copy.SetPixels(texture.GetPixels());
+        copy.Apply();
+        return copy;
     }
 
-    [PunRPC]
-    private void SetQuestioner(int selectedQuestionerNumber)
+    private int GetNextQuestioner()
     {
-        Debug.Log("出題者を設定");
-        questionCount--;
-        // DrawingManager.instance.ResetDrawField();
-        questionerNumber = selectedQuestionerNumber;
-        if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
+        if (questionerNumber == 0)
         {
-            currentTheme = themeGenerator.GetRandomTheme();
-            photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
-            DrawingManager.instance.isDrawable = true;
+            return 1;
         }
-        else
+        if (questionerNumber == PhotonNetwork.PlayerList.Length)
         {
-            DrawingManager.instance.isDrawable = false;
+            return 1;
         }
+        return questionerNumber + 1;
     }
 
-    // 出題者のみが正誤判定を行う
-    [PunRPC]
-    private void CheckAnswer(string answer)
+    // 前の出題者の番号
+    public int GetPreviousQuestionerNumber()
     {
-        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber && IsCorrectAnswer(answer))
+        if (questionerNumber == 1)
         {
-            photonView.RPC("ShowCorrect", RpcTarget.All);
-            // お題と出題者の再設定
-            int selectedQuestionerNumber = randomMode ? Random.Range(0, players.Length) + 1 : 1;
-            photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+            return PhotonNetwork.PlayerList.Length;
         }
-    }
-
-    private bool IsCorrectAnswer(string answer)
-    {
-        foreach (string correctAnswer in currentTheme.answerList)
-        {
-            if (NormalizeString(answer) == NormalizeString(correctAnswer))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void SubmitAnswer(string answer)
-    {
-        photonView.RPC("CheckAnswer", RpcTarget.Others, answer);
-    }
-
-    [PunRPC]
-    private void ShowCorrect()
-    {
-        isTimerActive = false;
-        timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage("正解！", 3.0f));
-    }
-
-    [PunRPC]
-    private void ShowIncorrect()
-    {
-        isTimerActive = false;
-        timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage($"残念...不正解！\n正解は\n「{currentTheme.question}」\nだったよ！", 3.0f));
-    }
-
-    private IEnumerator DisplayMessage(string message, float duration)
-    {
-        //correctLabel.text = message;
-        //correctLabel.gameObject.SetActive(true);
-        yield return new WaitForSeconds(duration);
-        //correctLabel.gameObject.SetActive(false);
-        UpdateText();
-        StartTimer();
-        isTimeUp = false;
-    }
-
-    private void UpdateText()
-    {
-        dotUIManager.SetRoleText(GetRole());
-        dotUIManager.SetThemeText(GetRole(), currentTheme.question);
+        return questionerNumber - 1;
     }
 
     private Role GetRole()
@@ -196,30 +160,48 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         return PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber ? Role.Questioner : Role.Answerer;
     }
 
-    private void StartTimer()
+    public void SetAnswer(string answer) 
     {
-        isTimerActive = true;
+        int senderNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        photonView.RPC("SendAnswer", RpcTarget.All, answer, senderNumber);
     }
 
     [PunRPC]
-    private void SyncTimer(float time)
+    private void SendAnswer(string answer, int senderNumber)
     {
-        timeRemaining = time;
+        answers.Add(answer);
+        bool isSender = senderNumber == PhotonNetwork.LocalPlayer.ActorNumber;
+        string displayAnswer = isSender ? answer : new string('●', answer.Length);
+        imagePanelController.SetText(displayAnswer, answers.Count);
     }
 
-    [PunRPC]
-    private void UpdateCurrentTheme(string question)
+    public void OnClickTurnEnd()
     {
-        if (currentTheme == null)
+        if (currentTurnNum >= maxTurnNum)
         {
-            currentTheme = new QuizQuestion();
+            photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
+            return;
         }
-        currentTheme.question = question;
+        photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
+        photonView.RPC("TurnStart", RpcTarget.All);
     }
 
-    private string NormalizeString(string input)
+    private bool IsQuestioner()
     {
-        // 前後の空白をトリムし、小文字変換し、全角を半角に変換
-        return input.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormKC);
+        return questionerNumber == PhotonNetwork.LocalPlayer.ActorNumber;
+    }
+
+    [PunRPC]
+    private void GameEnd()
+    {
+        answers.Insert(0, "か");
+        answers.Add("え");
+        imagePanelController.DisplayResult(answers);
+
+    }
+
+    public void OnClickFinish()
+    {
+        photonView.RPC("GameEnd", RpcTarget.All);
     }
 }
