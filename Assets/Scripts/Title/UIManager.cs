@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] Button roomJoinButton;
     [SerializeField] Button quizGameStartButton;
     [SerializeField] Dropdown resolutionDropdown;
+    [SerializeField] Toggle tsuyuToggle;
 
     private bool isErrorQuestionCount;
     private bool isErrorLimitTime;
@@ -41,7 +42,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        int savedIndex = PlayerPrefs.GetInt("ResolutionIndex", 5);
+        int savedIndex = PlayerPrefs.GetInt("ResolutionIndex", 2);
         resolutionDropdown.value = savedIndex;
         SetResolution();
 
@@ -183,6 +184,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void StartOekakiQuiz()
     {
+        PlayerPrefs.SetInt("Tsuyu", tsuyuToggle.isOn ? 1 : 0);
         SceneController.instance.LoadScene("OekakiQuiz");
     }
 

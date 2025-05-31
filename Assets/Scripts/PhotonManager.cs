@@ -12,8 +12,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     [SerializeField] Text roomNameText;
     [SerializeField] Text joinedPlayerText;
 
-    [SerializeField] int previousPlayerCount = 0; // 前回のプレイヤー数を記録するための変数
-
     private void Awake()
     {
         if (instance == null)
@@ -26,20 +24,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.ConnectUsingSettings();
         Debug.Log("Photon に接続中...");
-    }
-
-    // ルームを監視し、変更があった場合は更新する
-    void Update()
-    {
-        if (PhotonNetwork.InRoom)
-        {
-            int currentPlayerCount = PhotonNetwork.PlayerList.Length;
-            if (currentPlayerCount != previousPlayerCount)
-            {
-                previousPlayerCount = currentPlayerCount;
-                UpdatePlayerListUI();
-            }
-        }
     }
 
     // === 接続成功時に呼ばれるコールバック ===

@@ -55,7 +55,13 @@ public class DrawingManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        CanvasWidth = CanvasHeight = 50; // キャンバスの初期サイズ
+        InitializeDrawField();
+    }
+
+    public void InitializeDrawField()
+    {
+        // キャンバスの初期サイズ
+        CanvasWidth = CanvasHeight = 50; // 初期サイズを設定
 
         // スタックの初期生成
         undoStack = new Stack<Color[]>();
@@ -68,6 +74,10 @@ public class DrawingManager : MonoBehaviourPunCallbacks
         currentMode = ToolMode.Pen;
 
         SetDrawFieldSize(CanvasWidth, CanvasHeight);
+
+        // 初期の描画色とブラシサイズ
+        drawColor = Color.black; // 初期の描画色
+        brushSize = 1; // 初期のブラシサイズ
     }
 
     // テクスチャを作成
@@ -488,20 +498,6 @@ public class DrawingManager : MonoBehaviourPunCallbacks
             ClearCanvas();
             SaveUndo();
         }
-    }
-
-    public void ResetDrawField()
-    { 
-        photonView.RPC("ResetSetting", RpcTarget.All);
-    }
-
-    [PunRPC]
-    private void ResetSetting()
-    { 
-        undoStack.Clear();
-        redoStack.Clear();
-        ClearCanvas();
-        undoStack.Push(texture.GetPixels());
     }
 
     [PunRPC]
