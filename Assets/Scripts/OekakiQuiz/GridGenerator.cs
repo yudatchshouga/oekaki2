@@ -129,6 +129,11 @@ public class GridGenerator : MonoBehaviour
         }
     }
 
+    public void InitializeGridToggle()
+    {
+        gridToggle.isOn = false;
+    }
+
     public void ChangeInteractableGridToggle(bool isInteractable)
     {
         gridToggle.interactable = isInteractable;

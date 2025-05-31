@@ -114,7 +114,7 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("出題者を設定");
         questionCount--;
-        DrawingManager.instance.ResetDrawField();
+        // DrawingManager.instance.ResetDrawField();
         questionerNumber = selectedQuestionerNumber;
         if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
         {

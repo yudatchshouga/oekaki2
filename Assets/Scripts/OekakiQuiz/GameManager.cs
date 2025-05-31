@@ -199,8 +199,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void SetQuestioner(int selectedQuestionerNumber)
     {
         questionCountLeft--;
-        DrawingManager.instance.ResetDrawField();
-        DrawingManager.instance.currentMode = DrawingManager.ToolMode.Pen; // 描き手のモードに戻す
+        dotUIManager.Initialize();
         questionerNumber = selectedQuestionerNumber;
         if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
         {
@@ -263,7 +262,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         isTimerActive = false;
         timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage($"残念...不正解！\n正解は\n「{currentTheme.question}」\nだったよ！", 3.0f));
+        StartCoroutine(DisplayMessage($"残念...不正解！\n正解は\n「{currentTheme.question}」", 3.0f));
     }
 
     private IEnumerator DisplayMessage(string message, float duration)
@@ -462,5 +461,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         panels.transform.localPosition = new Vector2(-2000, 0);
         DisplayResults();
         DisplaySavedPictures();
+        dotUIManager.Initialize();
     }    
 }

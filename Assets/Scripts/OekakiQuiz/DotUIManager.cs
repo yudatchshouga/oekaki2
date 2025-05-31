@@ -30,6 +30,11 @@ public class DotUIManager : MonoBehaviour
 
     [SerializeField] bool isBlind;
 
+    [SerializeField] GameObject sizeChangerPanel;
+    [SerializeField] GameObject colorSpectrum;
+    [SerializeField] GameObject backPanel;
+
+
     private void Start()
     {
         backButton1.onClick.AddListener(() =>
@@ -40,6 +45,17 @@ public class DotUIManager : MonoBehaviour
         {
             PhotonManager.instance.OnLeaveRoomAndDestroy();
         });
+    }
+
+    public void Initialize()
+    {
+        // 初期化処理
+        gridGenerator.InitializeGridToggle();
+        sizeChangerPanel.SetActive(false);
+        colorSpectrum.SetActive(false);
+        backPanel.SetActive(false);
+        mekakushiToggle.isOn = false;
+        DrawingManager.instance.InitializeDrawField();
     }
 
     private void Update()
