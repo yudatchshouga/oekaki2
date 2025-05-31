@@ -1178,7 +1178,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &220434150
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1251,6 +1251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81d5e44c55c46864e83daf667a955be3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  answerPanel: {fileID: 220434149}
   inputField: {fileID: 555640042}
 --- !u!1 &235063392
 GameObject:

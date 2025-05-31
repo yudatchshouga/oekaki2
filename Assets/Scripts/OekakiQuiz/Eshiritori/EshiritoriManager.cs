@@ -70,14 +70,17 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void TurnEnd()
+    private void TurnEnd(int questionerNumber)
     {
         Debug.Log("ターン終了");
         Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
         imagePanelController.CreateNewImage(texture);
         imagePanelController.SetText("aaaaaa");
         // 回答パネル表示
-
+        if (IsQuestioner())
+        {
+            answerView.OpenAnswerPanel();
+        }
     }
 
     private void Update()
@@ -92,7 +95,7 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
                 }
                 if (timerController.GetRemainingTime() <= 0)
                 {
-                    photonView.RPC("TurnEnd", RpcTarget.All);
+                    photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
                     photonView.RPC("TurnStart", RpcTarget.All);
                 }
             }
@@ -120,6 +123,16 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         return questionerNumber + 1;
     }
 
+    // 前の出題者の番号
+    public int GetPreviousQuestionerNumber()
+    {
+        if (questionerNumber == 1)
+        {
+            return PhotonNetwork.PlayerList.Length;
+        }
+        return questionerNumber - 1;
+    }
+
     private Role GetRole()
     {
         return PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber ? Role.Questioner : Role.Answerer;
@@ -127,18 +140,33 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
 
     public void SetAnswer(string answer) 
     {
-        photonView.RPC("SendAnswer", RpcTarget.All, answer);
+        int senderNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        photonView.RPC("SendAnswer", RpcTarget.All, answer, senderNumber);
     }
 
     [PunRPC]
-    private void SendAnswer(string answer)
+    private void SendAnswer(string answer, int senderNumber)
     {
-        imagePanelController.SetText(answer);
+        if (senderNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            imagePanelController.SetText(answer);
+        }
+        else
+        {
+            //伏字
+            answer = new string('●', answer.Length);
+            imagePanelController.SetText(answer);
+        }
     }
 
     public void OnClickTurnEnd()
     {
-        photonView.RPC("TurnEnd", RpcTarget.All);
+        photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
         photonView.RPC("TurnStart", RpcTarget.All);
+    }
+
+    private bool IsQuestioner()
+    {
+        return questionerNumber == PhotonNetwork.LocalPlayer.ActorNumber;
     }
 }

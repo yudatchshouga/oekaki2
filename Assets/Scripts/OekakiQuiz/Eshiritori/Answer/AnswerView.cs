@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class AnsweView : MonoBehaviour
 {
+    [SerializeField] private GameObject answerPanel;
     [SerializeField] private InputField inputField;
     public System.Action<string> OnSubmitAnswer;
 
@@ -15,6 +16,18 @@ public class AnsweView : MonoBehaviour
         if (string.IsNullOrEmpty(inputText)) return;
         OnSubmitAnswer?.Invoke(inputText);
         // 入力フィールドをクリア
+        inputField.text = string.Empty;
+        CloseAnswerPanel();
+    }
+
+    public void OpenAnswerPanel()
+    {
+        answerPanel.SetActive(true);
+    }
+
+    public void CloseAnswerPanel()
+    {
+        answerPanel.SetActive(false);
         inputField.text = string.Empty;
     }
 }
