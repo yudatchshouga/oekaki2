@@ -84,3 +84,4 @@ Assets/Photon/Editor/
 
 # ビルドデータを除外
 Buildtest
+BuildtestWeb
