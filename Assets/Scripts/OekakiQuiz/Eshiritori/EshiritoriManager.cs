@@ -1,12 +1,8 @@
-using NUnit.Framework;
 using Photon.Pun;
-using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
-using static System.Net.Mime.MediaTypeNames;
 
 public class EshiritoriManager : MonoBehaviourPunCallbacks
 {
@@ -19,8 +15,12 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     [SerializeField] ImagePanelController imagePanelController;
     [SerializeField] AnsweView answerView;
 
+    [SerializeField] GameObject finishButton;
+
     private int questionCount;
     private List<string> answers = new List<string>();
+    private int maxTurnNum = 4;
+    private int currentTurnNum = 0;
 
     private void Awake()
     {
@@ -43,14 +43,30 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
+            photonView.RPC("GameStart", RpcTarget.All);
             photonView.RPC("TurnStart", RpcTarget.All);
         }
+    }
+
+    [PunRPC]
+    private void GameStart()
+    {
+        Debug.Log("ゲーム開始");
+        imagePanelController.CreateHiragana("か", false);
+        for (int i = 0; i < maxTurnNum; i++)
+        {
+            Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
+            imagePanelController.CreateNewImage(texture);
+        }
+        imagePanelController.CreateHiragana("え",true);
     }
 
     [PunRPC]
     private void TurnStart()
     {
         Debug.Log("ターン開始");
+        currentTurnNum++;
+        Debug.Log("ターン" + currentTurnNum + "開始");
         // タイマーをリセット
         timerController.ResetTimer();
         // 出題者決定
@@ -73,10 +89,8 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void TurnEnd(int questionerNumber)
     {
-        Debug.Log("ターン終了");
         Texture2D texture = CopyTexture(EshiritoriDrawingManager.instance.texture);
-        imagePanelController.CreateNewImage(texture);
-        imagePanelController.SetText("aaaaaa");
+        imagePanelController.SetTexture(texture, currentTurnNum);
         // 回答パネル表示
         if (IsQuestioner())
         {
@@ -90,12 +104,19 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                if (questionCount <= 0)
+                if (answers.Count >= maxTurnNum)
                 {
-                    Debug.Log("ゲーム終了");
+                    //Debug.Log("ゲーム終了");
+                    finishButton.SetActive(true);
+                    return;
                 }
                 if (timerController.GetRemainingTime() <= 0)
                 {
+                    if (currentTurnNum >= maxTurnNum)
+                    {
+                        photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
+                        return;
+                    }
                     photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
                     photonView.RPC("TurnStart", RpcTarget.All);
                 }
@@ -151,11 +172,16 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
         answers.Add(answer);
         bool isSender = senderNumber == PhotonNetwork.LocalPlayer.ActorNumber;
         string displayAnswer = isSender ? answer : new string('●', answer.Length);
-        imagePanelController.SetText(displayAnswer);
+        imagePanelController.SetText(displayAnswer, answers.Count);
     }
 
     public void OnClickTurnEnd()
     {
+        if (currentTurnNum >= maxTurnNum)
+        {
+            photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
+            return;
+        }
         photonView.RPC("TurnEnd", RpcTarget.All, questionerNumber);
         photonView.RPC("TurnStart", RpcTarget.All);
     }
@@ -163,5 +189,19 @@ public class EshiritoriManager : MonoBehaviourPunCallbacks
     private bool IsQuestioner()
     {
         return questionerNumber == PhotonNetwork.LocalPlayer.ActorNumber;
+    }
+
+    [PunRPC]
+    private void GameEnd()
+    {
+        answers.Insert(0, "か");
+        answers.Add("え");
+        imagePanelController.DisplayResult(answers);
+
+    }
+
+    public void OnClickFinish()
+    {
+        photonView.RPC("GameEnd", RpcTarget.All);
     }
 }
