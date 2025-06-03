@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager instance;
 
+    private List<int> questionerOrder = new List<int>(); // 出題者の順番を保持するリスト
+    private int currentQuestionerIndex = 0; // 現在の出題者のインデックス
     private int questionerNumber;
     public int QuestionerNumber => questionerNumber;
 
@@ -22,7 +24,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] Text correctLabel;
     [SerializeField] Text timerText;
     [SerializeField] Text countText;
-    [SerializeField] bool randomMode;
 
     public int questionCount;
     public int questionCountLeft;
@@ -74,10 +75,10 @@ public class GameManager : MonoBehaviourPunCallbacks
                 questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
                 timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
 
-                photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+                photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
 
-                int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
-                photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+                GenerateQuestionerOrder(); // 出題者の順番を生成
+                photonView.RPC("SetQuestioner", RpcTarget.All);
 
                 changeSettingButton.SetActive(true); // 設定変更ボタンを表示
                 reuseSettingButton.SetActive(true); // 設定再利用ボタンを表示
@@ -90,7 +91,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             InitializePlayerPoints();
 
             Invoke("StartTimer", 2.0f);
-            Invoke("UpdateText", 2.0f);
         }
         else
         {
@@ -126,6 +126,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
             timerText.text = $"残り\n{timeRemaining.ToString("F0")} 秒";
             countText.text = $"残り\n{questionCountLeft} 問";
+            UpdateText();
         }
     }
 
@@ -134,26 +135,52 @@ public class GameManager : MonoBehaviourPunCallbacks
         questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
         timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
 
-        photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+        photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
 
-        int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
-        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+        photonView.RPC("SetQuestioner", RpcTarget.All);
 
         photonView.RPC("SyncSettings", RpcTarget.All);
 
-        photonView.RPC("MoveGamePanel", RpcTarget.All);
+        photonView.RPC("MoveGamePanel", RpcTarget.All, new Vector2 (-2000, 0));
     }
 
     public void RestartGame()
     {
-        photonView.RPC("SyncOption", RpcTarget.All, randomMode, questionCount, timeLimit);
+        photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
 
-        int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
-        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+        photonView.RPC("SetQuestioner", RpcTarget.All);
 
         photonView.RPC("SyncSettings", RpcTarget.All);
 
-        photonView.RPC("MoveGamePanel", RpcTarget.All);
+        photonView.RPC("MoveGamePanel", RpcTarget.All, new Vector2(-2000, 0));
+    }
+
+    private void GenerateQuestionerOrder()
+    { 
+        questionerOrder.Clear();
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            questionerOrder.Add(player.ActorNumber);
+        }
+
+        // ランダムにシャッフル
+        for (int i = questionerOrder.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            int temp = questionerOrder[i];
+            questionerOrder[i] = questionerOrder[j];
+            questionerOrder[j] = temp;
+        }
+        currentQuestionerIndex = 0; // インデックスをリセット
+
+        photonView.RPC("SyncQuestionerOrder", RpcTarget.All, questionerOrder.ToArray());
+    }
+
+    [PunRPC]
+    private void SyncQuestionerOrder(int[] actorNumbers)
+    { 
+        questionerOrder = new List<int>(actorNumbers);
+        currentQuestionerIndex = 0;
     }
 
     [PunRPC]
@@ -167,14 +194,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         DestroyResultPrefabs();
 
         Invoke("StartTimer", 1.0f);
-        Invoke("UpdateText", 1.0f);
         isFinished = false; // ゲーム開始時にリセット
     }
 
     [PunRPC]
-    private void MoveGamePanel()
+    private void MoveGamePanel(Vector2 pos)
     {
-        panels.transform.localPosition = new Vector2(0, 0);
+        panels.transform.localPosition = pos;
     }
 
 
@@ -182,26 +208,24 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         photonView.RPC("SavedPicture", RpcTarget.All);
         photonView.RPC("ShowIncorrect", RpcTarget.All);
-        int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
-        photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+        photonView.RPC("SetQuestioner", RpcTarget.All);
     }
 
-    // randomModeとquestionCountとtimeLimitをホストと同期する
+    // questionCountとtimeLimitをホストと同期する
     [PunRPC]
-    private void SyncOption(bool random, int count, int time)
+    private void SyncOption(int count, int time)
     {
-        randomMode = random;
         questionCountLeft = count;
         timeLimit = time;
     }
 
     [PunRPC]
-    private void SetQuestioner(int selectedQuestionerNumber)
+    private void SetQuestioner()
     {
         questionCountLeft--;
         dotUIManager.Initialize();
-        questionerNumber = selectedQuestionerNumber;
-        if (PhotonNetwork.LocalPlayer.ActorNumber == selectedQuestionerNumber)
+        questionerNumber = questionerOrder[currentQuestionerIndex];
+        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber)
         {
             currentTheme = themeGenerator.GetRandomTheme();
             photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
@@ -210,6 +234,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         else
         {
             DrawingManager.instance.isDrawable = false;
+        }
+
+        currentQuestionerIndex++;
+        if (currentQuestionerIndex >= questionerOrder.Count && PhotonNetwork.IsMasterClient)
+        {
+            GenerateQuestionerOrder(); // 出題者の順番を再生成
+            photonView.RPC("SyncQuestionerOrder", RpcTarget.All, questionerOrder.ToArray());
         }
     }
 
@@ -227,8 +258,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             // TODO:残り秒数などでポイント増やすか検討（実際にプレイした所感で決めたい）
 
             // お題と出題者の再設定
-            int selectedQuestionerNumber = randomMode ? Random.Range(0, PhotonNetwork.PlayerList.Length) + 1 : 1;
-            photonView.RPC("SetQuestioner", RpcTarget.All, selectedQuestionerNumber);
+            photonView.RPC("SetQuestioner", RpcTarget.All);
         }
     }
 
@@ -254,7 +284,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         isTimerActive = false;
         timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage("正解！", 3.0f));
+        StartCoroutine(DisplayMessage($"正解！\n「{currentTheme.question}」", 3.0f));
     }
 
     [PunRPC]
@@ -271,14 +301,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         correctLabel.gameObject.SetActive(true);
         yield return new WaitForSeconds(duration);
         correctLabel.gameObject.SetActive(false);
-        UpdateText();
         StartTimer();
         isTimeUp = false;
     }
 
     private void UpdateText()
     {
-        dotUIManager.SetRoleText(GetRole());
+        dotUIManager.SetRoleText(PhotonNetwork.CurrentRoom.GetPlayer(questionerNumber).NickName);
         dotUIManager.SetThemeText(GetRole(), currentTheme.question);
     }
 
@@ -458,7 +487,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void Resultdisplay()
     { 
-        panels.transform.localPosition = new Vector2(-2000, 0);
+        MoveGamePanel(new Vector2(0, 0));
         DisplayResults();
         DisplaySavedPictures();
         dotUIManager.Initialize();

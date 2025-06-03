@@ -6137,7 +6137,6 @@ MonoBehaviour:
   correctLabel: {fileID: 1521640233}
   timerText: {fileID: 1373899117}
   countText: {fileID: 1562352275}
-  randomMode: 1
   questionCount: 0
   questionCountLeft: 0
   timeLimit: 180

@@ -111,9 +111,9 @@ public class DotUIManager : MonoBehaviour
         }
     }
 
-    public void SetRoleText(Role role)
+    public void SetRoleText(string name)
     {
-        roleText.text = role == Role.Questioner ? "あなたは描き手です" : "あなたは回答者です";
+        roleText.text = $"出題者(描く人)：{name}";
     }
 
     public void SetThemeText(Role role, string theme)
