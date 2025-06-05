@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private List<int> questionerOrder = new List<int>(); // 出題者の順番を保持するリスト
     private int currentQuestionerIndex = 0; // 現在の出題者のインデックス
-    private int questionerNumber;
+    private int questionerNumber = 0;
     public int QuestionerNumber => questionerNumber;
 
     ThemeGenerator themeGenerator;
@@ -307,7 +307,15 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void UpdateText()
     {
+        if (questionerNumber == 0)
+        {
+            return;
+        }
         dotUIManager.SetRoleText(PhotonNetwork.CurrentRoom.GetPlayer(questionerNumber).NickName);
+        if (currentTheme == null)
+        {
+            return;
+        }
         dotUIManager.SetThemeText(GetRole(), currentTheme.question);
     }
 
