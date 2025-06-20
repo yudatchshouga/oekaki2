@@ -6,29 +6,39 @@ using Photon.Realtime;
 
 public class UIManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] InputField playerNameInputField;
     [SerializeField] InputField createPasswordInputField;
     [SerializeField] InputField joinPasswordInputField;
-    [SerializeField] InputField questionCountInputField;
-    [SerializeField] InputField limitTimeInputField;
     [SerializeField] Dropdown playerCountDropdown;
-    [SerializeField] Image textColorImage;
-    [SerializeField] Text textColorText;
     [SerializeField] Text createErrorText;
     [SerializeField] Text joinErrorText;
     [SerializeField] Button roomCreateButton;
     [SerializeField] Button roomJoinButton;
-    [SerializeField] Button quizGameStartButton;
-    [SerializeField] Dropdown resolutionDropdown;
     [SerializeField] Toggle tsuyuToggle;
-
-    private bool isErrorQuestionCount;
-    private bool isErrorLimitTime;
-    private bool isErrorQuestionner;
     [SerializeField] int playerCount;
+
+    // おえかきクイズモード
+    [SerializeField] Button quizGameStartButton;
+    [SerializeField] InputField questionCountInputField;
+    [SerializeField] InputField limitTimeInputField;
     [SerializeField] int questionCount;
     [SerializeField] int limitTime;
+    private bool isErrorQuestionCount;
+    private bool isErrorLimitTime;
 
+    // 協力クイズモード
+    [SerializeField] Button cooperateQuizStartButton;
+    [SerializeField] InputField cooperateCountInputField;
+    [SerializeField] InputField cooperateTimeInputField;
+    [SerializeField] int cooperateCount;
+    [SerializeField] int cooperateTime;
+    private bool isErrorCooperateCount;
+    private bool isErrorCooperateTime;
+
+    // オプションメニュー
+    [SerializeField] InputField playerNameInputField;
+    [SerializeField] Image textColorImage;
+    [SerializeField] Text textColorText;
+    [SerializeField] Dropdown resolutionDropdown;
     private Resolution[] resolutions = {
         new Resolution { width = 640, height = 360 },
         new Resolution { width = 854, height = 480 },
@@ -39,6 +49,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         new Resolution { width = 2560, height = 1440 },
         new Resolution { width = 3840, height = 2160 }
     };
+
 
     private void Start()
     {
@@ -54,6 +65,14 @@ public class UIManager : MonoBehaviourPunCallbacks
         limitTimeInputField.onEndEdit.AddListener(ValidateLimitTextInput);
         limitTimeInputField.text = limitTime.ToString();
 
+        cooperateCountInputField.onValueChanged.AddListener(OnCooperateCountInputValueChanged);
+        cooperateCountInputField.onEndEdit.AddListener(ValidateCooperateCountInput);
+        cooperateCountInputField.text = cooperateCount.ToString();
+
+        cooperateTimeInputField.onValueChanged.AddListener(OnCooperateTimeInputValueChanged);
+        cooperateTimeInputField.onEndEdit.AddListener(ValidateCooperateTimeInput);
+        cooperateTimeInputField.text = cooperateTime.ToString();
+
         createPasswordInputField.onValueChanged.AddListener(OnCreatePasswordInputFieldValueChanged);
         joinPasswordInputField.onValueChanged.AddListener(OnJoinPasswordInputFieldValueChanged);
 
@@ -62,13 +81,22 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (!isErrorQuestionCount && !isErrorLimitTime && !isErrorQuestionner)
+        if (!isErrorQuestionCount && !isErrorLimitTime)
         {
             quizGameStartButton.interactable = true;
         }
         else
         {
             quizGameStartButton.interactable = false;
+        }
+
+        if (!isErrorCooperateCount && !isErrorCooperateTime)
+        {
+            cooperateQuizStartButton.interactable = true;
+        }
+        else
+        {
+            cooperateQuizStartButton.interactable = false;
         }
     }
 
@@ -173,6 +201,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             PlayerPrefs.SetInt("QuestionCount", questionCount);
             PlayerPrefs.SetInt("LimitTime", limitTime);
+            PlayerPrefs.SetInt("Tsuyu", tsuyuToggle.isOn ? 1 : 0);
             photonView.RPC("StartOekakiQuiz", RpcTarget.All);
         }
         else
@@ -184,8 +213,27 @@ public class UIManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void StartOekakiQuiz()
     {
-        PlayerPrefs.SetInt("Tsuyu", tsuyuToggle.isOn ? 1 : 0);
         SceneController.instance.LoadScene("OekakiQuiz");
+    }
+
+    public void OnClickCooperateQuizStartButton()
+    {
+        if (PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient)
+        {
+            PlayerPrefs.SetInt("CooperateCount", cooperateCount);
+            PlayerPrefs.SetInt("CooperateTime", cooperateTime);
+            photonView.RPC("StartCooperateQuiz", RpcTarget.All);
+        }
+        else
+        {
+            SceneController.instance.LoadScene("CooperateQuiz");
+        }
+    }
+
+    [PunRPC]
+    private void StartCooperateQuiz()
+    {
+        SceneController.instance.LoadScene("CooperateQuiz");
     }
 
     public void OnClickShiritoriStartButton()
@@ -206,6 +254,42 @@ public class UIManager : MonoBehaviourPunCallbacks
         SceneController.instance.LoadScene("Shiritori");
     }
 
+    public void OnClickYonkomaButton()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("StartYonkoma", RpcTarget.All);
+        }
+        else
+        {
+            SceneController.instance.LoadScene("Yonkoma");
+        }
+    }
+
+    [PunRPC]
+    private void StartYonkoma()
+    {
+        SceneController.instance.LoadScene("Yonkoma");
+    }
+
+    public void OnClickDengonButton()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC("StartDengon", RpcTarget.All);
+        }
+        else
+        {
+            SceneController.instance.LoadScene("Dengon");
+        }
+    }
+
+    [PunRPC]
+    private void StartDengon()
+    {
+        SceneController.instance.LoadScene("Dengon");
+    }
+
     // --------------- Dropdown ---------------
     public void OnPlayerCountDropdownValueChanged(int value)
     {
@@ -224,6 +308,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         roomJoinButton.interactable = !string.IsNullOrEmpty(joinPasswordInputField.text);
     }
+
+
 
     private void ValidateQuestionCountInput(string input)
     {
@@ -262,6 +348,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             isErrorQuestionCount = true;
         }
     }
+
     private void OnLimitTextInputValueChanged(string input)
     {
         if (int.TryParse(input, out int value))
@@ -280,6 +367,67 @@ public class UIManager : MonoBehaviourPunCallbacks
         else
         {
             isErrorLimitTime = true;
+        }
+    }
+
+
+    private void ValidateCooperateCountInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            cooperateCountInputField.text = "0";
+        }
+    }
+
+    private void ValidateCooperateTimeInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            cooperateTimeInputField.text = "0";
+        }
+    }
+
+    private void OnCooperateCountInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            cooperateCount = int.Parse(cooperateCountInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 1 && value <= 10)
+            {
+                isErrorCooperateCount = false;
+            }
+            else
+            {
+                isErrorCooperateCount = true;
+            }
+        }
+        else
+        {
+            isErrorCooperateCount = true;
+        }
+    }
+
+    private void OnCooperateTimeInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            cooperateTime = int.Parse(cooperateTimeInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 1 && value <= 999)
+            {
+                isErrorCooperateTime = false;
+            }
+            else
+            {
+                isErrorCooperateTime = true;
+            }
+        }
+        else
+        {
+            isErrorCooperateTime = true;
         }
     }
 

@@ -10,16 +10,17 @@ public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager instance;
 
+    ThemeGenerator themeGenerator;
+    DotUIManager dotUIManager;
+    QuizQuestion currentTheme;
+
     private List<int> questionerOrder = new List<int>(); // 出題者の順番を保持するリスト
     private int currentQuestionerIndex = 0; // 現在の出題者のインデックス
     private int questionerNumber = 0;
     public int QuestionerNumber => questionerNumber;
 
-    ThemeGenerator themeGenerator;
-    DotUIManager dotUIManager;
-    QuizQuestion currentTheme;
-
     [SerializeField] GameObject panels;
+    [SerializeField] GameObject loadObj;
 
     [SerializeField] Text correctLabel;
     [SerializeField] Text timerText;
@@ -68,17 +69,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.InRoom)
         {
             Debug.Log("オンラインモードで実行");
+            loadObj.SetActive(true); // ロードオブジェクトを表示
 
-            // ホストがお題と出題者を決定し、設定を同期する
             if (PhotonNetwork.IsMasterClient)
             {
                 questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
                 timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
-
                 photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
-
-                GenerateQuestionerOrder(); // 出題者の順番を生成
-                photonView.RPC("SetQuestioner", RpcTarget.All);
 
                 changeSettingButton.SetActive(true); // 設定変更ボタンを表示
                 reuseSettingButton.SetActive(true); // 設定再利用ボタンを表示
@@ -89,8 +86,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             isTimeUp = false;
 
             InitializePlayerPoints();
-
-            Invoke("StartTimer", 2.0f);
         }
         else
         {
@@ -98,7 +93,48 @@ public class GameManager : MonoBehaviourPunCallbacks
             timerText.gameObject.SetActive(false);
         }
     }
-    
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey("Ready"))
+        {
+            CheckAllPlayerReady();
+        }
+    }
+
+    private void CheckAllPlayerReady()
+    {
+        foreach (var p in PhotonNetwork.PlayerList)
+        {
+            if (p.CustomProperties.TryGetValue("Ready", out object isReadyObj))
+            {
+                // 1人でも未準備のプレイヤーがいる場合はreturn
+                if (!(isReadyObj is bool isReady) || !isReady)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        // 全員が準備完了状態ならば、ゲーム開始の処理を行う
+        if (PhotonNetwork.IsMasterClient)
+        {
+            GenerateQuestionerOrder(); // 出題者の順番を生成
+            photonView.RPC("SetQuestioner", RpcTarget.All);
+            photonView.RPC("StartTimer", RpcTarget.All); // タイマーを開始
+            photonView.RPC("HideLoadObj", RpcTarget.All); // ロードオブジェクトを非表示
+        }
+    }
+
+    // ゲーム開始時の流れ
+    // ①前シーンで設定したパラメータをSyncOptionでホストと同期
+    // ②ホストが出題者の順番をGenerateQuestionerOrderで生成
+    // ③ホストがSetQuestionerで出題者を設定し同期する
+    // ④タイマーをセットし、スタート
 
     private void Update()
     {
@@ -135,25 +171,41 @@ public class GameManager : MonoBehaviourPunCallbacks
         questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
         timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
 
+        themeGenerator.GenerateAndShuffleIndex();
+
         photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
 
         photonView.RPC("SetQuestioner", RpcTarget.All);
 
         photonView.RPC("SyncSettings", RpcTarget.All);
 
-        photonView.RPC("MoveGamePanel", RpcTarget.All, new Vector2 (-2000, 0));
+        photonView.RPC("MoveGamePanel", RpcTarget.All, new Vector2 (0, 0));
     }
 
     public void RestartGame()
     {
+        themeGenerator.GenerateAndShuffleIndex();
+
         photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
 
         photonView.RPC("SetQuestioner", RpcTarget.All);
 
         photonView.RPC("SyncSettings", RpcTarget.All);
 
-        photonView.RPC("MoveGamePanel", RpcTarget.All, new Vector2(-2000, 0));
+        photonView.RPC("MoveGamePanel", RpcTarget.All, new Vector2(0, 0));
     }
+
+    // ①
+
+    [PunRPC]
+    private void SyncOption(int count, int time)
+    {
+        questionCount = count;
+        questionCountLeft = count;
+        timeLimit = time;
+    }
+
+    // ②
 
     private void GenerateQuestionerOrder()
     { 
@@ -183,6 +235,35 @@ public class GameManager : MonoBehaviourPunCallbacks
         currentQuestionerIndex = 0;
     }
 
+    // ③
+
+    [PunRPC]
+    private void SetQuestioner()
+    {
+        questionCountLeft--;
+        dotUIManager.Initialize(); // UIリセット
+        questionerNumber = questionerOrder[currentQuestionerIndex];
+        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber)
+        {
+            currentTheme = themeGenerator.GetRandomTheme(questionCount - questionCountLeft);
+            photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
+            DrawingManager.instance.isDrawable = true;
+        }
+        else
+        {
+            DrawingManager.instance.isDrawable = false;
+        }
+
+        currentQuestionerIndex++;
+        if (currentQuestionerIndex >= questionerOrder.Count && PhotonNetwork.IsMasterClient)
+        {
+            GenerateQuestionerOrder(); // 出題者の順番を再生成
+            photonView.RPC("SyncQuestionerOrder", RpcTarget.All, questionerOrder.ToArray());
+        }
+    }
+
+    // ④
+
     [PunRPC]
     private void SyncSettings()
     {
@@ -209,39 +290,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         photonView.RPC("SavedPicture", RpcTarget.All);
         photonView.RPC("ShowIncorrect", RpcTarget.All);
         photonView.RPC("SetQuestioner", RpcTarget.All);
-    }
-
-    // questionCountとtimeLimitをホストと同期する
-    [PunRPC]
-    private void SyncOption(int count, int time)
-    {
-        questionCountLeft = count;
-        timeLimit = time;
-    }
-
-    [PunRPC]
-    private void SetQuestioner()
-    {
-        questionCountLeft--;
-        dotUIManager.Initialize();
-        questionerNumber = questionerOrder[currentQuestionerIndex];
-        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber)
-        {
-            currentTheme = themeGenerator.GetRandomTheme();
-            photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
-            DrawingManager.instance.isDrawable = true;
-        }
-        else
-        {
-            DrawingManager.instance.isDrawable = false;
-        }
-
-        currentQuestionerIndex++;
-        if (currentQuestionerIndex >= questionerOrder.Count && PhotonNetwork.IsMasterClient)
-        {
-            GenerateQuestionerOrder(); // 出題者の順番を再生成
-            photonView.RPC("SyncQuestionerOrder", RpcTarget.All, questionerOrder.ToArray());
-        }
     }
 
     // 出題者のみが正誤判定を行う
@@ -324,6 +372,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         return PhotonNetwork.LocalPlayer.ActorNumber == questionerNumber ? Role.Questioner : Role.Answerer;
     }
 
+    [PunRPC]
     private void StartTimer()
     {
         isTimerActive = true;
@@ -364,6 +413,12 @@ public class GameManager : MonoBehaviourPunCallbacks
             Destroy(child.gameObject);
         }
         savedPictures.Clear();
+    }
+
+    [PunRPC]
+    private void HideLoadObj()
+    {
+        loadObj.SetActive(false);
     }
 
 
@@ -495,7 +550,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void Resultdisplay()
     { 
-        MoveGamePanel(new Vector2(0, 0));
+        MoveGamePanel(new Vector2(-2000, 0));
         DisplayResults();
         DisplaySavedPictures();
         dotUIManager.Initialize();

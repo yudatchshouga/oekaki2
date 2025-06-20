@@ -20,8 +20,8 @@ public class LobbyDrawing : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        CanvasWidth = 96;
-        CanvasHeight = 54;
+        CanvasWidth = 192;
+        CanvasHeight = 108;
         texture = new Texture2D(CanvasWidth, CanvasHeight, TextureFormat.RGBA32, false);
         texture.filterMode = FilterMode.Point;
         rawImage.texture = texture;

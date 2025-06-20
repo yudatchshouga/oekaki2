@@ -10,35 +10,24 @@ public class GoogleSheetLoader : MonoBehaviourPunCallbacks
     private string googleSheetUrlTsuyu = "https://docs.google.com/spreadsheets/d/1YTl8Ptgm5hWMVqx0WIc0E44gfZALv93pGlSbgxtzMN4/gviz/tq?tqx=out:csv";
     public List<QuizQuestion> questions = new List<QuizQuestion>();
 
-    [SerializeField] int tsuyuMode; // 0: 通常, 1: つゆモード
-
-    private void Start()
-    {
-        tsuyuMode = PlayerPrefs.GetInt("Tsuyu", 0); // デフォルトは通常モード
-
-        if (tsuyuMode == 1)
-        {
-            StartCoroutine(LoadQuizData(googleSheetUrlTsuyu));
-        }
-        else
-        {
-            StartCoroutine(LoadQuizData(googleSheetUrlNormal));
-        }
-    }
-
     [ContextMenu("Load Data From Google Sheet")]
-    public void LoadDataFromGoogleSheet()
+    public void LoadDataFromGoogleSheet(int mode)
     {
-        if (tsuyuMode == 1)
+        switch (mode)
         {
-            StartCoroutine(LoadQuizData(googleSheetUrlTsuyu));
-        }
-        else
-        {
-            StartCoroutine(LoadQuizData(googleSheetUrlNormal));
+            case 0: // 通常モード
+                StartCoroutine(LoadQuizData(googleSheetUrlNormal));
+                break;
+            case 1: // つゆモード
+                StartCoroutine(LoadQuizData(googleSheetUrlTsuyu));
+                break;
+            default: // デフォルトは通常モード
+                StartCoroutine(LoadQuizData(googleSheetUrlNormal));
+                break;
         }
     }
 
+    // ホストのみが実行する
     private IEnumerator LoadQuizData(string url)
     {
         UnityWebRequest request = UnityWebRequest.Get(url);
@@ -49,6 +38,9 @@ public class GoogleSheetLoader : MonoBehaviourPunCallbacks
             string csvData = request.downloadHandler.text;
             ParseCSVData(csvData);
             Debug.Log("Data loaded successfully");
+
+            // ルームのカスタムプロパティにクイズリストを同期
+            SyncQuestions(questions);
         }
         else
         {
@@ -80,8 +72,8 @@ public class GoogleSheetLoader : MonoBehaviourPunCallbacks
         return str.Trim().Replace("\"", "");
     }
 
-    // スプレッドシートのデータを取得した後に同期する
-    public void SyncQuestions(List<QuizQuestion> questionsToSync)
+    // お題リストを同期する
+    private void SyncQuestions(List<QuizQuestion> questionsToSync)
     {
         string serializedQuestions = SerializeQuestions(questionsToSync);
 
@@ -89,7 +81,7 @@ public class GoogleSheetLoader : MonoBehaviourPunCallbacks
         {
             { "SharedQuestions", serializedQuestions }
         };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
 
     // クイズリストをシリアライズ

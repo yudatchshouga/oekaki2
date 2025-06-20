@@ -11,9 +11,14 @@ public class GoogleSheetLoaderEditor : Editor
 
         // カスタムインスペクタの描画
         GoogleSheetLoader myScript = (GoogleSheetLoader)target;
-        if (GUILayout.Button("Load Data From Google Sheet"))
+        if (GUILayout.Button("Load Data From Google Sheet Normal"))
         {
-            myScript.LoadDataFromGoogleSheet();
+            myScript.LoadDataFromGoogleSheet(0);
+        }
+
+        if (GUILayout.Button("Load Data From Google Sheet Tsuyu"))
+        {
+            myScript.LoadDataFromGoogleSheet(1);
         }
 
         if (myScript.questions != null && myScript.questions.Count > 0)
