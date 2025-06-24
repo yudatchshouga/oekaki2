@@ -26,6 +26,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     private bool isErrorLimitTime;
 
     // 協力クイズモード
+    [SerializeField] Button cooperateQuizButton;
     [SerializeField] Button cooperateQuizStartButton;
     [SerializeField] InputField cooperateCountInputField;
     [SerializeField] InputField cooperateTimeInputField;
@@ -97,6 +98,18 @@ public class UIManager : MonoBehaviourPunCallbacks
         else
         {
             cooperateQuizStartButton.interactable = false;
+        }
+
+        if (PhotonNetwork.InRoom)
+        {
+            if (PhotonNetwork.CurrentRoom.PlayerCount >= 3)
+            {
+                cooperateQuizButton.interactable = true;
+            }
+            else
+            {
+                cooperateQuizButton.interactable = false;
+            }
         }
     }
 

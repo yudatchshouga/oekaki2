@@ -13,27 +13,30 @@ public class ThemeGenerator : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.InRoom)
         {
-            tsuyuMode = PlayerPrefs.GetInt("Tsuyu", 0); // デフォルトは通常モード
-
-            // ホストはスプレッドシートから問題リストを取得し、同期する
-            googleSheetLoader.LoadDataFromGoogleSheet(tsuyuMode);
-            themeList = googleSheetLoader.questions;
-
-            // 問題の数分のインデックスを生成し、同期する
-            GenerateAndShuffleIndex();
-
-            SetReady(true); // ホストはこのタイミングで準備完了状態になる
-        }
-        else
-        {
-            // 入室時点でSharedQuestionsが既に存在していれば取得
-            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("SharedQuestions"))
+            if (PhotonNetwork.IsMasterClient)
             {
-                string serializedQuestions = PhotonNetwork.CurrentRoom.CustomProperties["SharedQuestions"] as string;
-                themeList = googleSheetLoader.DeserializeQuestions(serializedQuestions);
-                Debug.Log("入室時にSharedQuestionsを取得しました");
+                tsuyuMode = PlayerPrefs.GetInt("Tsuyu", 0); // デフォルトは通常モード
+
+                // ホストはスプレッドシートから問題リストを取得し、同期する
+                googleSheetLoader.LoadDataFromGoogleSheet(tsuyuMode);
+                themeList = googleSheetLoader.questions;
+
+                // 問題の数分のインデックスを生成し、同期する
+                GenerateAndShuffleIndex();
+
+                SetReady(true); // ホストはこのタイミングで準備完了状態になる
+            }
+            else
+            {
+                // 入室時点でSharedQuestionsが既に存在していれば取得
+                if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("SharedQuestions"))
+                {
+                    string serializedQuestions = PhotonNetwork.CurrentRoom.CustomProperties["SharedQuestions"] as string;
+                    themeList = googleSheetLoader.DeserializeQuestions(serializedQuestions);
+                    Debug.Log("入室時にSharedQuestionsを取得しました");
+                }
             }
         }
     }

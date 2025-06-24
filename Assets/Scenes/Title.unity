@@ -873,7 +873,7 @@ GameObject:
   m_Component:
   - component: {fileID: 57676152}
   m_Layer: 5
-  m_Name: LimiteTimeSetting
+  m_Name: LimitTimeSetting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1015,7 +1015,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1750, y: 350}
+  m_SizeDelta: {x: 1760, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &77977327
 MonoBehaviour:
@@ -1039,7 +1039,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: ff6bec89a2d16984eb2f79793b948607, type: 3}
-    m_FontSize: 66
+    m_FontSize: 64
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -1050,7 +1050,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.9
-  m_Text: "\u6BCE\u56DE\u30E9\u30F3\u30C0\u30E0\u3067\u6C7A\u3081\u3089\u308C\u305F\u30D7\u30EC\u30A4\u30E4\u30FC2\u4EBA\u304C\u51FA\u984C\u8005\u3068\u306A\u308A\u3001\u5354\u529B\u3057\u3066\u4E0E\u3048\u3089\u308C\u305F\u304A\u984C\u306E\u7D75\u3092\u63CF\u304D\u307E\u3057\u3087\u3046\u3002\u305D\u306E\u4ED6\u306E\u30D7\u30EC\u30A4\u30E4\u30FC\u306F\u7D75\u3092\u898B\u3066\u304A\u984C\u30C1\u30E3\u30C3\u30C8\u3067\u56DE\u7B54\u3057\u307E\u3057\u3087\u3046\u3002"
+  m_Text: "\u6BCE\u56DE\u30E9\u30F3\u30C0\u30E0\u3067\u6C7A\u3081\u3089\u308C\u305F\u30D7\u30EC\u30A4\u30E4\u30FC2\u4EBA\u304C\u51FA\u984C\u8005\u3068\u306A\u308A\u3001\u5354\u529B\u3057\u3066\u4E0E\u3048\u3089\u308C\u305F\u304A\u984C\u306E\u7D75\u3092\u63CF\u304D\u307E\u3057\u3087\u3046\u3002\u305D\u306E\u4ED6\u306E\u30D7\u30EC\u30A4\u30E4\u30FC\u306F\u7D75\u3092\u898B\u3066\u304A\u984C\u3092\u4E88\u60F3\u3057\u3066\u30C1\u30E3\u30C3\u30C8\u3067\u56DE\u7B54\u3057\u307E\u3057\u3087\u3046\u3002"
 --- !u!222 &77977328
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1276,7 +1276,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 213, y: -30}
+  m_AnchoredPosition: {x: 223, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &88452377
@@ -4113,7 +4113,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -400, y: -80}
-  m_SizeDelta: {x: 600, y: 160}
+  m_SizeDelta: {x: 620, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &287420578
 MonoBehaviour:
@@ -4766,7 +4766,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 271, y: -30}
+  m_AnchoredPosition: {x: 281, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &334632052
@@ -6056,7 +6056,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 503, y: -30}
+  m_AnchoredPosition: {x: 513, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &427082059
@@ -7980,24 +7980,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31b2ebb8b71f9584b8341dda5faaa37c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerNameInputField: {fileID: 1674766134}
   createPasswordInputField: {fileID: 2073775225}
   joinPasswordInputField: {fileID: 427755420}
-  questionCountInputField: {fileID: 779287584}
-  limitTimeInputField: {fileID: 177370961}
   playerCountDropdown: {fileID: 758492976}
-  textColorImage: {fileID: 1701651649}
-  textColorText: {fileID: 620518255}
   createErrorText: {fileID: 256295750}
   joinErrorText: {fileID: 1279460002}
   roomCreateButton: {fileID: 1352246599}
   roomJoinButton: {fileID: 1664824528}
-  quizGameStartButton: {fileID: 563766435}
-  resolutionDropdown: {fileID: 1837190068}
   tsuyuToggle: {fileID: 348999614}
   playerCount: 4
+  quizGameStartButton: {fileID: 563766435}
+  questionCountInputField: {fileID: 779287584}
+  limitTimeInputField: {fileID: 177370961}
   questionCount: 5
   limitTime: 180
+  cooperateQuizButton: {fileID: 1104545661}
+  cooperateQuizStartButton: {fileID: 519467303}
+  cooperateCountInputField: {fileID: 998601312}
+  cooperateTimeInputField: {fileID: 1166681159}
+  cooperateCount: 5
+  cooperateTime: 180
+  playerNameInputField: {fileID: 1674766134}
+  textColorImage: {fileID: 1701651649}
+  textColorText: {fileID: 620518255}
+  resolutionDropdown: {fileID: 1837190068}
 --- !u!4 &596508057
 Transform:
   m_ObjectHideFlags: 0
@@ -8635,8 +8641,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 240, y: -25}
-  m_SizeDelta: {x: 120, y: 50}
+  m_AnchoredPosition: {x: 240, y: -30}
+  m_SizeDelta: {x: 140, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &634972341
 MonoBehaviour:
@@ -8726,7 +8732,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: d1bfd4a43f6d502408c3df152c66463c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10669,7 +10675,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 329, y: -30}
+  m_AnchoredPosition: {x: 339, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &749991462
@@ -12650,7 +12656,7 @@ GameObject:
   - component: {fileID: 998601313}
   - component: {fileID: 998601312}
   m_Layer: 5
-  m_Name: QuestionCountInputField
+  m_Name: CooperateCountInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13164,7 +13170,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 445, y: -30}
+  m_AnchoredPosition: {x: 455, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1043661459
@@ -14387,7 +14393,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 387, y: -30}
+  m_AnchoredPosition: {x: 397, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1146465247
@@ -14957,7 +14963,7 @@ GameObject:
   - component: {fileID: 1166681160}
   - component: {fileID: 1166681159}
   m_Layer: 5
-  m_Name: LimitTimeInputField
+  m_Name: CooperateTimeInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16073,7 +16079,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1245386174}
   m_Layer: 5
-  m_Name: QuestionCount
+  m_Name: CooperateQuestionCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16940,7 +16946,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -16949,7 +16955,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 677bb5955fa96ae4ab2ac482b3f0ac5c, type: 3}
-    m_FontSize: 40
+    m_FontSize: 35
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 0
@@ -17293,7 +17299,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1373405826}
   m_Layer: 5
-  m_Name: LimiteTimeSetting
+  m_Name: CooperateLimitTimeSetting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19121,7 +19127,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 39, y: -30}
+  m_AnchoredPosition: {x: 49, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1548018245
@@ -19593,7 +19599,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1594167248
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19654,7 +19660,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 97, y: -30}
+  m_AnchoredPosition: {x: 107, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1595292761
@@ -19942,8 +19948,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 800, y: -25}
-  m_SizeDelta: {x: 120, y: 50}
+  m_AnchoredPosition: {x: 800, y: -30}
+  m_SizeDelta: {x: 140, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1605727196
 MonoBehaviour:
@@ -20033,7 +20039,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: d1bfd4a43f6d502408c3df152c66463c, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -22540,7 +22546,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 155, y: -30}
+  m_AnchoredPosition: {x: 165, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1814553891
@@ -23606,7 +23612,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 561, y: -30}
+  m_AnchoredPosition: {x: 571, y: -30}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1892879290
@@ -23753,7 +23759,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23762,7 +23768,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 677bb5955fa96ae4ab2ac482b3f0ac5c, type: 3}
-    m_FontSize: 40
+    m_FontSize: 35
     m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 0
