@@ -73,8 +73,8 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
 
             if (PhotonNetwork.IsMasterClient)
             {
-                questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
-                timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
+                questionCount = PlayerPrefs.GetInt("CooperateCount", 5);
+                timeLimit = PlayerPrefs.GetInt("CooperateTime", 180);
                 photonView.RPC("SyncOption", RpcTarget.All, questionCount, timeLimit);
 
                 changeSettingButton.SetActive(true); // 設定変更ボタンを表示
@@ -168,8 +168,8 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        questionCount = PlayerPrefs.GetInt("QuestionCount", 5);
-        timeLimit = PlayerPrefs.GetInt("LimitTime", 180);
+        questionCount = PlayerPrefs.GetInt("CooperateCount", 5);
+        timeLimit = PlayerPrefs.GetInt("CooperateTime", 180);
 
         themeGenerator.GenerateAndShuffleIndex();
 
@@ -246,8 +246,11 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
         questionerNumbers[1] = questionerOrder[(currentQuestionerIndex + 1)];
         if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[0] || PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[1])
         {
-            currentTheme = themeGenerator.GetRandomTheme(questionCount - questionCountLeft);
-            photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
+            if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[0])
+            {
+                currentTheme = themeGenerator.GetRandomTheme(questionCount - questionCountLeft);
+                photonView.RPC("UpdateCurrentTheme", RpcTarget.Others, currentTheme.question);
+            }
             CooperateDrawingManager.instance.isDrawable = true;
         }
         else
@@ -291,7 +294,7 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void CheckAnswer(string answer, int actorNumber)
     {
-        if ((PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[0] || PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[1]) && IsCorrectAnswer(answer))
+        if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[0] && IsCorrectAnswer(answer))
         {
             photonView.RPC("ShowCorrect", RpcTarget.All);
             photonView.RPC("AddCorrectPoints", RpcTarget.MasterClient, actorNumber); // 正解したプレイヤーの正解数を加算
@@ -302,11 +305,8 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
             // TODO:残り秒数などでポイント増やすか検討（実際にプレイした所感で決めたい）
 
             // お題と出題者の再設定
-            if (PhotonNetwork.LocalPlayer.ActorNumber == questionerNumbers[0])
-            {
-                GenerateQuestionerOrder();
-                photonView.RPC("SetQuestioner", RpcTarget.All);
-            }
+            GenerateQuestionerOrder();
+            photonView.RPC("SetQuestioner", RpcTarget.All);
         }
     }
 
@@ -330,17 +330,17 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void ShowCorrect()
     {
+        StartCoroutine(DisplayMessage($"正解！\n「{currentTheme.question}」", 3.0f));
         isTimerActive = false;
         timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage($"正解！\n「{currentTheme.question}」", 3.0f));
     }
 
     [PunRPC]
     private void ShowIncorrect()
     {
+        StartCoroutine(DisplayMessage($"残念...不正解！\n正解は\n「{currentTheme.question}」", 3.0f));
         isTimerActive = false;
         timeRemaining = timeLimit;
-        StartCoroutine(DisplayMessage($"残念...不正解！\n正解は\n「{currentTheme.question}」", 3.0f));
     }
 
     private IEnumerator DisplayMessage(string message, float duration)

@@ -106,7 +106,7 @@ public class CooperateUIManager : MonoBehaviour
 
     public void SetRoleText(string name1, string name2)
     {
-        roleText.text = $"出題者(描く人)：{name1} & {name2}";
+        roleText.text = $"Drawer：{name1} & {name2}";
     }
 
     public void SetThemeText(Role role, string theme)
