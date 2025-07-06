@@ -26,22 +26,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("Photon に接続中...");
     }
 
-    private void Update()
-    {
-        if (PhotonNetwork.InRoom)
-        {
-            // ルームにプレイヤーがそろったときにスタートボタンを有効化する
-            if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
-            {
-                startButton.GetComponent<Button>().interactable = true;
-            }
-            else
-            {
-                startButton.GetComponent<Button>().interactable = false;
-            }
-        }
-    }
-
     // === 接続成功時に呼ばれるコールバック ===
     public override void OnConnectedToMaster()
     {
@@ -73,6 +57,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         PhotonNetwork.LocalPlayer.NickName = PlayerPrefs.GetString("PlayerName", $"Player{Random.Range(1000, 9999)}");
+        PlayerPrefs.Save();
 
         roomNameText.text = $"ルーム名：{PhotonNetwork.CurrentRoom.Name}";
         UpdatePlayerListUI();

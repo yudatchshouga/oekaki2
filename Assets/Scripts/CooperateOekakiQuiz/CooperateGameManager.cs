@@ -1,3 +1,4 @@
+using NUnit.Framework.Internal.Commands;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
@@ -355,7 +356,17 @@ public class CooperateGameManager : MonoBehaviourPunCallbacks
 
     private void UpdateText()
     {
-        dotUIManager.SetRoleText(PhotonNetwork.CurrentRoom.GetPlayer(questionerNumbers[0]).NickName, PhotonNetwork.CurrentRoom.GetPlayer(questionerNumbers[1]).NickName);
+        if(dotUIManager == null || questionerNumbers == null)
+        {
+            return;
+        }
+        var player1 = PhotonNetwork.CurrentRoom.GetPlayer(questionerNumbers[0]);
+        var player2 = PhotonNetwork.CurrentRoom.GetPlayer(questionerNumbers[1]);
+        if (player1 == null || player2 == null)
+        {
+            return;
+        }
+        dotUIManager.SetRoleText(player1.NickName, player2.NickName);
         if (currentTheme == null)
         {
             return;
