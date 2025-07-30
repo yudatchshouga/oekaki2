@@ -35,6 +35,24 @@ public class UIManager : MonoBehaviourPunCallbacks
     private bool isErrorCooperateCount;
     private bool isErrorCooperateTime;
 
+    // 絵しりとりモード
+    [SerializeField] Button shiritoriStartButton;
+    [SerializeField] InputField shiritoriTimeInputField;
+    [SerializeField] InputField shiritoriAnswerTimeInputField;
+    [SerializeField] int shiritoriTime;
+    [SerializeField] int shiritoriAnswerTime;
+    private bool isErrorShiritoriTime;
+    private bool isErrorShiritoriAnswerTime;
+
+    // 伝言ゲームモード
+    [SerializeField] Button dengonStartButton;
+    [SerializeField] InputField dengonTimeInputField;
+    [SerializeField] InputField dengonAnswerTimeInputField;
+    [SerializeField] int dengonTime;
+    [SerializeField] int dengonAnswerTime;
+    private bool isErrorDengonTime;
+    private bool isErrorDengonAnswerTime;
+
     // オプションメニュー
     [SerializeField] InputField playerNameInputField;
     [SerializeField] Image textColorImage;
@@ -61,7 +79,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         questionCountInputField.onValueChanged.AddListener(OnQuestionCountInputValueChanged);
         questionCountInputField.onEndEdit.AddListener(ValidateQuestionCountInput);
         questionCountInputField.text = questionCount.ToString();
-
         limitTimeInputField.onValueChanged.AddListener(OnLimitTextInputValueChanged);
         limitTimeInputField.onEndEdit.AddListener(ValidateLimitTextInput);
         limitTimeInputField.text = limitTime.ToString();
@@ -69,10 +86,23 @@ public class UIManager : MonoBehaviourPunCallbacks
         cooperateCountInputField.onValueChanged.AddListener(OnCooperateCountInputValueChanged);
         cooperateCountInputField.onEndEdit.AddListener(ValidateCooperateCountInput);
         cooperateCountInputField.text = cooperateCount.ToString();
-
         cooperateTimeInputField.onValueChanged.AddListener(OnCooperateTimeInputValueChanged);
         cooperateTimeInputField.onEndEdit.AddListener(ValidateCooperateTimeInput);
         cooperateTimeInputField.text = cooperateTime.ToString();
+
+        shiritoriTimeInputField.onValueChanged.AddListener(OnShiritoriTimeInputValueChanged);
+        shiritoriTimeInputField.onEndEdit.AddListener(ValidateShiritoriTimeInput);
+        shiritoriTimeInputField.text = shiritoriTime.ToString();
+        shiritoriAnswerTimeInputField.onValueChanged.AddListener(OnShiritoriAnswerTimeInputValueChanged);
+        shiritoriAnswerTimeInputField.onEndEdit.AddListener(ValidateShiritoriAnswerTimeInput);
+        shiritoriAnswerTimeInputField.text = shiritoriAnswerTime.ToString();
+
+        dengonTimeInputField.onValueChanged.AddListener(OnDengonTimeInputValueChanged);
+        dengonTimeInputField.onEndEdit.AddListener(ValidateDengonTimeInput);
+        dengonTimeInputField.text = dengonTime.ToString();
+        dengonAnswerTimeInputField.onValueChanged.AddListener(OnDengonAnswerTimeInputValueChanged);
+        dengonAnswerTimeInputField.onEndEdit.AddListener(ValidateDengonAnswerTimeInput);
+        dengonAnswerTimeInputField.text = dengonAnswerTime.ToString();
 
         createPasswordInputField.onValueChanged.AddListener(OnCreatePasswordInputFieldValueChanged);
         joinPasswordInputField.onValueChanged.AddListener(OnJoinPasswordInputFieldValueChanged);
@@ -82,26 +112,44 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (!isErrorQuestionCount && !isErrorLimitTime)
-        {
-            quizGameStartButton.interactable = true;
-        }
-        else
-        {
-            quizGameStartButton.interactable = false;
-        }
-
-        if (!isErrorCooperateCount && !isErrorCooperateTime)
-        {
-            cooperateQuizStartButton.interactable = true;
-        }
-        else
-        {
-            cooperateQuizStartButton.interactable = false;
-        }
-
         if (PhotonNetwork.InRoom)
         {
+            if (!isErrorQuestionCount && !isErrorLimitTime)
+            {
+                quizGameStartButton.interactable = true;
+            }
+            else
+            {
+                quizGameStartButton.interactable = false;
+            }
+
+            if (!isErrorCooperateCount && !isErrorCooperateTime)
+            {
+                cooperateQuizStartButton.interactable = true;
+            }
+            else
+            {
+                cooperateQuizStartButton.interactable = false;
+            }
+
+            if (!isErrorDengonTime && !isErrorDengonAnswerTime)
+            {
+                dengonStartButton.interactable = true;
+            }
+            else
+            {
+                dengonStartButton.interactable = false;
+            }
+
+            if (!isErrorShiritoriTime && !isErrorShiritoriAnswerTime)
+            {
+                shiritoriStartButton.interactable = true;
+            }
+            else
+            {
+                shiritoriStartButton.interactable = false;
+            }
+
             if (PhotonNetwork.CurrentRoom.PlayerCount >= 3)
             {
                 cooperateQuizButton.interactable = true;
@@ -253,42 +301,28 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.InRoom)
         {
+            PlayerPrefs.SetInt("ShiritoriTime", shiritoriTime);
+            PlayerPrefs.SetInt("ShiritoriAnswerTime", shiritoriAnswerTime);
             photonView.RPC("StartShiritori", RpcTarget.All);
         }
         else
         {
-            SceneController.instance.LoadScene("Shiritori");
+            SceneController.instance.LoadScene("Eshiritori");
         }
     }
 
     [PunRPC]
     private void StartShiritori()
     {
-        SceneController.instance.LoadScene("Shiritori");
-    }
-
-    public void OnClickYonkomaButton()
-    {
-        if (PhotonNetwork.InRoom)
-        {
-            photonView.RPC("StartYonkoma", RpcTarget.All);
-        }
-        else
-        {
-            SceneController.instance.LoadScene("Yonkoma");
-        }
-    }
-
-    [PunRPC]
-    private void StartYonkoma()
-    {
-        SceneController.instance.LoadScene("Yonkoma");
+        SceneController.instance.LoadScene("Eshiritori");
     }
 
     public void OnClickDengonButton()
     {
         if (PhotonNetwork.InRoom)
         {
+            PlayerPrefs.SetInt("DengonTime", dengonTime);
+            PlayerPrefs.SetInt("DengonAnswerTime", dengonAnswerTime);
             photonView.RPC("StartDengon", RpcTarget.All);
         }
         else
@@ -303,6 +337,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         SceneController.instance.LoadScene("Dengon");
     }
 
+
     // --------------- Dropdown ---------------
     public void OnPlayerCountDropdownValueChanged(int value)
     {
@@ -312,6 +347,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     // --------------- InputField ---------------
 
+    // ルーム作成、参加時の処理
     private void OnCreatePasswordInputFieldValueChanged(string input)
     { 
         roomCreateButton.interactable = !string.IsNullOrEmpty(createPasswordInputField.text);
@@ -323,7 +359,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
 
-
+    // おえかきクイズモード
     private void ValidateQuestionCountInput(string input)
     {
         // 数字以外の入力を無効化
@@ -340,7 +376,6 @@ public class UIManager : MonoBehaviourPunCallbacks
             limitTimeInputField.text = "0";
         }
     }
-
     private void OnQuestionCountInputValueChanged(string input)
     {
         if (int.TryParse(input, out int value))
@@ -361,14 +396,13 @@ public class UIManager : MonoBehaviourPunCallbacks
             isErrorQuestionCount = true;
         }
     }
-
     private void OnLimitTextInputValueChanged(string input)
     {
         if (int.TryParse(input, out int value))
         {
             limitTime = int.Parse(limitTimeInputField.text);
             // 入力値が制限内かどうかをチェック
-            if (value >= 1 && value <= 999)
+            if (value >= 30 && value <= 999)
             {
                 isErrorLimitTime = false;
             }
@@ -384,6 +418,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
 
+    // 協力クイズモード
     private void ValidateCooperateCountInput(string input)
     {
         // 数字以外の入力を無効化
@@ -392,7 +427,6 @@ public class UIManager : MonoBehaviourPunCallbacks
             cooperateCountInputField.text = "0";
         }
     }
-
     private void ValidateCooperateTimeInput(string input)
     {
         // 数字以外の入力を無効化
@@ -401,7 +435,6 @@ public class UIManager : MonoBehaviourPunCallbacks
             cooperateTimeInputField.text = "0";
         }
     }
-
     private void OnCooperateCountInputValueChanged(string input)
     {
         if (int.TryParse(input, out int value))
@@ -422,14 +455,13 @@ public class UIManager : MonoBehaviourPunCallbacks
             isErrorCooperateCount = true;
         }
     }
-
     private void OnCooperateTimeInputValueChanged(string input)
     {
         if (int.TryParse(input, out int value))
         {
             cooperateTime = int.Parse(cooperateTimeInputField.text);
             // 入力値が制限内かどうかをチェック
-            if (value >= 1 && value <= 999)
+            if (value >= 30 && value <= 999)
             {
                 isErrorCooperateTime = false;
             }
@@ -441,6 +473,124 @@ public class UIManager : MonoBehaviourPunCallbacks
         else
         {
             isErrorCooperateTime = true;
+        }
+    }
+
+
+    // 絵しりとりモード
+    private void ValidateShiritoriTimeInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            shiritoriTimeInputField.text = "0";
+        }
+    }
+    private void ValidateShiritoriAnswerTimeInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            shiritoriAnswerTimeInputField.text = "0";
+        }
+    }
+    private void OnShiritoriTimeInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            shiritoriTime = int.Parse(shiritoriTimeInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 10 && value <= 999)
+            {
+                isErrorShiritoriTime = false;
+            }
+            else
+            {
+                isErrorShiritoriTime = true;
+            }
+        }
+        else
+        {
+            isErrorShiritoriTime = true;
+        }
+    }
+    private void OnShiritoriAnswerTimeInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            shiritoriAnswerTime = int.Parse(shiritoriAnswerTimeInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 10 && value <= 300)
+            {
+                isErrorShiritoriAnswerTime = false;
+            }
+            else
+            {
+                isErrorShiritoriAnswerTime = true;
+            }
+        }
+        else
+        {
+            isErrorShiritoriAnswerTime = true;
+        }
+    }
+
+
+    // 伝言ゲームモード
+    private void ValidateDengonTimeInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            dengonTimeInputField.text = "0";
+        }
+    }
+    private void ValidateDengonAnswerTimeInput(string input)
+    {
+        // 数字以外の入力を無効化
+        if (!Regex.IsMatch(input, @"^\d+$"))
+        {
+            dengonAnswerTimeInputField.text = "0";
+        }
+    }
+    private void OnDengonTimeInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            dengonTime = int.Parse(dengonTimeInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 10 && value <= 999)
+            {
+                isErrorDengonTime = false;
+            }
+            else
+            {
+                isErrorDengonTime = true;
+            }
+        }
+        else
+        {
+            isErrorDengonTime = true;
+        }
+    }
+    private void OnDengonAnswerTimeInputValueChanged(string input)
+    {
+        if (int.TryParse(input, out int value))
+        {
+            dengonAnswerTime = int.Parse(dengonAnswerTimeInputField.text);
+            // 入力値が制限内かどうかをチェック
+            if (value >= 10 && value <= 300)
+            {
+                isErrorDengonAnswerTime = false;
+            }
+            else
+            {
+                isErrorDengonAnswerTime = true;
+            }
+        }
+        else
+        {
+            isErrorDengonAnswerTime = true;
         }
     }
 

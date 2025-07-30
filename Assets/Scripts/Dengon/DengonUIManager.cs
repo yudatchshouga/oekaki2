@@ -1,12 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CooperateUIManager : MonoBehaviour
+public class DengonUIManager : MonoBehaviour
 {
-    [SerializeField] CooperateGridGenerator cooperateGridGenerator;
+    [SerializeField] DengonGridGenerator gridGenerator;
 
     [SerializeField] GameObject dotUI;
     [SerializeField] GameObject blindPanel;
+    [SerializeField] Button undoButton;
+    [SerializeField] Button redoButton;
+    [SerializeField] Button clearButton;
     [SerializeField] Button sizeApplyButton;
     [SerializeField] Button backButton1;
     [SerializeField] Button backButton2;
@@ -16,12 +19,11 @@ public class CooperateUIManager : MonoBehaviour
     [SerializeField] GameObject lineButtonCover;
     [SerializeField] GameObject circleButtonCover;
     [SerializeField] GameObject rectangleButtonCover;
-    [SerializeField] Text roleText;
     [SerializeField] Text themeText;
     [SerializeField] SizeInputField widthInputField;
     [SerializeField] SizeInputField heightInputField;
-    [SerializeField] CooperateCountInputField cooperateCountInputField;
-    [SerializeField] CooperateTimeInputField cooperateTimeInputField;
+    [SerializeField] QuestionCountInputField questionCountInputField;
+    [SerializeField] LimitTimeInputField limitTimeInputField;
     [SerializeField] Image currentColor;
     [SerializeField] Toggle mekakushiToggle;
 
@@ -47,25 +49,29 @@ public class CooperateUIManager : MonoBehaviour
     public void Initialize()
     {
         // 初期化処理
-        cooperateGridGenerator.InitializeGridToggle();
+        gridGenerator.InitializeGridToggle();
         sizeChangerPanel.SetActive(false);
         colorSpectrum.SetActive(false);
         backPanel.SetActive(false);
         mekakushiToggle.isOn = false;
-        CooperateDrawingManager.instance.InitializeDrawField();
+        DengonDrawingManager.instance.InitializeDrawField();
     }
 
     private void Update()
     {
-        SetActive(dotUI, CooperateDrawingManager.instance.isDrawable);
+        SetActive(dotUI, DengonDrawingManager.instance.isDrawable);
         SetActive(blindPanel, isBlind);
-        SetActive(penButtonCover, CooperateDrawingManager.instance.currentMode == CooperateDrawingManager.ToolMode.Pen);
-        SetActive(fillButtonCover, CooperateDrawingManager.instance.currentMode == CooperateDrawingManager.ToolMode.Fill);
-        SetActive(lineButtonCover, CooperateDrawingManager.instance.currentMode == CooperateDrawingManager.ToolMode.Line);
-        SetActive(circleButtonCover, CooperateDrawingManager.instance.currentMode == CooperateDrawingManager.ToolMode.Circle);
-        SetActive(rectangleButtonCover, CooperateDrawingManager.instance.currentMode == CooperateDrawingManager.ToolMode.Rectangle);
+        SetActive(penButtonCover, DengonDrawingManager.instance.currentMode == DengonDrawingManager.ToolMode.Pen);
+        SetActive(fillButtonCover, DengonDrawingManager.instance.currentMode == DengonDrawingManager.ToolMode.Fill);
+        SetActive(lineButtonCover, DengonDrawingManager.instance.currentMode == DengonDrawingManager.ToolMode.Line);
+        SetActive(circleButtonCover, DengonDrawingManager.instance.currentMode == DengonDrawingManager.ToolMode.Circle);
+        SetActive(rectangleButtonCover, DengonDrawingManager.instance.currentMode == DengonDrawingManager.ToolMode.Rectangle);
 
-        currentColor.color = CooperateDrawingManager.instance.drawColor;
+        SetInteractable(undoButton, DengonDrawingManager.instance.undoStackCount > 1);
+        SetInteractable(redoButton, DengonDrawingManager.instance.redoStackCount > 0);
+        SetInteractable(clearButton, DengonDrawingManager.instance.HasDrawing());
+
+        currentColor.color = DengonDrawingManager.instance.drawColor;
 
         isBlind = mekakushiToggle.isOn;
 
@@ -78,7 +84,7 @@ public class CooperateUIManager : MonoBehaviour
             SetInteractable(sizeApplyButton, true);
         }
 
-        if (cooperateCountInputField.IsError || cooperateTimeInputField.IsError)
+        if (questionCountInputField.IsError || limitTimeInputField.IsError)
         {
             SetInteractable(gameRestartButton, false);
         }
@@ -104,11 +110,6 @@ public class CooperateUIManager : MonoBehaviour
         }
     }
 
-    public void SetRoleText(string name1, string name2)
-    {
-        roleText.text = $"Drawer：{name1} & {name2}";
-    }
-
     public void SetThemeText(Role role, string theme)
     {
         themeText.text = role == Role.Questioner ? "お題：" + theme : "お題は何でしょう？";
@@ -116,20 +117,30 @@ public class CooperateUIManager : MonoBehaviour
 
     public void OnClickSizeApplyButton()
     {
-        CooperateDrawingManager.instance.ResetDrawFieldSize(widthInputField.inputPixelSize, heightInputField.inputPixelSize);
-        if (CooperateDrawingManager.instance.CanvasWidth > 50 || CooperateDrawingManager.instance.CanvasHeight > 50)
+        DengonDrawingManager.instance.ResetDrawFieldSize(widthInputField.inputPixelSize, heightInputField.inputPixelSize);
+        if (DengonDrawingManager.instance.CanvasWidth > 50 || DengonDrawingManager.instance.CanvasHeight > 50)
         {
-            cooperateGridGenerator.ChangeInteractableGridToggle(false);
+            gridGenerator.ChangeInteractableGridToggle(false);
         }
         else
         {
-            cooperateGridGenerator.ChangeInteractableGridToggle(true);
+            gridGenerator.ChangeInteractableGridToggle(true);
         }
+    }
+
+    public void OnClickUndoButton()
+    {
+        DengonDrawingManager.instance.UndoButton();
+    }
+
+    public void OnClickRedoButton()
+    {
+        DengonDrawingManager.instance.RedoButton();
     }
 
     public void ToggleIsDrawable()
     {
-        CooperateDrawingManager.instance.isDrawable = !CooperateDrawingManager.instance.isDrawable;
+        DengonDrawingManager.instance.isDrawable = !DengonDrawingManager.instance.isDrawable;
     }
 
     // ツールボタン
@@ -138,65 +149,70 @@ public class CooperateUIManager : MonoBehaviour
         switch (index)
         {
             case 0:
-                CooperateDrawingManager.instance.ChangeMode(CooperateDrawingManager.ToolMode.Pen);
+                DengonDrawingManager.instance.ChangeMode(DengonDrawingManager.ToolMode.Pen);
                 break;
             case 1:
-                CooperateDrawingManager.instance.ChangeMode(CooperateDrawingManager.ToolMode.Fill);
+                DengonDrawingManager.instance.ChangeMode(DengonDrawingManager.ToolMode.Fill);
                 break;
             case 2:
-                CooperateDrawingManager.instance.ChangeMode(CooperateDrawingManager.ToolMode.Line);
+                DengonDrawingManager.instance.ChangeMode(DengonDrawingManager.ToolMode.Line);
                 break;
             case 3:
-                CooperateDrawingManager.instance.ChangeMode(CooperateDrawingManager.ToolMode.Circle);
+                DengonDrawingManager.instance.ChangeMode(DengonDrawingManager.ToolMode.Circle);
                 break;
             case 4:
-                CooperateDrawingManager.instance.ChangeMode(CooperateDrawingManager.ToolMode.Rectangle);
+                DengonDrawingManager.instance.ChangeMode(DengonDrawingManager.ToolMode.Rectangle);
                 break;
         }
     }
 
+    public void OnClickAllClearButton()
+    {
+        DengonDrawingManager.instance.AllClear();
+    }
+
     public void OnClickBlack()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.black);
+        DengonDrawingManager.instance.ChangeColor(Color.black);
     }
     public void OnClickRed()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.red);
+        DengonDrawingManager.instance.ChangeColor(Color.red);
     }
     public void OnClickBlue()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.blue);
+        DengonDrawingManager.instance.ChangeColor(Color.blue);
     }
     public void OnClickGreen()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.green);
+        DengonDrawingManager.instance.ChangeColor(Color.green);
     }
     public void OnClickYellow()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.yellow);
+        DengonDrawingManager.instance.ChangeColor(Color.yellow);
     }
     public void OnClickMagenta()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.magenta);
+        DengonDrawingManager.instance.ChangeColor(Color.magenta);
     }
     public void OnClickCyan()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.cyan);
+        DengonDrawingManager.instance.ChangeColor(Color.cyan);
     }
     public void OnClickGray()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.gray);
+        DengonDrawingManager.instance.ChangeColor(Color.gray);
     }
     public void OnClickBeige()
     {
-        CooperateDrawingManager.instance.ChangeColor(new Color32(246, 184, 148, 255));
+        DengonDrawingManager.instance.ChangeColor(new Color32(246, 184, 148, 255));
     }
     public void OnClickWhite()
     {
-        CooperateDrawingManager.instance.ChangeColor(Color.white);
+        DengonDrawingManager.instance.ChangeColor(Color.white);
     }
     public void OnClickEraserButton()
     {
-        CooperateDrawingManager.instance.ChangeColor(new Color(0, 0, 0, 0));
+        DengonDrawingManager.instance.ChangeColor(new Color(0, 0, 0, 0));
     }
 }

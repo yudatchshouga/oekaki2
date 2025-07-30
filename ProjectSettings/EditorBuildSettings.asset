@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes/CooperateQuiz.unity
     guid: b3ab3c5ecc6ece24ea0c1ed81af13272
   - enabled: 1
-    path: Assets/Scenes/Shiritori.unity
+    path: Assets/Scenes/Eshiritori.unity
     guid: 53413ac89fe1abd4daccaab1ceb0b9fe
   - enabled: 1
     path: Assets/Scenes/Yonkoma.unity

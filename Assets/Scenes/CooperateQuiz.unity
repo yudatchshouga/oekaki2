@@ -317,7 +317,7 @@ GameObject:
   - component: {fileID: 61776021}
   - component: {fileID: 61776024}
   m_Layer: 5
-  m_Name: QuestionCountInputField
+  m_Name: CooperateCountInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -459,7 +459,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 61776019}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c14c85f9d24e9c04ebf57d880a98a228, type: 3}
+  m_Script: {fileID: 11500000, guid: f8b53b1f820f45040896240bc7f851e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 61776021}
@@ -547,8 +547,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 911527005}
+        m_TargetAssemblyTypeName: CooperateGameManager, Assembly-CSharp
         m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
@@ -2138,8 +2138,8 @@ MonoBehaviour:
   themeText: {fileID: 1447085794}
   widthInputField: {fileID: 1507598268}
   heightInputField: {fileID: 702478851}
-  questionCountInputField: {fileID: 61776024}
-  limitTimeInputField: {fileID: 707517441}
+  cooperateCountInputField: {fileID: 61776024}
+  cooperateTimeInputField: {fileID: 707517441}
   currentColor: {fileID: 400176258}
   mekakushiToggle: {fileID: 1422782867}
   isBlind: 0
@@ -4417,7 +4417,7 @@ GameObject:
   - component: {fileID: 707517438}
   - component: {fileID: 707517441}
   m_Layer: 5
-  m_Name: LimitTimeInputField
+  m_Name: CooperateTimeInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4559,7 +4559,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 707517436}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d3ef6534cf59154ba51343b95de1a71, type: 3}
+  m_Script: {fileID: 11500000, guid: e6a260aed3dff0c4a94a558f32d1d7e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 707517438}
@@ -5876,6 +5876,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40161e840d316c443a2c5f85512653fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentTheme:
+    question: 
+    answerList: []
   questionerNumbers: 0000000000000000
   panels: {fileID: 331537953}
   loadObj: {fileID: 2004596537}
@@ -9072,8 +9075,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 911527005}
+        m_TargetAssemblyTypeName: CooperateGameManager, Assembly-CSharp
         m_MethodName: RestartGame
         m_Mode: 1
         m_Arguments:
