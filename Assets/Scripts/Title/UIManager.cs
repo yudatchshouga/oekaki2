@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using System.Text.RegularExpressions;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Collections.Generic;
+using UnityEngine.InputSystem;
+using System.Linq;
 
 public class UIManager : MonoBehaviourPunCallbacks
 {
@@ -160,6 +163,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             }
         }
     }
+
 
     // --------------- ボタン ---------------
 

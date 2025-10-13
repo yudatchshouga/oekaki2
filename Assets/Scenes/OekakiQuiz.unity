@@ -1241,6 +1241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   googleSheetLoader: {fileID: 1250044289}
+  tsuyuMode: 0
 --- !u!4 &171822497
 Transform:
   m_ObjectHideFlags: 0

@@ -4,10 +4,10 @@ using UnityEngine.EventSystems;
 
 public class SVMap : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
-    [SerializeField] RawImage svRawImage; // SVマップのRawImage
     [SerializeField] RectTransform svCursor; // SV選択カーソル
     [SerializeField] Image svCursorImage;  // 選択した色の表示
 
+    RawImage svRawImage;
     Texture2D spectrumTexture;
     RectTransform svRawImageRect;
     Color selectedColor;
@@ -17,7 +17,7 @@ public class SVMap : MonoBehaviour, IPointerDownHandler, IDragHandler
 
     void Start()
     {
-        // RawImageのRectTransformを取得
+        svRawImage = GetComponent<RawImage>();
         svRawImageRect = svRawImage.GetComponent<RectTransform>();
 
         // カラースペクトラム用のTexture2Dを作成

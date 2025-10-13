@@ -1,105 +1,101 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Photon.Pun;
+using ExitGames.Client.Photon;
 using Photon.Realtime;
 
 public class DengonThemeGenerator : MonoBehaviourPunCallbacks
 {
-    [SerializeField] GoogleSheetLoader googleSheetLoader;
-    List<QuizQuestion> themeList;
-    List<int> themeListIndex;
+    [SerializeField] DengonGoogleSheetLoader dengonGoogleSheetLoader;
+    List<DengonTheme> themeList; // 開始時にホストがスプシから取得したお題だけのリスト
 
-    [SerializeField] int tsuyuMode; // 0: 通常, 1: つゆモード
+    [SerializeField] int mode; // 0: かんたん、1: ふつう、2: むずかしい
 
     void Start()
     {
-        if (PhotonNetwork.InRoom)
+        if (PhotonNetwork.IsMasterClient)
         {
-            if (PhotonNetwork.IsMasterClient)
+            // ホストはスプレッドシートから問題リストを取得し、同期する
+            mode = PlayerPrefs.GetInt("Mode", 0);
+            dengonGoogleSheetLoader.LoadDataFromGoogleSheetDengon(mode, () => {
+                themeList = dengonGoogleSheetLoader.themes;
+                List<DengonTheme> selectedThemes = GetRandomTheme(PhotonNetwork.CurrentRoom.PlayerCount);
+
+                // ルームのカスタムプロパティに保存して全員に同期
+                string serialized = JsonUtility.ToJson(new DengonThemeListWrapper(selectedThemes)); //JSONでシリアライズ
+                Hashtable props = new Hashtable();
+                props["DengonThemeReady"] = serialized;
+                PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+                themeList = selectedThemes;
+            });
+        }
+        else
+        {
+            // 参加者用
+            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("DengonThemeReady"))
             {
-                tsuyuMode = PlayerPrefs.GetInt("Tsuyu", 0); // デフォルトは通常モード
-
-                // ホストはスプレッドシートから問題リストを取得し、同期する
-                googleSheetLoader.LoadDataFromGoogleSheet(tsuyuMode);
-                themeList = googleSheetLoader.questions;
-
-                // 問題の数分のインデックスを生成し、同期する
-                GenerateAndShuffleIndex();
-
-                SetReady(true); // ホストはこのタイミングで準備完了状態になる
-            }
-            else
-            {
-                // 入室時点でSharedQuestionsが既に存在していれば取得
-                if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("SharedQuestions"))
+                string serialized = PhotonNetwork.CurrentRoom.CustomProperties["DengonThemeReady"] as string;
+                if (!string.IsNullOrEmpty(serialized))
                 {
-                    string serializedQuestions = PhotonNetwork.CurrentRoom.CustomProperties["SharedQuestions"] as string;
-                    themeList = googleSheetLoader.DeserializeQuestions(serializedQuestions);
-                    Debug.Log("入室時にSharedQuestionsを取得しました");
+                    DengonThemeListWrapper wrapper = JsonUtility.FromJson<DengonThemeListWrapper>(serialized);
+                    themeList = wrapper.themes;
+
+                    SetThemeReady();
+                    Debug.Log($"お題リストを受け取りました:{PhotonNetwork.LocalPlayer.NickName}");
+                }
+                else
+                {
+                    Debug.LogWarning("DengonThemes の値が null です");
                 }
             }
         }
     }
 
-    // ルームのカスタムプロパティが変更されると自動的に呼ばれるコールバック
-    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
     {
-        if (propertiesThatChanged.ContainsKey("SharedQuestions"))
+        if (propertiesThatChanged.ContainsKey("DengonThemeReady"))
         {
-            string serializedQuestions = propertiesThatChanged["SharedQuestions"] as string;
-            themeList = googleSheetLoader.DeserializeQuestions(serializedQuestions);
-            Debug.Log("クイズリストをルームから受信しました！");
+            string serialized = propertiesThatChanged["DengonThemeReady"] as string;
+            // デシリアライズして使う
+            DengonThemeListWrapper wrapper = JsonUtility.FromJson<DengonThemeListWrapper>(serialized);
+            themeList = wrapper.themes;
 
-            SetReady(true); // クイズリストを受信したら、プレイヤーを準備完了状態にする
+            SetThemeReady();
+            Debug.Log($"お題リストを受け取りました:{PhotonNetwork.LocalPlayer.NickName}");
         }
     }
 
-    private void SetReady(bool isReady)
+    private void SetThemeReady()
     {
-        var props = new ExitGames.Client.Photon.Hashtable
-        {
-            { "Ready", isReady }
-        };
+        int index = PhotonNetwork.LocalPlayer.ActorNumber - 1;
+
+        DengonGameManager.instance.SetTheme(themeList[index].theme);
+        Hashtable props = new Hashtable();
+        props["DengonThemeReady"] = true;
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }
 
-    public void GenerateAndShuffleIndex()
+    // DengonTheme[]をラップするクラス（JsonUtility用）
+    [System.Serializable]
+    public class DengonThemeListWrapper
     {
-        themeListIndex = new List<int>();
-        for (int i = 0; i < themeList.Count; i++)
-        {
-            themeListIndex.Add(i);
-        }
-        for (int i = themeListIndex.Count - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            int temp = themeListIndex[i];
-            themeListIndex[i] = themeListIndex[j];
-            themeListIndex[j] = temp;
-        }
-        photonView.RPC("SyncIndex", RpcTarget.All, themeListIndex.ToArray());
-    }
-
-    [PunRPC]
-    public void SyncIndex(int[] numbers)
-    {
-        themeListIndex = new List<int>(numbers);
-    }
-
-    // プレイヤーが参加したときに、ホストから問題リストを受け取る
-    public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        if (changedProps.ContainsKey("SharedQuestions") && !PhotonNetwork.IsMasterClient)
-        {
-            string serializedQuestions = changedProps["SharedQuestions"] as string;
-            themeList = googleSheetLoader.DeserializeQuestions(serializedQuestions);
-        }
+        public List<DengonTheme> themes;
+        public DengonThemeListWrapper(List<DengonTheme> t) { themes = t; }
     }
 
     // 重複を許さずにランダムなお題を取得する
-    public QuizQuestion GetRandomTheme(int index)
+    private List<DengonTheme> GetRandomTheme(int number)
     {
-        QuizQuestion theme = themeList[themeListIndex[index]];
-        return theme;
+        // themeListの順番をシャッフル
+        System.Random rng = new System.Random();
+        int n = themeList.Count;
+        while (n > 1)
+        {
+            int k = rng.Next(n--);
+            DengonTheme temp = themeList[n];
+            themeList[n] = themeList[k];
+            themeList[k] = temp;
+        }
+        return themeList.GetRange(0, number);
     }
 }

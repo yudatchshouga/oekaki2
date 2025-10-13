@@ -25,6 +25,24 @@ public class GridGenerator : MonoBehaviour
         CreateTexture(gridSizeWidth, gridSizeHeight);
     }
 
+    public void ToggleGrid()
+    {
+        if (gridToggle.isOn)
+        {
+            gridPanel.enabled = true;
+
+            gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
+            gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
+
+            CreateTexture(gridSizeWidth, gridSizeHeight);
+            CreateGrid(gridTexture.width, gridTexture.height);
+        }
+        else
+        {
+            gridPanel.enabled = false;
+        }
+    }
+
     private void CreateTexture(int width, int height)
     {
         gridTexture = new Texture2D(gridSizeWidth, gridSizeHeight, TextureFormat.RGBA32, false);
@@ -109,24 +127,6 @@ public class GridGenerator : MonoBehaviour
             }
         }
         gridTexture.Apply();
-    }
-
-    public void ToggleGrid()
-    {
-        if (gridToggle.isOn)
-        {
-            gridPanel.enabled = true;
-
-            gridSizeWidth = DrawingManager.instance.CanvasWidth * gridSize;
-            gridSizeHeight = DrawingManager.instance.CanvasHeight * gridSize;
-
-            CreateTexture(gridSizeWidth, gridSizeHeight);
-            CreateGrid(gridTexture.width, gridTexture.height);
-        }
-        else
-        {
-            gridPanel.enabled = false;
-        }
     }
 
     public void InitializeGridToggle()

@@ -4,7 +4,7 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: -3363614029100738939
-    second: "\0\0N\n7\0\0\0"
+    second: 
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -152,7 +152,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "A\x13\0\0\0\0\0\0"
+      name: "A\x13"
       rect:
         serializedVersion: 2
         x: 23
@@ -187,6 +187,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      "A\x13": -3363614029100738939
       "\u9ED2\u4E38_0": -3363614029100738939
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

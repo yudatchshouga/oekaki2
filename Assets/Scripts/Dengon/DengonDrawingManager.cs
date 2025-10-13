@@ -41,10 +41,6 @@ public class DengonDrawingManager : MonoBehaviour
         {
             instance = this;
         }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void Start()
@@ -378,5 +374,10 @@ public class DengonDrawingManager : MonoBehaviour
     {
         brushSize = (int)slider.value;
         drawer = new DrawingUtils(texture, drawColor, brushSize);
+    }
+
+    public byte[] GetPngBytes()
+    {
+        return texture.EncodeToPNG();
     }
 }

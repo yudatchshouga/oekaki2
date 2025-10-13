@@ -7,30 +7,44 @@ public class DengonGridGenerator : MonoBehaviour
     [SerializeField] RawImage gridPanel;
     [SerializeField] Toggle gridToggle;
     [SerializeField] int gridSize;
-    Color clearColor;
-    Color gridColor;
+    [SerializeField] Color clearColor;
+    [SerializeField] Color gridColor;
 
     int gridSizeWidth;
     int gridSizeHeight;
 
     private void Start()
     {
-        clearColor = new Color(0, 0, 0, 0);
-        gridColor = new Color(51f / 255f, 51f / 255f, 51f / 255f, 1);
-
-
         gridSizeWidth = DengonDrawingManager.instance.CanvasWidth * gridSize;
         gridSizeHeight = DengonDrawingManager.instance.CanvasHeight * gridSize;
 
         CreateTexture(gridSizeWidth, gridSizeHeight);
     }
 
+    public void ToggleGrid()
+    {
+        if (gridToggle.isOn)
+        {
+            gridPanel.enabled = true;
+
+            gridSizeWidth = DengonDrawingManager.instance.CanvasWidth * gridSize;
+            gridSizeHeight = DengonDrawingManager.instance.CanvasHeight * gridSize;
+
+            CreateTexture(gridSizeWidth, gridSizeHeight);
+            CreateGrid(gridTexture.width, gridTexture.height);
+        }
+        else
+        {
+            gridPanel.enabled = false;
+        }
+    }
+
     private void CreateTexture(int width, int height)
     {
-        gridTexture = new Texture2D(gridSizeWidth, gridSizeHeight, TextureFormat.RGBA32, false);
+        gridTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
         gridTexture.filterMode = FilterMode.Point;
 
-        Color[] colors = new Color[gridSizeWidth * gridSizeHeight];
+        Color[] colors = new Color[width * height];
         for (int i = 0; i < colors.Length; i++)
         {
             colors[i] = clearColor;
@@ -42,6 +56,8 @@ public class DengonGridGenerator : MonoBehaviour
 
     private void CreateGrid(int width, int height)
     {
+        if (DengonDrawingManager.instance.CanvasWidth > 50 || DengonDrawingManager.instance.CanvasHeight > 50) return;
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -109,24 +125,6 @@ public class DengonGridGenerator : MonoBehaviour
             }
         }
         gridTexture.Apply();
-    }
-
-    public void ToggleGrid()
-    {
-        if (gridToggle.isOn)
-        {
-            gridPanel.enabled = true;
-
-            gridSizeWidth = DengonDrawingManager.instance.CanvasWidth * gridSize;
-            gridSizeHeight = DengonDrawingManager.instance.CanvasHeight * gridSize;
-
-            CreateTexture(gridSizeWidth, gridSizeHeight);
-            CreateGrid(gridTexture.width, gridTexture.height);
-        }
-        else
-        {
-            gridPanel.enabled = false;
-        }
     }
 
     public void InitializeGridToggle()
