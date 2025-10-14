@@ -33,6 +33,7 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
     [SerializeField] bool isGameFinished;
     int currentOwnerID;
 
+    [SerializeField] Text debugText;
 
     private void Awake()
     {
@@ -55,14 +56,9 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
                 photonView.RPC("SyncTimeOption", RpcTarget.All, drawingTime, answerTime); // 制限時間の同期
 
                 Dictionary<int, List<int>> playerOrder = GenerateOrder(PhotonNetwork.CurrentRoom.PlayerCount); // 各プレイヤーの順番を生成
-                // デバッグ用に順番をログ出力
-                foreach (var kvp in playerOrder)
-                {
-                    int owner = kvp.Key;
-                    List<int> orderList = kvp.Value;
-                    string orderStr = string.Join(", ", orderList);
-                    Debug.Log($"お題主ID: {owner} の順番: [{orderStr}]");
-                }
+                // デバッグ用に自分の順番リストを表示
+                var lines = new[] { $"自分の順番：{currentOwnerID}", $"順番リスト:{playerOrder[PhotonNetwork.LocalPlayer.ActorNumber]}" };
+                debugText.text += "\n" + string.Join("\n", lines);
                 foreach (Player player in PhotonNetwork.PlayerList)
                 {
                     int playerId = player.ActorNumber;
@@ -111,9 +107,10 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
             { "OrderReady", isReady }
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        debugText.text += $"\n順番リスト：準備完了";
     }
 
-    public static Dictionary<int, List<int>> GenerateOrder(int n)
+    private static Dictionary<int, List<int>> GenerateOrder(int n)
     {
         int[,] latin = GenerateLatinSquare(n);
 
@@ -203,7 +200,8 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
     {
         SerializableOrderList order = JsonUtility.FromJson<SerializableOrderList>(orderJson);
         myOrderList = order.orderList;
-        Debug.Log($"自分の順番リストを受け取りました: {string.Join(", ", myOrderList)}");
+        var lines = new[] {$"自分の順番：{currentOwnerID}", $"順番リスト:{myOrderList}" };
+        debugText.text += "\n" + string.Join("\n", lines);
         SetOrderReady(true); // 自分の順番リストを受け取ったら準備完了状態にする
     }
 
@@ -224,6 +222,7 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
             myTheme = new DengonTheme();
         }
         myTheme.theme = theme;
+        debugText.text += $"\nお題：準備完了";
     }
 
     private void StartGame()
