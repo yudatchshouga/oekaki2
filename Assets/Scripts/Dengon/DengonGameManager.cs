@@ -200,7 +200,7 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
     {
         SerializableOrderList order = JsonUtility.FromJson<SerializableOrderList>(orderJson);
         myOrderList = order.orderList;
-        var lines = new[] {$"自分の順番：{currentOwnerID}", $"順番リスト:{myOrderList}" };
+        var lines = new[] {$"自分の順番：{currentOwnerID}", $"順番リスト: {string.Join(",", myOrderList)}" };
         debugText.text += "\n" + string.Join("\n", lines);
         SetOrderReady(true); // 自分の順番リストを受け取ったら準備完了状態にする
     }
@@ -341,8 +341,9 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
         // 受信画像を表示
         dengonShowPanelManager.SetShowPanel(receivedTex);
         Photon.Realtime.Player fromPlayer = PhotonNetwork.CurrentRoom.GetPlayer(fromActorNumber);
+        Photon.Realtime.Player nextPlayer = PhotonNetwork.CurrentRoom.GetPlayer(myOrderList[currentRound]);
         dengonShowPanelManager.SetFromText($"{fromPlayer.NickName}");
-        dengonShowPanelManager.SetToText($"{myOrderList[currentRound + 1]}");
+        dengonShowPanelManager.SetToText($"{nextPlayer.NickName}");
         dengonShowPanelManager.CreateGridTexture();
     }
 
@@ -445,6 +446,15 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private List<RectTransform> GetActiveTabs(bool useHierarchy = true)
+    {
+        return tabContents
+        .Where(t => t != null)
+        .Take(PhotonNetwork.CurrentRoom.PlayerCount)
+        .Select(t => (RectTransform)t)
+        .ToList();
+    }
+
     private List<PictureEntry> pictureEntries = new List<PictureEntry>();
     private List<AnswerEntry> answerEntries = new List<AnswerEntry>();
 
@@ -458,7 +468,7 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void ShowCountdownToResult(string text)
+    private void ShowCountdownNumber(string text)
     { 
         dengonUIManager.ShowCountdown(text);
     }
@@ -542,11 +552,13 @@ public class DengonGameManager : MonoBehaviourPunCallbacks
             .OrderBy(id => id)
             .ToList();
 
+        var activeTabs = GetActiveTabs(useHierarchy: true);
+
         // 2. 各タブ＝各お題主
-        for (int p = 0; p < tabContents.Length; p++)
+        for (int p = 0; p < activeTabs.Count; p++)
         {
             int ownerID = allOwnerIDs[p];
-            var content = (RectTransform)tabContents[p];
+            var content = activeTabs[p];
             ClearChildren(content);
 
             // 該当ownerIDの流れを抽出（時系列順にソート）
