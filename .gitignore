@@ -83,8 +83,17 @@ Assets/Photon/Editor/
 !Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset
 
 # ビルドデータを除外
-Buildtest
-BuildtestWeb
+Buildtest/
+BuildtestWeb/
 
 Assets/UniversalRenderPipelineGlobalSettings.asset
 Assets/UniversalRenderPipelineGlobalSettings.asset.meta
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+Logs/
+UserSettings/
+MemoryCaptures/
